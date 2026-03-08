@@ -1,0 +1,73 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Sidebar } from '@/components/dashboard/sidebar';
+import { Topbar } from '@/components/dashboard/topbar';
+import { useAuthStore } from '@/store/authStore';
+import { Loader2 } from 'lucide-react';
+import { Logo } from '@/components/logo';
+
+export default function DashboardLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const { isAuthenticated, _hasHydrated } = useAuthStore();
+    const router = useRouter();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    useEffect(() => {
+        // Only redirect if hydration is complete and user is not authenticated
+        if (_hasHydrated && !isAuthenticated) {
+            router.push('/auth/login');
+        }
+    }, [_hasHydrated, isAuthenticated, router]);
+
+    // Show a high-fidelity loading screen
+    if (!mounted || !_hasHydrated) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-slate-50 gradient-bg">
+                <div className="relative">
+                    <div className="w-24 h-24 bg-white rounded-[2rem] shadow-2xl flex items-center justify-center relative z-10 animate-pulse">
+                        <Logo className="w-14 h-14" />
+                    </div>
+                    <div className="absolute inset-0 bg-[#0066CC]/20 rounded-[2rem] blur-2xl animate-ping scale-75"></div>
+                </div>
+                <div className="mt-8 flex flex-col items-center space-y-2">
+                    <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Initializing Protocol</p>
+                    <div className="flex gap-1">
+                        <div className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                        <div className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        <div className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Still check auth here just in case, though the useEffect handles redirect
+    if (!isAuthenticated) return null;
+
+    return (
+        <div className="flex h-screen overflow-hidden bg-white gradient-bg relative">
+            {/* Grid Overlay for Texture */}
+            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none z-0" />
+
+            <Sidebar />
+
+            <div className="flex flex-col flex-1 overflow-hidden relative z-10">
+                <Topbar />
+                <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-12 scroll-smooth custom-scrollbar">
+                    <div className="max-w-[1600px] mx-auto">
+                        {children}
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+}
