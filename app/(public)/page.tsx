@@ -146,8 +146,7 @@ export default function LandingPage() {
                     <div className="space-y-4">
                       <div className="h-40 bg-linear-to-br from-[#0066CC] to-[#004499] rounded-2xl flex flex-col items-center justify-center text-white relative overflow-hidden group/card shadow-xl">
                         <div className="relative z-10 text-center">
-                          <div className="text-xs font-bold uppercase tracking-widest opacity-60 mb-1 font-display">Live Auctions</div>
-                          <div className="text-3xl font-bold tracking-tighter">$142,500.00</div>
+                          <div className="text-xs font-bold uppercase tracking-widest opacity-60 font-display">Live Auctions</div>
                         </div>
                         <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/card:opacity-100 transition-opacity"></div>
                         <Play className="absolute bottom-4 right-4 text-white/40 group-hover/card:text-white transition-colors" size={20} />

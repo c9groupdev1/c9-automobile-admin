@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Logo } from '@/components/logo';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AuthLayout({
     children,
@@ -11,6 +13,16 @@ export default function AuthLayout({
 }) {
     return (
         <div className="min-h-screen gradient-bg flex items-center justify-center p-6 relative overflow-hidden">
+            {/* Back to Home Navigation */}
+            <div className="absolute top-8 left-8 z-50">
+                <Link
+                    href="/"
+                    className="group flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/40 border border-[#0066CC]/10 backdrop-blur-md hover:bg-white/60 hover:border-[#0066CC]/20 transition-all active:scale-95 shadow-sm"
+                >
+                    <ArrowLeft className="w-4 h-4 text-[#0066CC] group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0066CC]">Back to Home </span>
+                </Link>
+            </div>
             {/* Grid Overlay for Texture */}
             <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none z-0" />
 

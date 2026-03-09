@@ -146,23 +146,23 @@ export function ListingsTable({ onEdit }: { onEdit?: (listing: Listing) => void 
                                             <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl p-2 min-w-[160px]">
                                                 <DropdownMenuGroup>
                                                     <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Asset Control</DropdownMenuLabel>
+                                                    <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
+                                                        <ExternalLink className="mr-3 h-4 w-4 text-slate-400" />
+                                                        <span className="text-sm font-bold text-slate-700">View Public</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onEdit?.(listing)} className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
+                                                        <Settings2 className="mr-3 h-4 w-4 text-slate-400" />
+                                                        <span className="text-sm font-bold text-slate-700">Edit Details</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator className="bg-slate-50 my-1" />
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleDelete(listing.id)}
+                                                        className="rounded-xl px-3 py-2 cursor-pointer focus:bg-rose-50 group"
+                                                    >
+                                                        <Trash2 className="mr-3 h-4 w-4 text-slate-400 group-hover:text-rose-500 transition-colors" />
+                                                        <span className="text-sm font-bold text-slate-700 group-hover:text-rose-600">Delete Asset</span>
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuGroup>
-                                                <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
-                                                    <ExternalLink className="mr-3 h-4 w-4 text-slate-400" />
-                                                    <span className="text-sm font-bold text-slate-700">View Public</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => onEdit?.(listing)} className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
-                                                    <Settings2 className="mr-3 h-4 w-4 text-slate-400" />
-                                                    <span className="text-sm font-bold text-slate-700">Edit Details</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator className="bg-slate-50 my-1" />
-                                                <DropdownMenuItem
-                                                    onClick={() => handleDelete(listing.id)}
-                                                    className="rounded-xl px-3 py-2 cursor-pointer focus:bg-rose-50 group"
-                                                >
-                                                    <Trash2 className="mr-3 h-4 w-4 text-slate-400 group-hover:text-rose-500 transition-colors" />
-                                                    <span className="text-sm font-bold text-slate-700 group-hover:text-rose-600">Delete Asset</span>
-                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

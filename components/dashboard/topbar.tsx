@@ -59,19 +59,21 @@ export function Topbar() {
                         </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-64 mt-4 p-3 rounded-[2rem] border-slate-100 shadow-3xl" align="end">
-                        <DropdownMenuLabel className="font-normal p-4">
-                            <div className="flex items-center gap-3">
-                                <Avatar className="h-10 w-10 rounded-xl">
-                                    <AvatarFallback className="rounded-xl bg-slate-100 text-slate-600 font-bold">{user?.name?.[0] || 'A'}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col space-y-0.5">
-                                    <p className="text-sm font-bold leading-none text-slate-900">{user?.name || 'Admin'}</p>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#00AAFF]">
-                                        Verified Protocol Role
-                                    </p>
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel className="font-normal p-4">
+                                <div className="flex items-center gap-3">
+                                    <Avatar className="h-10 w-10 rounded-xl">
+                                        <AvatarFallback className="rounded-xl bg-slate-100 text-slate-600 font-bold">{user?.name?.[0] || 'A'}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col space-y-0.5">
+                                        <p className="text-sm font-bold leading-none text-slate-900">{user?.name || 'Admin'}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#00AAFF]">
+                                            Verified Protocol Role
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        </DropdownMenuLabel>
+                            </DropdownMenuLabel>
+                        </DropdownMenuGroup>
                         <DropdownMenuSeparator className="opacity-50" />
                         <DropdownMenuGroup className="p-1">
                             <DropdownMenuItem className="h-12 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#0066CC] group">

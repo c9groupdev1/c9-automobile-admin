@@ -138,24 +138,24 @@ export function UsersTable() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuGroup>
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'active')}>
+                                                        <UserCheck className="mr-2 h-4 w-4" />
+                                                        Activate
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'suspended')}>
+                                                        <UserMinus className="mr-2 h-4 w-4" />
+                                                        Suspend
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleStatusUpdate(user.id, 'blocked')}
+                                                        className="text-destructive focus:text-destructive"
+                                                    >
+                                                        <UserX className="mr-2 h-4 w-4" />
+                                                        Block
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 </DropdownMenuGroup>
-                                                <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'active')}>
-                                                    <UserCheck className="mr-2 h-4 w-4" />
-                                                    Activate
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'suspended')}>
-                                                    <UserMinus className="mr-2 h-4 w-4" />
-                                                    Suspend
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => handleStatusUpdate(user.id, 'blocked')}
-                                                    className="text-destructive focus:text-destructive"
-                                                >
-                                                    <UserX className="mr-2 h-4 w-4" />
-                                                    Block
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>View Details</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
