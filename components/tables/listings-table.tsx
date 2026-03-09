@@ -21,12 +21,12 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { MoreHorizontal, Car, Trash2, ExternalLink } from 'lucide-react';
+import { MoreHorizontal, Car, Trash2, ExternalLink, Settings2 } from 'lucide-react';
 import { Listing, useListings, useDeleteListing } from '@/hooks/useListings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
-export function ListingsTable() {
+export function ListingsTable({ onEdit }: { onEdit?: (listing: Listing) => void }) {
     const [page, setPage] = useState(1);
     const { data, isLoading } = useListings({ page });
     const deleteListing = useDeleteListing();
@@ -64,10 +64,11 @@ export function ListingsTable() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Vehicle</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Seller</TableHead>
                             <TableHead>Year</TableHead>
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Transmission</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -104,6 +105,17 @@ export function ListingsTable() {
                                             </div>
                                         </div>
                                     </TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className="rounded-lg bg-slate-50 border-slate-100 text-[10px] font-bold text-slate-500">
+                                            {listing.listing_type?.name || 'Vehicle'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col">
+                                            <div className="text-xs font-bold text-slate-700">{listing.user?.name || 'System Admin'}</div>
+                                            <div className="text-[10px] text-slate-400 font-medium">{listing.user?.email || 'admin@c9.com'}</div>
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="font-semibold text-slate-600">
                                         {listing.car?.year || 'N/A'}
                                     </TableCell>
@@ -124,9 +136,6 @@ export function ListingsTable() {
                                             {listing.status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="capitalize text-slate-500 font-medium text-xs">
-                                        {listing.car?.transmission || 'N/A'}
-                                    </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger render={
@@ -142,8 +151,8 @@ export function ListingsTable() {
                                                     <ExternalLink className="mr-3 h-4 w-4 text-slate-400" />
                                                     <span className="text-sm font-bold text-slate-700">View Public</span>
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
-                                                    <Trash2 className="mr-3 h-4 w-4 text-slate-400" />
+                                                <DropdownMenuItem onClick={() => onEdit?.(listing)} className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
+                                                    <Settings2 className="mr-3 h-4 w-4 text-slate-400" />
                                                     <span className="text-sm font-bold text-slate-700">Edit Details</span>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator className="bg-slate-50 my-1" />

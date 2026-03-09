@@ -3,13 +3,13 @@ import api from '@/lib/api';
 
 export interface Listing {
     id: string;
-    listing_type_id: string | number;
+    listingTypeId: string | number;
     title: string;
     description: string;
     amount: string | number;
     status: 'available' | 'sold' | 'pending' | 'rejected';
     is_negotiable: string | number | boolean;
-    is_c9_collection?: boolean;
+    is_c9_collection?: boolean | number;
     created_at: string;
     updated_at: string;
     car?: {
@@ -27,6 +27,16 @@ export interface Listing {
         path: string;
         is_primary: number | boolean;
     }>;
+    user?: {
+        id: string;
+        name: string;
+        email: string;
+    };
+    listing_type?: {
+        id: number | string;
+        name: string;
+        slug: string;
+    };
 }
 
 export function useListings(params?: { page?: number; search?: string }) {
@@ -56,6 +66,26 @@ export function useCreateListing() {
     });
 }
 
+export function useUpdateListing() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
+            // Some APIs require _method field for PATCH when using multipart/form-data
+            data.append('_method', 'PATCH');
+            const response = await api.post(`/user/listings/${id}`, data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['listings'] });
+            queryClient.invalidateQueries({ queryKey: ['listing'] });
+        },
+    });
+}
+
 export function useDeleteListing() {
     const queryClient = useQueryClient();
     return useMutation({
@@ -64,6 +94,27 @@ export function useDeleteListing() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['listings'] });
+        },
+    });
+}
+
+export function useListing(id: string) {
+    return useQuery({
+        queryKey: ['listing', id],
+        queryFn: async () => {
+            const response = await api.get(`/admin/listings/${id}`);
+            return response.data;
+        },
+        enabled: !!id,
+    });
+}
+
+export function useListingTypes() {
+    return useQuery({
+        queryKey: ['listing-types'],
+        queryFn: async () => {
+            const response = await api.get('/listing-types');
+            return response.data;
         },
     });
 }
