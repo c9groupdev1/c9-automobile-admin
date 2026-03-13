@@ -28,16 +28,23 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
 export function KycTable() {
-    const { data, isLoading } = useKycRequests();
+    const [page, setPage] = useState(1);
+    const { data, isLoading } = useKycRequests({ page });
     const reviewKyc = useReviewKyc();
     const [selectedRequest, setSelectedRequest] = useState<KycRequest | null>(null);
     const [comments, setComments] = useState('');
     const [reviewLoading, setReviewLoading] = useState(false);
 
     const kycRequests = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
-    const meta = data?.meta || data?.data?.meta || { current_page: 1, last_page: 1, total: 0 };
+    const meta = data?.data || data?.meta || { current_page: 1, last_page: 1, total: 0 };
 
-    const handleReview = async (id: string, status: 'approved' | 'rejected') => {
+    const getImageUrl = (path: string | null) => {
+        if (!path) return '';
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || '';
+        return `${baseUrl}/storage/${path}`;
+    };
+
+    const handleReview = async (id: string | number, status: 'approved' | 'rejected') => {
         if (!comments && status === 'rejected') {
             toast.error('Please provide comments for rejection');
             return;
@@ -125,22 +132,91 @@ export function KycTable() {
                                                     </div>
                                                 </div>
                                                 <div className="px-10 py-8 space-y-8">
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                                        {request.documents.map((doc, i) => (
-                                                            <div key={i} className="space-y-3 group">
-                                                                <div className="flex items-center justify-between">
-                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">{doc.type}</p>
-                                                                    <span className="text-[10px] font-black uppercase text-slate-300">Verified Asset</span>
+                                                    <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Residential Address</p>
+                                                            <p className="font-bold text-slate-700">{request.address}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Contact Phone</p>
+                                                            <p className="font-bold text-slate-700">{request.phone_number}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">{request.means_of_identity_type.replace('_', ' ')} Number</p>
+                                                            <p className="font-bold text-slate-700">{request.id_number}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Profile Type</p>
+                                                            <p className="font-bold text-slate-700 capitalize">{request.type}</p>
+                                                        </div>
+                                                        {request.type === 'business' && (
+                                                            <>
+                                                                <div className="col-span-2 pt-2 mt-2 border-t border-slate-200/60">
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Business Name</p>
+                                                                    <p className="font-bold text-slate-700">{request.business_name || 'N/A'}</p>
                                                                 </div>
-                                                                <div className="aspect-[4/3] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
+                                                                <div className="col-span-2">
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Business Address</p>
+                                                                    <p className="font-bold text-slate-700">{request.business_address || 'N/A'}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">RC Number</p>
+                                                                    <p className="font-bold text-slate-700">{request.rc_number || 'N/A'}</p>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                                        <div className="space-y-3 group">
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">{request.means_of_identity_type.replace('_', ' ')}</p>
+                                                                <span className="text-[10px] font-black uppercase text-slate-300">Identity Document</span>
+                                                            </div>
+                                                            <div className="aspect-[4/3] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
+                                                                {request.means_of_identity ? (
                                                                     <img
-                                                                        src={doc.url}
-                                                                        alt={doc.type}
+                                                                        src={getImageUrl(request.means_of_identity)}
+                                                                        alt="Identity"
+                                                                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs italic">No document provided</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-3 group">
+                                                            <div className="flex items-center justify-between">
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">Selfie</p>
+                                                                <span className="text-[10px] font-black uppercase text-slate-300">Live Verification</span>
+                                                            </div>
+                                                            <div className="aspect-[4/3] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
+                                                                {request.selfie_picture ? (
+                                                                    <img
+                                                                        src={getImageUrl(request.selfie_picture)}
+                                                                        alt="Selfie"
+                                                                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs italic">No selfie provided</div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        {request.rc_certificate && (
+                                                            <div className="col-span-1 sm:col-span-2 space-y-3 group">
+                                                                <div className="flex items-center justify-between">
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">RC Certificate</p>
+                                                                    <span className="text-[10px] font-black uppercase text-slate-300">Business Registration</span>
+                                                                </div>
+                                                                <div className="aspect-[16/9] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
+                                                                    <img
+                                                                        src={getImageUrl(request.rc_certificate)}
+                                                                        alt="RC Certificate"
                                                                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                                                                     />
                                                                 </div>
                                                             </div>
-                                                        ))}
+                                                        )}
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Review Annotation</label>
@@ -180,6 +256,28 @@ export function KycTable() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            <div className="flex items-center justify-end space-x-2">
+                <div className="text-sm text-muted-foreground flex-1">
+                    Total {meta.total} KYC requests
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(page - 1)}
+                    disabled={page === 1}
+                >
+                    Previous
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(page + 1)}
+                    disabled={page === meta.last_page}
+                >
+                    Next
+                </Button>
             </div>
         </div>
     );
