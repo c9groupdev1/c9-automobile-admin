@@ -11,6 +11,8 @@ export interface User {
     accountType: string;
     kycStatus: string;
     accountStatus: string;
+    roles?: string[];
+    createdAt: string;
 }
 
 export interface UserAnalysis {
@@ -122,6 +124,7 @@ export function useUsers(params?: {
     search?: string;
     accountStatus?: string;
     verificationStatus?: string;
+    status?: string; // Add this for compatibility with the component
     userType?: string;
     dateFrom?: string;
     dateTo?: string;

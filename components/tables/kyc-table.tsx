@@ -36,7 +36,7 @@ export function KycTable() {
     const [reviewLoading, setReviewLoading] = useState(false);
 
     const kycRequests = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
-    const meta = data?.data || data?.meta || { current_page: 1, last_page: 1, total: 0 };
+    const meta = data?.data || { current_page: 1, last_page: 1, total: 0 };
 
     const getImageUrl = (path: string | null) => {
         if (!path) return '';
@@ -113,12 +113,12 @@ export function KycTable() {
                                             {request.status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>{new Date(request.created_at).toLocaleDateString()}</TableCell>
+                                    <TableCell>{new Date(request.submittedAt).toLocaleDateString()}</TableCell>
                                     <TableCell className="text-right">
                                         <Dialog>
                                             <DialogTrigger className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))} onClick={() => {
                                                 setSelectedRequest(request);
-                                                setComments(request.comments || '');
+                                                setComments(request.reviewInfo?.comments || '');
                                             }}>
                                                 <Eye className="mr-2 h-4 w-4" />
                                                 Review
@@ -135,15 +135,15 @@ export function KycTable() {
                                                     <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Residential Address</p>
-                                                            <p className="font-bold text-slate-700">{request.address}</p>
+                                                            <p className="font-bold text-slate-700">{request.verificationDetails.address || 'N/A'}</p>
                                                         </div>
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Contact Phone</p>
-                                                            <p className="font-bold text-slate-700">{request.phone_number}</p>
+                                                            <p className="font-bold text-slate-700">{request.verificationDetails.phoneNumber}</p>
                                                         </div>
                                                         <div>
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">{request.means_of_identity_type.replace('_', ' ')} Number</p>
-                                                            <p className="font-bold text-slate-700">{request.id_number}</p>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">{(request.verificationDetails.meansOfIdentityType || 'Identity').replace('_', ' ')} Number</p>
+                                                            <p className="font-bold text-slate-700">{request.verificationDetails.idNumber || 'N/A'}</p>
                                                         </div>
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Profile Type</p>
@@ -153,15 +153,15 @@ export function KycTable() {
                                                             <>
                                                                 <div className="col-span-2 pt-2 mt-2 border-t border-slate-200/60">
                                                                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Business Name</p>
-                                                                    <p className="font-bold text-slate-700">{request.business_name || 'N/A'}</p>
+                                                                    <p className="font-bold text-slate-700">{request.verificationDetails.businessInfo?.businessName || 'N/A'}</p>
                                                                 </div>
                                                                 <div className="col-span-2">
                                                                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Business Address</p>
-                                                                    <p className="font-bold text-slate-700">{request.business_address || 'N/A'}</p>
+                                                                    <p className="font-bold text-slate-700">{request.verificationDetails.businessInfo?.businessAddress || 'N/A'}</p>
                                                                 </div>
                                                                 <div>
                                                                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">RC Number</p>
-                                                                    <p className="font-bold text-slate-700">{request.rc_number || 'N/A'}</p>
+                                                                    <p className="font-bold text-slate-700">{request.verificationDetails.businessInfo?.rcNumber || 'N/A'}</p>
                                                                 </div>
                                                             </>
                                                         )}
@@ -170,13 +170,13 @@ export function KycTable() {
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                         <div className="space-y-3 group">
                                                             <div className="flex items-center justify-between">
-                                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">{request.means_of_identity_type.replace('_', ' ')}</p>
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">{(request.verificationDetails.meansOfIdentityType || 'Identity').replace('_', ' ')}</p>
                                                                 <span className="text-[10px] font-black uppercase text-slate-300">Identity Document</span>
                                                             </div>
                                                             <div className="aspect-[4/3] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
-                                                                {request.means_of_identity ? (
+                                                                {request.verificationDetails.meansOfIdentity ? (
                                                                     <img
-                                                                        src={getImageUrl(request.means_of_identity)}
+                                                                        src={getImageUrl(request.verificationDetails.meansOfIdentity)}
                                                                         alt="Identity"
                                                                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                                                                     />
@@ -191,9 +191,9 @@ export function KycTable() {
                                                                 <span className="text-[10px] font-black uppercase text-slate-300">Live Verification</span>
                                                             </div>
                                                             <div className="aspect-[4/3] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
-                                                                {request.selfie_picture ? (
+                                                                {request.verificationDetails.selfiePicture ? (
                                                                     <img
-                                                                        src={getImageUrl(request.selfie_picture)}
+                                                                        src={getImageUrl(request.verificationDetails.selfiePicture)}
                                                                         alt="Selfie"
                                                                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                                                                     />
@@ -202,7 +202,7 @@ export function KycTable() {
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        {request.rc_certificate && (
+                                                        {request.verificationDetails.businessInfo?.rcCertificate && (
                                                             <div className="col-span-1 sm:col-span-2 space-y-3 group">
                                                                 <div className="flex items-center justify-between">
                                                                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">RC Certificate</p>
@@ -210,7 +210,7 @@ export function KycTable() {
                                                                 </div>
                                                                 <div className="aspect-[16/9] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
                                                                     <img
-                                                                        src={getImageUrl(request.rc_certificate)}
+                                                                        src={getImageUrl(request.verificationDetails.businessInfo.rcCertificate)}
                                                                         alt="RC Certificate"
                                                                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                                                                     />

@@ -41,33 +41,26 @@ export function PublicNavbar() {
                             <div className="logo-glow">
                                 <Logo className="w-10 h-10 shadow-lg" />
                             </div>
-                            <span className="text-2xl font-bold tracking-tighter text-[#0066CC] font-display">C9x</span>
+                            <span className={`text-2xl font-bold tracking-tighter font-display ${scrolled ? 'text-[#0066CC]' : 'text-white'}`}>C9x</span>
                         </Link>
 
-                        {/* Desktop links */}
                         <div className="hidden md:flex items-center space-x-12">
-                            <Link href="/#features" className="text-sm font-semibold text-slate-600 hover:text-[#0066CC] transition-colors">Features</Link>
-                            <Link href="/services" className="text-sm font-semibold text-slate-600 hover:text-[#0066CC] transition-colors">Services</Link>
-                            <Link href="/about" className="text-sm font-semibold text-slate-600 hover:text-[#0066CC] transition-colors">About</Link>
-                            <Link href="/contact" className="text-sm font-semibold text-slate-600 hover:text-[#0066CC] transition-colors">Contact</Link>
+                            <Link href="/about" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>About Us</Link>
+                            <Link href="/contact" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Contact Us</Link>
+                            <Link href="/faq" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>FAQ</Link>
                             {isAuthenticated ? (
-                                <Button onClick={() => router.push('/dashboard')} size="sm" className="rounded-full px-7 h-11 transition-all font-bold bg-[#0066CC] hover:bg-blue-700 text-white shadow-lg">
-                                    Admin Dashboard
+                                <Button onClick={() => router.push('/dashboard')} size="sm" className={`rounded-full px-7 h-11 transition-all font-bold shadow-lg ${scrolled ? 'bg-[#0066CC] hover:bg-blue-700 text-white' : 'bg-white text-[#0066CC] hover:bg-slate-100'}`}>
+                                    Dashboard
                                 </Button>
                             ) : (
-                                <div className="flex items-center space-x-8">
-                                    <button onClick={() => router.push('/auth/login')} className="text-sm font-bold text-slate-600 hover:text-[#0066CC] transition-colors">
-                                        Login
-                                    </button>
-                                    <Button onClick={() => router.push('/auth/register')} size="sm" className="rounded-full px-7 h-11 transition-all font-bold bg-[#0066CC] hover:bg-blue-700 text-white shadow-lg hover:scale-105 transform">
-                                        Sign Up
-                                    </Button>
-                                </div>
+                                <Button onClick={() => router.push('/auth/login')} variant={scrolled ? "outline" : "default"} className={`rounded-xl px-8 h-10 font-bold ${scrolled ? 'border-[#0066CC] text-[#0066CC] hover:bg-blue-50' : 'bg-white text-[#0066CC] hover:bg-slate-100'}`}>
+                                    Login
+                                </Button>
                             )}
                         </div>
 
                         {/* Mobile toggle */}
-                        <button className="md:hidden text-slate-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <button className={`md:hidden ${scrolled ? 'text-slate-600' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                             {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
                         </button>
                     </div>
@@ -84,13 +77,11 @@ export function PublicNavbar() {
                         className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl px-8 pt-32 md:hidden"
                     >
                         <div className="flex flex-col space-y-10">
-                            <Link href="/#features" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Features</Link>
-                            <Link href="/services" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Services</Link>
-                            <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">About</Link>
-                            <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Contact</Link>
+                            <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">About Us</Link>
+                            <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Contact Us</Link>
+                            <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">FAQ</Link>
                             <div className="pt-10 border-t border-slate-100 flex flex-col space-y-5">
-                                <Button variant="outline" onClick={() => router.push('/auth/login')} className="w-full h-16 rounded-2xl text-xl font-bold">Login</Button>
-                                <Button onClick={() => { setIsMenuOpen(false); router.push('/auth/register'); }} className="w-full h-16 rounded-2xl text-xl font-bold bg-[#0066CC]">Sign Up</Button>
+                                <Button onClick={() => { setIsMenuOpen(false); router.push('/auth/login'); }} className="w-full h-16 rounded-2xl text-xl font-bold bg-[#0066CC]">Login</Button>
                             </div>
                         </div>
                     </motion.div>

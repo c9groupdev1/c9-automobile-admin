@@ -14,6 +14,8 @@ export interface KycRequest {
     };
     verificationDetails: {
         phoneNumber: string;
+        address?: string;
+        idNumber?: string;
         selfiePicture: string;
         meansOfIdentity?: string;
         meansOfIdentityType?: string;

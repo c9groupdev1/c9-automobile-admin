@@ -19,6 +19,7 @@ import {
   Handshake,
   Check,
   Users,
+  User,
   Lock,
   Zap,
   Play,
@@ -63,47 +64,48 @@ export default function LandingPage() {
   return (
     <div className="bg-white min-h-screen text-slate-900 font-sans">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-40 overflow-hidden bg-gradient-to-br from-[#003399] via-[#0044BB] to-[#0055DD] text-white">
-        {/* Background Patterns */}
+      <section className="relative pt-32 pb-40 overflow-hidden bg-[#003399] text-white">
+        {/* Background Patterns - Circle as seen in screenshot */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-[#00AAFF]/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
-          <div className="absolute inset-0 grid-pattern opacity-10" />
+          <div className="absolute top-1/2 right-0 w-[600px] h-[600px] bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={revealVariants}
-              className="space-y-10"
+              className="space-y-8"
             >
-              <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight">
+              <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight text-white">
                 Nigeria's Automotive <br />
-                <span className="text-[#00AAFF]">Marketplace</span> for Cars, Parts, Services and Auctions
+                Marketplace for <br />
+                Cars and Auctions
               </h1>
-              <p className="text-xl md:text-2xl text-white/80 max-w-xl font-medium leading-relaxed">
+              <p className="text-lg md:text-xl text-white/80 font-medium leading-relaxed max-w-lg">
                 Connect with thousands of buyers and sellers in Nigeria’s most trusted automotive ecosystem.
               </p>
-              <div className="flex flex-col sm:flex-row items-center gap-6 pt-4">
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
                 <Button 
                   size="lg" 
-                  onClick={() => router.push('/auth/register')}
-                  className="h-16 px-10 rounded-xl text-lg font-bold bg-white text-[#0066CC] hover:bg-slate-100 hover:scale-105 transition-all shadow-xl"
+                  onClick={() => router.push('/auth/login')}
+                  className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold bg-white text-[#003399] hover:bg-slate-100 transition-all"
                 >
-                  Create Account
+                  Login
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline"
-                  onClick={() => document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="h-16 px-10 rounded-xl text-lg font-bold border-white/30 bg-white/10 hover:bg-white/20 text-white"
+                  onClick={() => router.push('/about')}
+                  className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold border-white/30 bg-transparent hover:bg-white/10 text-white"
                 >
-                  Buy and Sell Works
+                  About Us
                 </Button>
               </div>
+              
               <div className="flex items-center space-x-2 text-sm font-semibold opacity-70">
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span>Over 10,000 active users this month</span>
@@ -117,32 +119,16 @@ export default function LandingPage() {
               transition={{ duration: 1 }}
               className="relative hidden lg:block"
             >
-              <div className="relative z-10 p-4 bg-white/5 backdrop-blur-xl border border-white/20 rounded-[3rem] shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 aspect-square flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-[#0066CC] opacity-20" />
-                <Logo className="w-64 h-64 text-white opacity-40 drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]" />
-                <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
-                <div className="absolute bottom-20 right-20 w-32 h-32 bg-[#00AAFF]/20 rounded-full blur-2xl" />
+              {/* Large Circle visual from screenshot */}
+              <div className="w-[500px] h-[500px] bg-white/5 rounded-full border border-white/10 flex items-center justify-center p-20">
+                <div className="w-full h-full bg-white/5 rounded-full blur-3xl" />
               </div>
-              {/* Floating Cards */}
-              <motion.div 
-                animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -top-10 -right-10 glass-dark p-6 rounded-2xl shadow-2xl border border-white/20 z-20 flex items-center space-x-4"
-              >
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                  <ShieldCheck className="text-white" size={24} />
-                </div>
-                <div>
-                  <div className="text-xs uppercase font-bold tracking-widest text-white/50">Security</div>
-                  <div className="text-base font-bold text-white">Verified Listings</div>
-                </div>
-              </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Services Section - Simplified to focus on core platform */}
       <section className="py-32 bg-slate-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
           <motion.div
@@ -157,33 +143,36 @@ export default function LandingPage() {
             </h2>
           </motion.div>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {services.map((service, idx) => (
-              <TiltCard key={idx}>
-                <motion.div
-                  variants={revealVariants}
-                  className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all h-full group"
-                >
-                  <div className={`w-14 h-14 ${service.color} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg`}>
-                    <service.icon className="text-white" size={28} />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 tracking-tight">{service.title}</h3>
-                  <p className="text-slate-500 font-medium leading-relaxed mb-6">
-                    {service.desc}
-                  </p>
-                  <Button variant="ghost" className="p-0 text-[#0066CC] font-bold hover:bg-transparent hover:translate-x-1 transition-transform">
-                    Explore Now <ChevronRight size={18} className="ml-1" />
-                  </Button>
-                </motion.div>
-              </TiltCard>
-            ))}
-          </motion.div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <TiltCard>
+              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all h-full group">
+                <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
+                  <Car className="text-white" size={28} />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 tracking-tight">Cars Marketplace</h3>
+                <p className="text-slate-500 font-medium leading-relaxed mb-6">
+                  Secure high-quality vehicles from verified dealerships and private sellers across the federation.
+                </p>
+                <Button variant="ghost" className="p-0 text-[#0066CC] font-bold hover:bg-transparent hover:translate-x-1 transition-transform">
+                  Explore Now <ChevronRight size={18} className="ml-1" />
+                </Button>
+              </div>
+            </TiltCard>
+            <TiltCard>
+              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all h-full group">
+                <div className="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
+                  <Gavel className="text-white" size={28} />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 tracking-tight">Vehicle Auctions</h3>
+                <p className="text-slate-500 font-medium leading-relaxed mb-6">
+                  Real-time bidding on top-tier assets. Transparent, fair, and high-fidelity experience.
+                </p>
+                <Button variant="ghost" className="p-0 text-[#0066CC] font-bold hover:bg-transparent hover:translate-x-1 transition-transform">
+                  Explore Now <ChevronRight size={18} className="ml-1" />
+                </Button>
+              </div>
+            </TiltCard>
+          </div>
         </div>
       </section>
 
@@ -235,7 +224,7 @@ export default function LandingPage() {
               className="space-y-10"
             >
               <h2 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-                Sell Cars, Parts and Services to Thousands of Buyers
+                Sell Cars to Thousands of Buyers
               </h2>
               <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed">
                 Connect with brokers, dealers, mechanics, and car enthusiasts across Nigeria in the most trusted ecosystem.
@@ -258,10 +247,10 @@ export default function LandingPage() {
               </ul>
               <Button 
                 size="lg" 
-                onClick={() => router.push('/auth/register')}
-                className="h-16 px-10 rounded-xl text-lg font-bold bg-[#0044BB] hover:bg-blue-800 text-white shadow-xl shadow-blue-900/10"
+                onClick={() => router.push('/auth/login')}
+                className="h-12 px-10 rounded-xl text-base font-bold bg-[#003399] hover:bg-blue-800 text-white shadow-xl shadow-blue-900/10"
               >
-                Register as Seller
+                Explore More
               </Button>
             </motion.div>
 
@@ -329,63 +318,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Marketplace Preview */}
-      <section id="marketplace" className="py-32 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={revealVariants}
-            >
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-slate-900">Explore the Marketplace</h2>
-            </motion.div>
-            <Button variant="ghost" onClick={() => router.push('/marketplace')} className="text-[#0066CC] font-bold text-lg hover:bg-transparent px-0">
-              View All <ArrowRight className="ml-2" size={20} />
-            </Button>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockListings.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-2xl transition-all group"
-              >
-                <div className="aspect-[4/3] bg-slate-100 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                    <Car className="text-slate-300 w-16 h-16 opacity-50" />
-                  </div>
-                  <div className="absolute top-4 left-4 inline-block px-3 py-1 bg-white/90 backdrop-blur rounded-full text-[10px] font-bold uppercase tracking-widest text-[#0066CC]">
-                    {item.type}
-                  </div>
-                </div>
-                <div className="p-8">
-                  <h4 className="text-xl font-bold mb-2 truncate group-hover:text-[#0066CC] transition-colors">{item.title}</h4>
-                  <p className="text-2xl font-black text-slate-900 mb-6">{item.price}</p>
-                  <Button className="w-full h-12 rounded-xl bg-slate-50 hover:bg-blue-50 text-[#0066CC] border border-slate-100 hover:border-blue-100 font-bold transition-all shadow-none">
-                    View Details
-                  </Button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="mt-20 text-center">
-            <Button 
-              size="lg" 
-              onClick={() => router.push('/marketplace')}
-              className="h-14 px-10 rounded-xl text-lg font-bold bg-[#0066CC] hover:bg-blue-700 text-white shadow-xl"
-            >
-              Explore Marketplace
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* Referral */}
       <section className="py-32 bg-white">
@@ -424,23 +356,12 @@ export default function LandingPage() {
              variants={revealVariants}
              className="space-y-12"
           >
-            <h2 className="text-5xl md:text-7xl font-bold tracking-tight">
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
               Start Buying, Selling and Bidding Today
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Button size="lg" onClick={() => router.push('/auth/register')} className="h-16 px-12 rounded-xl text-xl font-bold bg-[#0066CC] hover:bg-blue-600 shadow-xl">
-                Be an Elite Member
-              </Button>
-              <Button size="lg" variant="outline" className="h-16 px-12 rounded-xl text-xl font-bold border-white/20 bg-white/5 hover:bg-white/10">
-                Register as Dealer
-              </Button>
-              <Button 
-                size="lg" 
-                variant="ghost" 
-                onClick={() => router.push('/auth/login')} 
-                className="h-16 px-8 text-white/70 hover:text-white font-bold text-xl underline underline-offset-8 decoration-white/30 hover:decoration-white transition-all"
-              >
-                Login
+              <Button size="lg" onClick={() => router.push('/auth/login')} className="h-14 px-10 rounded-xl text-lg font-bold bg-[#003399] hover:bg-blue-700 shadow-xl">
+                Login to Portal
               </Button>
             </div>
           </motion.div>
@@ -460,8 +381,8 @@ const services = [
 ];
 
 const workflowSteps = [
-  { title: 'Create Account', color: 'bg-[#003399]', desc: 'Register as a buyer, seller or dealer and verify your identity in minutes.' },
-  { title: 'Explore Marketplace', color: 'bg-[#FF9900]', desc: 'Browse through an extensive list of cars, parts and elite automotive services.' },
+  { title: 'Download App', color: 'bg-[#003399]', desc: 'Download the seamless C9X mobile application on iOS or Android and verify your identity.' },
+  { title: 'Explore Marketplace', color: 'bg-[#FF9900]', desc: 'Browse through an extensive list of cars and elite automotive auctions.' },
   { title: 'Connect and Trade', color: 'bg-green-600', desc: 'Connect with verified partners, negotiate securely and close deals faster.' }
 ];
 
@@ -472,13 +393,4 @@ const whyC9x = [
   { icon: MessageSquare, color: 'bg-purple-500', textColor: 'text-purple-600', title: 'Easy Messaging', desc: 'Secure, real-time communication between buyers and sellers.' },
   { icon: MapPin, color: 'bg-red-500', textColor: 'text-red-600', title: 'Location-Based Discovery', desc: 'Find the best deals and services closest to your current location.' },
   { icon: FileCheck, color: 'bg-blue-400', textColor: 'text-blue-500', title: 'Slower Auction Systems', desc: 'A more thoughtful bidding process that ensures quality over quantity.' }
-];
-
-const mockListings = [
-  { id: 1, title: '2022 Toyota Camry', price: '₦12,500,000', type: 'Car Marketplace' },
-  { id: 2, title: 'Brake Pads (4 Pieces)', price: '₦12,500', type: 'Car Parts' },
-  { id: 3, title: 'Toyota Avalon Engine', price: '₦1,250,230', type: 'Car Parts' },
-  { id: 4, title: '2019 Range Rover Sport', price: '₦85,000,000', type: 'Car Marketplace' },
-  { id: 5, title: 'Brand new C9 X-Mobile', price: '₦55,500,000', type: 'C9 Store' },
-  { id: 6, title: 'Sonia Pads & Filters', price: '₦40,000', type: 'Car Parts' },
 ];
