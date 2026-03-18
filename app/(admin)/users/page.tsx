@@ -47,7 +47,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { useUsers, useUserAnalysis, useResetPassword, useUpdateUserStatus } from '@/hooks/useUsers';
+import { useUsers, useUserAnalysis, useResetPassword, useUpdateUserStatus, useRoles } from '@/hooks/useUsers';
 import { useDebounce } from '@/hooks/use-debounce';
 import Link from 'next/link';
 import {
@@ -88,6 +88,7 @@ export default function UsersPage() {
 
     const resetPassword = useResetPassword();
     const updateStatus = useUpdateUserStatus();
+    const { data: roles } = useRoles();
 
     const { data: analysis, isLoading: loadingAnalysis } = useUserAnalysis();
     const { data: usersData, isLoading: loadingUsers, refetch } = useUsers({
@@ -236,15 +237,14 @@ export default function UsersPage() {
                     </Select>
 
                     <Select value={userType} onValueChange={(v) => setUserType(v || 'all-types')}>
-                        <SelectTrigger className="w-[150px] h-12 rounded-xl bg-slate-50 border-transparent font-bold text-xs text-slate-600">
-                            <SelectValue placeholder="User Type" />
+                        <SelectTrigger className="w-[180px] h-12 rounded-xl bg-slate-50 border-transparent font-bold text-xs text-slate-600">
+                            <SelectValue placeholder="User Protocol" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-100">
-                            <SelectItem value="all-types">User Type</SelectItem>
-                            <SelectItem value="Basic User">Basic User</SelectItem>
-                            <SelectItem value="Verified User">Verified User</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="moderator">Moderator</SelectItem>
+                            <SelectItem value="all-types">All Protocol Types</SelectItem>
+                            {roles?.map((role) => (
+                                <SelectItem key={role.id} value={role.name} className="capitalize">{role.name.replace('_', ' ')}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>
@@ -435,8 +435,7 @@ export default function UsersPage() {
                                                                 id: user.id,
                                                                 name: user.fullName,
                                                                 email: user.emailAddress,
-                                                                role: user.accountType.toLowerCase() === 'admin' ? 'admin' : 
-                                                                      user.accountType.toLowerCase() === 'moderator' ? 'moderator' : 'user'
+                                                                role: user.accountType 
                                                             });
                                                             setIsFormOpen(true);
                                                         }}

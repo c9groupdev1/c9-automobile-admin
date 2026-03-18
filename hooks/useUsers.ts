@@ -15,6 +15,12 @@ export interface User {
     createdAt: string;
 }
 
+export interface Role {
+    id: number;
+    name: string;
+    permissions: string[];
+}
+
 export interface UserAnalysis {
     totalUsers: number;
     verifiedUsers: number;
@@ -157,6 +163,16 @@ export function useUserAnalysis() {
         queryKey: ['users-analysis'],
         queryFn: async () => {
             const response = await api.get<{ success: boolean; data: UserAnalysis }>('/admin/users/analysis');
+            return response.data.data;
+        },
+    });
+}
+
+export function useRoles() {
+    return useQuery({
+        queryKey: ['roles'],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: Role[] }>('/admin/roles');
             return response.data.data;
         },
     });

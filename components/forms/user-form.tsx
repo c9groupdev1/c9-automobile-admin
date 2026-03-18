@@ -22,8 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useCreateUser, useUpdateUser } from '@/hooks/useUsers';
-import { Loader2, UserPlus, Mail, Shield, User, Save } from 'lucide-react';
+import { useCreateUser, useUpdateUser, useRoles, Role } from '@/hooks/useUsers';
+import { Loader2, UserPlus, Mail, Shield, User, Save, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
@@ -48,6 +48,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const createUser = useCreateUser();
     const updateUser = useUpdateUser();
+    const { data: roles, isLoading: isLoadingRoles } = useRoles();
     const isEdit = !!initialData;
 
     const form = useForm<FormValues>({
@@ -135,17 +136,29 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                                     <Shield size={12} />
                                     Access Clearance
                                 </FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value} disabled={isLoadingRoles}>
                                     <FormControl>
                                         <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-1 focus:ring-[#0066CC]">
-                                            <SelectValue placeholder="Select access role" />
+                                            <SelectValue placeholder={isLoadingRoles ? "Loading access roles..." : "Select access role"} />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
-                                        <SelectItem value="user" className="font-semibold py-3 rounded-lg">Standard User</SelectItem>
-                                        <SelectItem value="staff" className="font-semibold py-3 rounded-lg">Staff Member</SelectItem>
-                                        <SelectItem value="admin" className="font-semibold py-3 rounded-lg">Protocol Admin</SelectItem>
-                                        <SelectItem value="moderator" className="font-semibold py-3 rounded-lg">Asset Moderator</SelectItem>
+                                        {isLoadingRoles ? (
+                                            <div className="flex items-center justify-center py-6">
+                                                <Loader2 className="h-4 w-4 animate-spin text-[#0066CC]" />
+                                            </div>
+                                        ) : roles && roles.length > 0 ? (
+                                            roles.map((role: Role) => (
+                                                <SelectItem key={role.id} value={role.name} className="font-semibold py-3 rounded-lg capitalize">
+                                                    {role.name.replace('_', ' ')}
+                                                </SelectItem>
+                                            ))
+                                        ) : (
+                                            <div className="px-4 py-3 text-xs text-slate-400 flex items-center gap-2">
+                                                <ShieldAlert size={12} />
+                                                No protocol roles available
+                                            </div>
+                                        )}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
