@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { MoreHorizontal, Car, Trash2, ExternalLink, Settings2, Calendar, Gauge, Zap } from 'lucide-react';
-import { Listing, useListings, useDeleteListing } from '@/hooks/useListings';
+import { ListingListing as Listing, useListings, useDeleteListing } from '@/hooks/useListings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
@@ -23,8 +23,8 @@ export function ListingsGrid({ onEdit }: { onEdit?: (listing: Listing) => void }
     const { data, isLoading } = useListings({ page });
     const deleteListing = useDeleteListing();
 
-    const listings = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
-    const meta = data?.meta || data?.data?.meta || { current_page: 1, last_page: 1, total: 0 };
+    const listings = data?.data || [];
+    const meta = data?.meta || { current_page: 1, last_page: 1, total: 0 };
 
     const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this listing?')) {
@@ -68,9 +68,9 @@ export function ListingsGrid({ onEdit }: { onEdit?: (listing: Listing) => void }
                         <div key={listing.id} className="group relative bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 overflow-hidden flex flex-col">
                             {/* Asset Visualization */}
                             <div className="relative aspect-[4/3] overflow-hidden">
-                                {listing.media?.[0]?.path ? (
+                                {listing.image ? (
                                     <img
-                                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${listing.media[0].path}`}
+                                        src={listing.image}
                                         alt={listing.title}
                                         className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                                     />
@@ -94,9 +94,9 @@ export function ListingsGrid({ onEdit }: { onEdit?: (listing: Listing) => void }
                                     >
                                         {listing.status}
                                     </Badge>
-                                    {Boolean(listing.is_c9_collection) && (
+                                    {listing.isFeatured && (
                                         <Badge className="rounded-xl px-3 py-1 text-[10px] font-black uppercase tracking-widest border-none shadow-lg bg-[#0066CC] text-white backdrop-blur-md">
-                                            C9 Collection
+                                            Featured
                                         </Badge>
                                     )}
                                 </div>
@@ -138,10 +138,10 @@ export function ListingsGrid({ onEdit }: { onEdit?: (listing: Listing) => void }
                                     <div className="bg-slate-900/40 backdrop-blur-md border border-white/20 rounded-2xl p-3 flex justify-between items-center text-white">
                                         <div className="flex flex-col">
                                             <div className="text-[8px] font-black uppercase tracking-widest opacity-70 leading-none mb-1">Valuation</div>
-                                            <div className="text-xl font-black">${Number(listing.amount).toLocaleString()}</div>
+                                            <div className="text-xl font-black">{listing.price}</div>
                                         </div>
                                         <Badge className="bg-white/20 hover:bg-white/30 border-white/10 text-[8px] font-black uppercase tracking-widest text-white px-2 py-0.5 rounded-lg">
-                                            {listing.listing_type?.name || 'Vehicle'}
+                                            {listing.type || 'Vehicle'}
                                         </Badge>
                                     </div>
                                 </div>
@@ -154,33 +154,33 @@ export function ListingsGrid({ onEdit }: { onEdit?: (listing: Listing) => void }
                                         {listing.title}
                                     </h3>
                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
-                                        {listing.car?.make} {listing.car?.model}
+                                        {listing.brandModel}
                                     </p>
                                 </div>
 
                                 {/* Seller Context */}
                                 <div className="flex items-center gap-3 mb-6 p-3 rounded-2xl bg-slate-50 border border-slate-100/50">
-                                    <div className="w-8 h-8 rounded-full bg-[#0066CC]/10 flex items-center justify-center border border-[#0066CC]/20">
-                                        <span className="text-[10px] font-black text-[#0066CC]">{listing.user?.name?.charAt(0) || 'A'}</span>
+                                    <div className="w-8 h-8 rounded-full bg-[#0066CC]/10 flex items-center justify-center border border-[#0066CC]/20 overflow-hidden">
+                                        {listing.avatar ? (
+                                            <img src={listing.avatar} alt={listing.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="text-[10px] font-black text-[#0066CC]">{listing.name?.charAt(0) || 'A'}</span>
+                                        )}
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="text-[10px] font-black uppercase tracking-tighter text-slate-400 leading-none mb-1">Managed By</div>
-                                        <div className="text-[10px] font-bold text-slate-700 truncate">{listing.user?.name || 'System Admin'}</div>
+                                        <div className="text-[10px] font-bold text-slate-700 truncate">{listing.name || 'System Admin'}</div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-2 mt-auto border-t border-slate-50 pt-4">
+                                <div className="grid grid-cols-2 gap-2 mt-auto border-t border-slate-50 pt-4">
                                     <div className="flex flex-col items-center">
                                         <div className="text-[8px] font-black uppercase tracking-tighter text-slate-300">Year</div>
-                                        <div className="text-[10px] font-black text-slate-600">{listing.car?.year}</div>
+                                        <div className="text-[10px] font-black text-slate-600">{listing.yearModel}</div>
                                     </div>
-                                    <div className="flex flex-col items-center border-x border-slate-100 px-2">
-                                        <div className="text-[8px] font-black uppercase tracking-tighter text-slate-300">Mileage</div>
-                                        <div className="text-[10px] font-black text-slate-600">{listing.car?.mileage} KM</div>
-                                    </div>
-                                    <div className="flex flex-col items-center">
-                                        <div className="text-[8px] font-black uppercase tracking-tighter text-slate-300">Duty</div>
-                                        <div className="text-[10px] font-black text-slate-600">{Number(listing.car?.custom_duty) ? 'Paid' : 'Unpaid'}</div>
+                                    <div className="flex flex-col items-center border-l border-slate-100 px-2 text-center">
+                                        <div className="text-[8px] font-black uppercase tracking-tighter text-slate-300">Condition</div>
+                                        <div className="text-[10px] font-black text-slate-600 truncate w-full px-1">{listing.condition}</div>
                                     </div>
                                 </div>
                             </div>

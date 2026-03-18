@@ -57,10 +57,10 @@ export function PublicNavbar() {
                             ) : (
                                 <div className="flex items-center space-x-8">
                                     <button onClick={() => router.push('/auth/login')} className="text-sm font-bold text-slate-600 hover:text-[#0066CC] transition-colors">
-                                        Sign In
+                                        Login
                                     </button>
-                                    <Button onClick={scrollToWaitlist} size="sm" className="rounded-full px-7 h-11 transition-all font-bold bg-[#0066CC] hover:bg-blue-700 text-white shadow-lg hover:scale-105 transform">
-                                        Get Early Access
+                                    <Button onClick={() => router.push('/auth/register')} size="sm" className="rounded-full px-7 h-11 transition-all font-bold bg-[#0066CC] hover:bg-blue-700 text-white shadow-lg hover:scale-105 transform">
+                                        Sign Up
                                     </Button>
                                 </div>
                             )}
@@ -89,8 +89,8 @@ export function PublicNavbar() {
                             <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">About</Link>
                             <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Contact</Link>
                             <div className="pt-10 border-t border-slate-100 flex flex-col space-y-5">
-                                <Button variant="outline" onClick={() => router.push('/auth/login')} className="w-full h-16 rounded-2xl text-xl font-bold">Sign In</Button>
-                                <Button onClick={() => { setIsMenuOpen(false); scrollToWaitlist(); }} className="w-full h-16 rounded-2xl text-xl font-bold bg-[#0066CC]">Join Waitlist</Button>
+                                <Button variant="outline" onClick={() => router.push('/auth/login')} className="w-full h-16 rounded-2xl text-xl font-bold">Login</Button>
+                                <Button onClick={() => { setIsMenuOpen(false); router.push('/auth/register'); }} className="w-full h-16 rounded-2xl text-xl font-bold bg-[#0066CC]">Sign Up</Button>
                             </div>
                         </div>
                     </motion.div>

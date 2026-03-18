@@ -23,6 +23,9 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "C9 Automobile Admin",
   description: "Enterprise Admin Dashboard for C9 Automobile",
+  icons: {
+    icon: '/c9x-logo.png',
+  },
 };
 
 export default function RootLayout({

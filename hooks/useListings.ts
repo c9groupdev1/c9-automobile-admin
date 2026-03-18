@@ -1,120 +1,249 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 
+export interface ListingListing {
+    id: string;
+    image: string | null;
+    title: string;
+    isFeatured: boolean;
+    isVerified: boolean;
+    isFlagged: boolean;
+    avatar: string | null;
+    name: string;
+    type: string;
+    brandModel: string;
+    yearModel: string;
+    price: string;
+    condition: string | null;
+    city: string | null;
+    area: string | null;
+    status: string;
+    formatted: string;
+    relative: string;
+}
+
+// For compatibility with components expecting the old structure
 export interface Listing {
     id: string;
-    listingTypeId: string | number;
     title: string;
     description: string;
-    amount: string | number;
-    status: 'available' | 'sold' | 'pending' | 'rejected';
-    is_negotiable: string | number | boolean;
-    is_c9_collection?: boolean | number;
-    created_at: string;
-    updated_at: string;
+    amount: number;
+    listingTypeId: string | number;
+    is_negotiable: boolean | number;
+    status: string;
     car?: {
-        id: number | string;
         make: string;
         model: string;
-        year: string | number;
+        year: number;
         transmission: string;
         fuel_type: string;
-        mileage: number | string;
-        custom_duty?: number | string;
+        mileage: number;
     };
-    media?: Array<{
-        id: number | string;
-        path: string;
-        is_primary: number | boolean;
-    }>;
+    media?: Array<{ id: string; path: string }>;
     user?: {
-        id: string;
         name: string;
         email: string;
     };
-    listing_type?: {
-        id: number | string;
-        name: string;
-        slug: string;
-    };
 }
 
-export function useListings(params?: { page?: number; search?: string }) {
+export interface ListingsResponse {
+    success: boolean;
+    data: {
+        data: ListingListing[];
+        links: {
+            first: string;
+            last: string;
+            prev: string | null;
+            next: string | null;
+        };
+        meta: {
+            current_page: number;
+            from: number;
+            last_page: number;
+            links: Array<{ url: string | null; label: string; active: boolean }>;
+            path: string;
+            per_page: number;
+            to: number;
+            total: number;
+        };
+    };
+    message: string;
+}
+
+export function useListings(params?: { 
+    page?: number; 
+    search?: string;
+    status?: string;
+    make?: string;
+    model?: string;
+    year?: string | number;
+    stateId?: string | number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    perPage?: number;
+}) {
     return useQuery({
         queryKey: ['listings', params],
         queryFn: async () => {
-            const response = await api.get('/admin/listings', { params });
-            return response.data;
+            const response = await api.get<ListingsResponse>('/admin/listings/vehicles', { params });
+            return response.data.data;
         },
     });
 }
 
-export function useCreateListing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (data: FormData) => {
-            const response = await api.post('/user/listings', data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            return response.data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listings'] });
+export interface ListingAnalysisData {
+    totalVehicleListings: number;
+    approvedListings: number;
+    rejectedListings: number;
+    flaggedListings: number;
+}
+
+export function useListingAnalysis() {
+    return useQuery({
+        queryKey: ['listings-analysis'],
+        queryFn: async () => {
+            const response = await api.get<{ 
+                success: boolean; 
+                data: ListingAnalysisData;
+            }>('/admin/listings/vehicles/analysis');
+            return response.data.data;
         },
     });
 }
 
-export function useUpdateListing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: FormData }) => {
-            // Some APIs require _method field for PATCH when using multipart/form-data
-            data.append('_method', 'PATCH');
-            const response = await api.post(`/user/listings/${id}`, data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            return response.data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listings'] });
-            queryClient.invalidateQueries({ queryKey: ['listing'] });
-        },
-    });
-}
-
-export function useDeleteListing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (id: string) => {
-            await api.delete(`/admin/listings/${id}`);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listings'] });
-        },
-    });
+export interface ListingDetail {
+    id: string;
+    status: string;
+    title: string;
+    amount: number;
+    viewCounts: number;
+    badges: {
+        pendingReview: boolean;
+        verifiedSeller: boolean;
+        featuredListing: boolean;
+    };
+    header: {
+        title: string;
+        price: string;
+        location: string;
+        basicSpecs: string;
+        submittedDate: string;
+        publishedDate: string;
+        lastUpdated: string;
+    };
+    vehicleInformation: {
+        make: string;
+        model: string;
+        year: string;
+        trimVariant: string;
+        bodyType: string;
+        condition: string;
+        transmission: string;
+        fuelType: string;
+        engineType: string;
+        driveType: string | null;
+        exteriorColor: string;
+        interiorColor: string;
+        registrationStatus: string;
+        vinChassisNumber: string | null;
+        videoUrl: string | null;
+        inspectionAccepted: boolean;
+        negotiable: string;
+        location: {
+            city: string | null;
+            area: string | null;
+            landmark: string | null;
+            fullAddress: string | null;
+        };
+    };
+    contentQuality: {
+        descriptionProfessionalism: string;
+        imageCount: number;
+        isFlagged: boolean;
+    };
+    complianceReview: {
+        kycVerified: boolean;
+        vinProvided: boolean;
+    };
+    description: string;
+    carFeatures: string[];
+    mediaReview: {
+        images: Array<{
+            id: string;
+            url: string;
+            isPrimary: boolean;
+        }>;
+    };
+    sellerInformation: {
+        name: string;
+        email: string;
+        phone: string;
+        verified: boolean;
+        phoneStatus: string;
+        totalActiveListings: number;
+        memberSince: string;
+        sellerType: string;
+        location: string;
+    };
 }
 
 export function useListing(id: string) {
     return useQuery({
         queryKey: ['listing', id],
         queryFn: async () => {
-            const response = await api.get(`/admin/listings/${id}`);
-            return response.data;
+            const response = await api.get<{ success: boolean; data: ListingDetail; message: string }>(`/admin/listings/vehicles/${id}/show`);
+            return response.data.data;
         },
         enabled: !!id,
     });
 }
 
-export function useListingTypes() {
+export function useCreateListing() {
+    return {
+        mutateAsync: async (data: FormData) => {
+            const response = await api.post('/admin/listings/vehicles', data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return response.data;
+        },
+    };
+}
+
+export function useUpdateListing() {
+    return {
+        mutateAsync: async ({ id, data }: { id: string; data: FormData }) => {
+            const response = await api.post(`/admin/listings/vehicles/${id}/update`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return response.data;
+        },
+    };
+}
+
+export function useDeleteListing() {
+    return {
+        mutateAsync: async (id: string) => {
+            const response = await api.delete(`/admin/listings/vehicles/${id}/delete`);
+            return response.data;
+        },
+    };
+}
+
+export const useListingTypes = () => {
     return useQuery({
         queryKey: ['listing-types'],
         queryFn: async () => {
-            const response = await api.get('/listing-types');
+            const response = await api.get('/admin/listing-types');
             return response.data;
         },
     });
+};
+
+export function useUpdateListingStatus() {
+    return {
+        mutateAsync: async ({ id, status }: { id: string; status: string }) => {
+            const response = await api.patch(`/admin/listings/vehicles/${id}/status`, { status });
+            return response.data;
+        },
+    };
 }

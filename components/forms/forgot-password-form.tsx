@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, ControllerRenderProps } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { toast } from 'sonner';
@@ -19,6 +19,7 @@ import api from '@/lib/api';
 import { Loader2, ArrowLeft, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Logo } from '@/components/logo';
 
 const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -49,14 +50,15 @@ export function ForgotPasswordForm() {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="space-y-2 text-center md:text-left">
-                <Link href="/auth/login" className="inline-flex items-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-[#0066CC] transition-colors mb-4">
-                    <ArrowLeft size={12} className="mr-2" />
-                    Back to Login
-                </Link>
-                <h1 className="text-4xl font-bold text-white tracking-tight font-display">Recover Access.</h1>
-                <p className="text-slate-400 font-medium leading-relaxed">Enter your institutional email to receive a secure recovery code.</p>
+        <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 w-full">
+            <div className="flex flex-col items-center mb-10 text-center">
+                <div className="w-16 h-16 bg-[#003399] rounded-2xl flex items-center justify-center mb-6 shadow-xl">
+                    <Logo className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Recover Access</h2>
+                <p className="text-slate-500 font-medium text-sm">
+                    Enter your email to receive a secure recovery code
+                </p>
             </div>
 
             <Form {...form}>
@@ -64,34 +66,38 @@ export function ForgotPasswordForm() {
                     <FormField
                         control={form.control}
                         name="email"
-                        render={({ field }: { field: ControllerRenderProps<z.infer<typeof formSchema>, 'email'> }) => (
-                            <FormItem className="space-y-3">
-                                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Institutional Email</FormLabel>
+                        render={({ field }) => (
+                            <FormItem className="space-y-2">
+                                <FormLabel className="text-xs font-bold text-slate-700 ml-1">Email Address</FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="admin@c9automobile.com"
-                                        {...field}
-                                        className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:ring-[#0066CC] focus:border-[#0066CC] px-6 font-semibold shadow-inner"
-                                    />
+                                    <div className="relative group">
+                                        <Input
+                                            placeholder="admin@c9x.com"
+                                            {...field}
+                                            className="h-14 rounded-2xl bg-slate-50 border-slate-100 focus:bg-white text-slate-900 placeholder:text-slate-400 px-12 font-medium transition-all"
+                                        />
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#003399] transition-colors" size={18} />
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
 
-                    <Button type="submit" className="w-full h-16 rounded-2xl text-lg font-bold bg-[#0066CC] hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isLoading}>
+                    <Button type="submit" className="w-full h-16 rounded-2xl text-lg font-bold bg-[#003399] hover:bg-blue-800 shadow-xl shadow-blue-900/10 transition-all active:scale-[0.98]" disabled={isLoading}>
                         {isLoading ? (
-                            <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                Sending Code...
-                            </>
+                            <Loader2 className="h-6 w-6 animate-spin" />
                         ) : (
-                            <>
-                                Transmit Recovery Code
-                                <Mail className="ml-2 w-5 h-5" />
-                            </>
+                            "Send Recovery Code"
                         )}
                     </Button>
+
+                    <div className="text-center pt-2">
+                        <Link href="/auth/login" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-[#003399] transition-colors">
+                            <ArrowLeft size={14} className="mr-2" />
+                            Return to Login
+                        </Link>
+                    </div>
                 </form>
             </Form>
         </div>
