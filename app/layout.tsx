@@ -21,10 +21,36 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "C9 Automobile Admin",
-  description: "Enterprise Admin Dashboard for C9 Automobile",
+  title: "C9X | Nigeria's Premier Automotive Marketplace",
+  description: "The most trusted ecosystem for buying and selling cars, participating in live auctions, and finding elite automotive services in Nigeria.",
+  keywords: ["Cars", "Auctions", "Nigeria", "Automotive", "Buy Cars", "Sell Cars", "C9X"],
+  authors: [{ name: "C9X Protocol" }],
+  openGraph: {
+    title: "C9X | Nigeria's Premier Automotive Marketplace",
+    description: "Connect with verified buyers and sellers in Nigeria’s most trusted automotive ecosystem.",
+    url: "https://c9x.com",
+    siteName: "C9X",
+    images: [
+      {
+        url: "/hero-dashboard.png",
+        width: 1200,
+        height: 630,
+        alt: "C9X Dashboard Overview",
+      },
+    ],
+    locale: "en_NG",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "C9X | Nigeria's Premier Automotive Marketplace",
+    description: "The most trusted ecosystem for buying and selling cars and auctions in Nigeria.",
+    images: ["/hero-dashboard.png"],
+  },
   icons: {
     icon: '/c9x-logo.png',
+    shortcut: '/c9x-logo.png',
+    apple: '/c9x-logo.png',
   },
 };
 
