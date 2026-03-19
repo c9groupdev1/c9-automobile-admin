@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export function PublicNavbar() {
-    const { isAuthenticated } = useAuthStore();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -48,15 +47,9 @@ export function PublicNavbar() {
                             <Link href="/about" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>About Us</Link>
                             <Link href="/contact" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Contact Us</Link>
                             <Link href="/faq" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>FAQ</Link>
-                            {isAuthenticated ? (
-                                <Button onClick={() => router.push('/dashboard')} size="sm" className={`rounded-full px-7 h-11 transition-all font-bold shadow-lg ${scrolled ? 'bg-[#0066CC] hover:bg-blue-700 text-white' : 'bg-white text-[#0066CC] hover:bg-slate-100'}`}>
-                                    Dashboard
-                                </Button>
-                            ) : (
-                                <Button onClick={() => router.push('/auth/login')} variant={scrolled ? "outline" : "default"} className={`rounded-xl px-8 h-10 font-bold ${scrolled ? 'border-[#0066CC] text-[#0066CC] hover:bg-blue-50' : 'bg-white text-[#0066CC] hover:bg-slate-100'}`}>
-                                    Login
-                                </Button>
-                            )}
+                            <Button onClick={() => router.push('/auth/login')} variant={scrolled ? "outline" : "default"} className={`rounded-xl px-8 h-10 font-bold ${scrolled ? 'border-[#0066CC] text-[#0066CC] hover:bg-blue-50' : 'bg-white text-[#0066CC] hover:bg-slate-100'}`}>
+                                Login
+                            </Button>
                         </div>
 
                         {/* Mobile toggle */}

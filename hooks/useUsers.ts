@@ -66,7 +66,7 @@ export interface UserDetails {
         avatar: string | null;
         accountType: string;
         dateJoined: string;
-        lastActive: string;
+        lastActive: string | null;
     };
     personalInformation: {
         fullName: string;
@@ -78,29 +78,12 @@ export interface UserDetails {
         userId: string;
         accountType: string;
         registrationDate: string;
-        lastLogin: string;
+        lastLogin: string | null;
         emailVerification: string;
         phoneVerification: string;
         accountStatus: string;
     };
-    kycStatus: {
-        type: string;
-        status: string;
-        businessName: string | null;
-        businessAddress: string | null;
-        rcNumber: string | null;
-        meansOfIdentityType: string | null;
-        idNumber: string | null;
-        documents: {
-            meansOfIdentity: string | null;
-            rcCertificate: string | null;
-            selfiePicture: string | null;
-        };
-        reviewedBy: string | null;
-        reviewComments: string | null;
-        submittedAt: string | null;
-        reviewedAt: string | null;
-    } | null;
+    kycStatus: any | null;
     activityOverview: {
         vehiclesPlaced: number;
         totalListings: number;
@@ -108,21 +91,9 @@ export interface UserDetails {
         favoritesCount: number;
         reviewsCount: number;
     };
-    recentListings: {
-        id: string;
-        status: string;
-        title: string;
-        isC9Collection: boolean;
-        viewsCount: number;
-        address: string;
-        amount: string;
-        averageRating: number;
-        isFavorite: boolean;
-        primaryImage: {
-            id: number;
-            url: string;
-        } | null;
-    }[];
+    recentListings: any[];
+    recentActivity: any[];
+    recentTimeline: any[];
 }
 
 export function useUsers(params?: {

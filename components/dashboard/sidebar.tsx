@@ -29,20 +29,20 @@ import { useAuthStore } from '@/store/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: UsersIcon, label: 'Users', href: '/users' },
-    // { icon: Store, label: 'Vendors', href: '/vendors' },
-    { icon: ShieldCheck, label: 'KYC Management', href: '/kyc' },
-    { icon: Car, label: 'Vehicle Listings', href: '/listings' },
-    // { icon: Box, label: 'Parts Listings', href: '/parts' },
-    // { icon: Wrench, label: 'Service Listings', href: '/services' },
-    // { icon: Gavel, label: 'Auctions', href: '/auctions' },
-    // { icon: ShoppingBag, label: 'C9 Store Management', href: '/store' },
-    // { icon: MessageSquare, label: 'Messages / Support', href: '/messages' },
-    // { icon: Crown, label: 'Subscription Management', href: '/subscriptions' },
-    // { icon: BarChart3, label: 'Analytics', href: '/analytics' },
-    // { icon: FileText, label: 'Reports', href: '/reports' },
-    { icon: Settings, label: 'Settings', href: '/system-config' },
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
+    { icon: UsersIcon, label: 'Users', href: '/admin/users' },
+    // { icon: Store, label: 'Vendors', href: '/admin/vendors' },
+    { icon: ShieldCheck, label: 'KYC Management', href: '/admin/kyc' },
+    { icon: Car, label: 'Vehicle Listings', href: '/admin/listings' },
+    // { icon: Box, label: 'Parts Listings', href: '/admin/parts' },
+    // { icon: Wrench, label: 'Service Listings', href: '/admin/services' },
+    // { icon: Gavel, label: 'Auctions', href: '/admin/auctions' },
+    // { icon: ShoppingBag, label: 'C9 Store Management', href: '/admin/store' },
+    // { icon: MessageSquare, label: 'Messages / Support', href: '/admin/messages' },
+    // { icon: Crown, label: 'Subscription Management', href: '/admin/subscriptions' },
+    // { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
+    // { icon: FileText, label: 'Reports', href: '/admin/reports' },
+    { icon: Settings, label: 'Settings', href: '/admin/system-config' },
 ];
 
 export function Sidebar() {

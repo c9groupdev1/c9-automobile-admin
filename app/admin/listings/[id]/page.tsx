@@ -1,0 +1,389 @@
+'use client';
+
+import {
+    ChevronLeft,
+    CheckCircle2,
+    XCircle,
+    ShieldCheck,
+    Clock,
+    Star,
+    AlertTriangle,
+    Car,
+    MapPin,
+    Calendar,
+    Settings,
+    User,
+    Mail,
+    Phone,
+    Activity,
+    AlertCircle,
+    Check,
+    Eye,
+    Tag,
+    Image as ImageIcon,
+    FileCheck
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
+import { useParams, useRouter } from 'next/navigation';
+import { useListing, useUpdateListingStatus } from '@/hooks/useListings';
+import { format, parseISO } from 'date-fns';
+import { useState, use } from 'react';
+import { toast } from 'sonner';
+
+export default function ListingDetailPage() {
+    const params = useParams();
+    const id = params.id as string;
+    const router = useRouter();
+    const { data: listing, isLoading } = useListing(id);
+    const updateStatusMutation = useUpdateListingStatus();
+    const [activeImage, setActiveImage] = useState(0);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003399]"></div>
+                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest text-[#003399]">Synchronizing Listing Intelligence...</p>
+            </div>
+        );
+    }
+
+    if (!listing) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500">
+                    <AlertCircle size={32} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">Listing Not Found</h3>
+                <p className="text-slate-500 max-w-xs text-center">The requested listing {id} could not be retrieved from the central repository.</p>
+                <Button onClick={() => router.back()} variant="outline" className="mt-4 rounded-xl border-slate-200">
+                    <ChevronLeft size={16} className="mr-2" />
+                    Back to Inventory
+                </Button>
+            </div>
+        );
+    }
+
+    const handleStatusUpdate = async (status: string) => {
+        try {
+            await updateStatusMutation.mutateAsync({ id, status });
+            toast.success(`Listing status updated to ${status}`);
+        } catch (error) {
+            toast.error('Failed to update listing status');
+        }
+    };
+
+    return (
+        <div className="max-w-6xl mx-auto space-y-8 pb-20">
+            {/* Header: Centered Identity */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
+                <div className="space-y-4">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push('/admin/listings')}
+                        className="p-0 h-auto font-bold text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-[0.2em] text-[10px]"
+                    >
+                        <ChevronLeft size={14} className="mr-1" />
+                        Back to Inventory Management
+                    </Button>
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-4xl font-black tracking-tight text-slate-900">{listing.header.title}</h2>
+                            <Badge className={cn(
+                                "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border-0 pointer-events-none",
+                                listing.status === 'available' ? 'bg-emerald-50 text-emerald-600' :
+                                    listing.status === 'pending' ? 'bg-orange-50 text-orange-600' :
+                                        'bg-rose-50 text-rose-600'
+                            )}>
+                                {listing.status}
+                            </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-slate-400">
+                            <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-widest">
+                                <Car size={14} />
+                                {listing.header.basicSpecs}
+                            </div>
+                            <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-widest border-l border-slate-200 pl-4">
+                                <MapPin size={14} />
+                                {listing.header.location}
+                            </div>
+                            <div className="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-widest border-l border-slate-200 pl-4">
+                                <Activity size={14} />
+                                {listing.viewCounts} Total Views
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="text-right mr-4 hidden md:block">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Valuation</span>
+                        <span className="text-3xl font-black text-[#003399] tracking-tight">{listing.header.price}</span>
+                    </div>
+                    {listing.status === 'pending' && (
+                        <>
+                            <Button
+                                onClick={() => handleStatusUpdate('available')}
+                                className="h-12 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest px-6 shadow-lg shadow-emerald-900/10"
+                            >
+                                <CheckCircle2 size={18} className="mr-2" />
+                                Approve
+                            </Button>
+                            <Button
+                                onClick={() => handleStatusUpdate('rejected')}
+                                className="h-12 bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest px-6 shadow-lg shadow-rose-900/10"
+                            >
+                                <XCircle size={18} className="mr-2" />
+                                Reject
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            <div className="space-y-8">
+
+                {/* Section 1: Interior & Exterior Digital Artifacts */}
+                <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="px-10 pt-10 pb-6 border-b border-slate-50">
+                        <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight">Digital Media Review</CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-10 py-10">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+                            <div className="md:col-span-8 space-y-4">
+                                <div className="relative aspect-video rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner group">
+                                    {listing.mediaReview.images.length > 0 ? (
+                                        <img
+                                            src={listing.mediaReview.images[activeImage]?.url}
+                                            alt={listing.header.title}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-4">
+                                            <ImageIcon size={64} />
+                                            <span className="text-sm font-bold uppercase tracking-[0.2em]">No official images available</span>
+                                        </div>
+                                    )}
+                                    {listing.mediaReview.images[activeImage]?.isPrimary && (
+                                        <div className="absolute top-6 left-6">
+                                            <Badge className="bg-[#003399] text-white border-0 py-1.5 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/20">
+                                                Primary Display Image
+                                            </Badge>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
+                                    {listing.mediaReview.images.map((img, idx) => (
+                                        <button
+                                            key={img.id}
+                                            onClick={() => setActiveImage(idx)}
+                                            className={cn(
+                                                "h-20 w-32 rounded-2xl overflow-hidden shrink-0 border-2 transition-all relative group shadow-sm",
+                                                activeImage === idx ? "border-[#003399] p-0.5" : "border-slate-100 opacity-60 hover:opacity-100"
+                                            )}
+                                        >
+                                            <img src={img.url} className="w-full h-full object-cover rounded-[0.8rem]" />
+                                            {img.isPrimary && (
+                                                <div className="absolute top-1 right-1">
+                                                    <div className="w-4 h-4 rounded-full bg-[#003399] text-white flex items-center justify-center ring-2 ring-white">
+                                                        <Check size={8} strokeWidth={4} />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="md:col-span-4 flex flex-col justify-center gap-8">
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                            <ShieldCheck size={16} />
+                                            Compliance & Trust
+                                        </h4>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">KYC Status</span>
+                                                {listing.complianceReview.kycVerified ? (
+                                                    <Badge className="bg-emerald-50 text-emerald-600 border-0 rounded-lg">Verified</Badge>
+                                                ) : (
+                                                    <Badge className="bg-rose-50 text-rose-600 border-0 rounded-lg">Unverified</Badge>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">VIN Compliance</span>
+                                                {listing.complianceReview.vinProvided ? (
+                                                    <Badge className="bg-emerald-50 text-emerald-600 border-0 rounded-lg">Success</Badge>
+                                                ) : (
+                                                    <Badge className="bg-rose-50 text-rose-600 border-0 rounded-lg">Missing</Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                            <ImageIcon size={16} />
+                                            Content Quality
+                                        </h4>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-[#003399] text-white shadow-xl shadow-blue-900/10 border-0">
+                                                <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Digital Health</span>
+                                                <span className="text-sm font-black">{listing.contentQuality.descriptionProfessionalism} Score</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Images</span>
+                                                    <span className="text-xl font-bold text-slate-900">{listing.contentQuality.imageCount}</span>
+                                                </div>
+                                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Flagged</span>
+                                                    <span className={cn("text-xl font-bold", listing.contentQuality.isFlagged ? "text-rose-500" : "text-emerald-500")}>
+                                                        {listing.contentQuality.isFlagged ? 'Yes' : 'No'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                {/* Section 2: Vehicle Specification Intelligence */}
+                <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="px-10 pt-10 pb-6 border-b border-slate-50">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight">Vehicle Identification</CardTitle>
+                            <div className="flex gap-2">
+                                {listing.badges.verifiedSeller && (
+                                    <Badge className="bg-emerald-50 text-emerald-600 border-0 rounded-lg font-bold text-[9px] uppercase tracking-widest">Verified Seller</Badge>
+                                )}
+                                {listing.badges.featuredListing && (
+                                    <Badge className="bg-[#003399]/10 text-[#003399] border-0 rounded-lg font-bold text-[9px] uppercase tracking-widest">Featured</Badge>
+                                )}
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="px-10 py-10">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                            {[
+                                { label: 'Make', value: listing.vehicleInformation.make, icon: Car },
+                                { label: 'Model', value: listing.vehicleInformation.model, icon: Tag },
+                                { label: 'Year', value: listing.vehicleInformation.year, icon: Calendar },
+                                { label: 'Condition', value: listing.vehicleInformation.condition, icon: ShieldCheck },
+                                { label: 'Transmission', value: listing.vehicleInformation.transmission, icon: Settings },
+                                { label: 'Fuel Type', value: listing.vehicleInformation.fuelType, icon: Activity },
+                                { label: 'Engine', value: listing.vehicleInformation.engineType, icon: Settings },
+                                { label: 'Drive Type', value: listing.vehicleInformation.driveType || 'N/A', icon: Activity },
+                                { label: 'Exterior Color', value: listing.vehicleInformation.exteriorColor, icon: Tag },
+                                { label: 'Interior Color', value: listing.vehicleInformation.interiorColor, icon: Tag },
+                                { label: 'Body Type', value: listing.vehicleInformation.bodyType, icon: Car },
+                                { label: 'Registration', value: listing.vehicleInformation.registrationStatus, icon: FileCheck },
+                                { label: 'VIN/Chassis', value: listing.vehicleInformation.vinChassisNumber || 'No VIN provided', icon: ShieldCheck },
+                                { label: 'Negotiable', value: listing.vehicleInformation.negotiable, icon: User },
+                                { label: 'Inspection', value: listing.vehicleInformation.inspectionAccepted ? 'Accepted' : 'Declined', icon: FileCheck },
+                                { label: 'Address', value: listing.vehicleInformation.location.fullAddress, icon: MapPin },
+                            ].map((spec, i) => (
+                                <div key={i} className="space-y-1.5">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">{spec.label}</span>
+                                    <div className="flex items-center gap-2">
+                                        <spec.icon size={14} className="text-slate-300" />
+                                        <span className="text-sm font-bold text-slate-900">{spec.value}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-10 pt-10 border-t border-slate-50 space-y-6">
+                            <div>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Seller Description</span>
+                                <p className="text-sm font-medium text-slate-600 leading-relaxed max-w-4xl italic">"{listing.description}"</p>
+                            </div>
+
+                            <div>
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Premium Features</span>
+                                <div className="flex flex-wrap gap-2">
+                                    {listing.carFeatures.map((feature, i) => (
+                                        <Badge key={i} variant="outline" className="h-8 px-4 rounded-xl border-slate-100 bg-slate-50 text-slate-600 font-bold text-[10px] flex items-center gap-1.5 pointer-events-none">
+                                            <Check size={12} className="text-[#003399]" />
+                                            {feature}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+
+
+                {/* Section 3: Verified Seller Intelligence */}
+                <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="px-10 pt-10 pb-6 border-b border-slate-50">
+                        <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight">Seller Verification</CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-10 py-10">
+                        <div className="flex flex-col md:flex-row items-center gap-10">
+                            <div className="flex items-center gap-6 md:border-r border-slate-50 md:pr-12">
+                                <Avatar className="h-24 w-24 rounded-[2rem] border border-slate-100 shadow-md">
+                                    <AvatarFallback className="bg-blue-50 text-[#003399] font-black text-2xl uppercase">{listing.sellerInformation.name[0]}</AvatarFallback>
+                                </Avatar>
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-2xl font-black text-slate-900">{listing.sellerInformation.name}</h3>
+                                        {listing.sellerInformation.verified && (
+                                            <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                                <CheckCircle2 size={12} fill="currentColor" className="text-emerald-500" strokeWidth={3} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Badge className="bg-slate-100 text-slate-600 border-0 rounded-lg text-[10px] uppercase font-bold">{listing.sellerInformation.sellerType}</Badge>
+                                        <span className="text-xs font-bold text-slate-400">Member Since {listing.sellerInformation.memberSince}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-8">
+                                {[
+                                    { label: 'Primary Contact', value: listing.sellerInformation.phone, icon: Phone },
+                                    { label: 'Email Identity', value: listing.sellerInformation.email, icon: Mail },
+                                    { label: 'Origin Location', value: listing.sellerInformation.location, icon: MapPin },
+                                    { label: 'Registry Status', value: listing.sellerInformation.phoneStatus, icon: ShieldCheck },
+                                    { label: 'Active Listings', value: listing.sellerInformation.totalActiveListings, icon: ImageIcon },
+                                ].map((info, i) => (
+                                    <div key={i} className="space-y-1">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">{info.label}</span>
+                                        <div className="flex items-center gap-2">
+                                            <info.icon size={14} className="text-slate-300" />
+                                            <span className="text-sm font-bold text-slate-700 truncate max-w-[150px]">{info.value}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Section 4: Audit Timeline Information */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                        { label: 'Submission Gateway', value: listing.header.submittedDate, icon: Calendar },
+                        { label: 'Publication Gateway', value: listing.header.publishedDate, icon: CheckCircle2 },
+                        { label: 'Last Registry Sync', value: listing.header.lastUpdated, icon: Clock },
+                    ].map((item, i) => (
+                        <div key={i} className="rounded-2xl bg-white border border-slate-100 p-6 flex flex-col gap-1 items-center text-center">
+                            <item.icon size={18} className="text-[#003399] mb-2" />
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</span>
+                            <span className="text-xs font-bold text-slate-900">{item.value}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}

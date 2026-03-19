@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,7 +32,9 @@ export function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
     const setAuth = useAuthStore((state) => state.setAuth);
+    const redirect = searchParams.get('redirect');
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -50,7 +52,7 @@ export function LoginForm() {
 
             setAuth(user, token);
             toast.success('Login successful!');
-            router.push('/dashboard');
+            router.push(redirect || '/admin/dashboard');
         } catch (error: any) {
             const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
             toast.error(message);

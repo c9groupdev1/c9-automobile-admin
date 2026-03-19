@@ -16,10 +16,10 @@ export function middleware(request: NextRequest) {
         }
     }
 
-    // Redirect logged-in users away from auth pages
-    if (pathname.startsWith('/auth') && token) {
-        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-    }
+    // Removed: Redirect logged-in users away from auth pages
+    // This allows the landing page "Login" button to always show the login form,
+    // which aligns with the user's explicit navigation request.
+
 
     return NextResponse.next();
 }

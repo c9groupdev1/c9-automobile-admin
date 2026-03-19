@@ -1,11 +1,11 @@
 'use client';
 
-import { 
-    Car, 
-    Clock, 
-    CheckCircle2, 
-    XCircle, 
-    Star, 
+import {
+    Car,
+    Clock,
+    CheckCircle2,
+    XCircle,
+    Star,
     AlertTriangle,
     Search,
     Download,
@@ -70,7 +70,7 @@ export default function ListingsPage() {
     const [modelFilter, setModelFilter] = useState('');
     const [yearFilter, setYearFilter] = useState('');
     const [stateIdFilter, setStateIdFilter] = useState('');
-    
+
     // Temporary states for the filter sheet
     const [tempStatus, setTempStatus] = useState('all');
     const [tempMake, setTempMake] = useState('');
@@ -106,7 +106,7 @@ export default function ListingsPage() {
         setTempModel('');
         setTempYear('');
         setTempStateId('');
-        
+
         setStatusFilter('all');
         setMakeFilter('');
         setModelFilter('');
@@ -211,7 +211,7 @@ export default function ListingsPage() {
                             className="h-12 pl-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 transition-all text-sm font-medium"
                         />
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                         <Sheet>
                             <SheetTrigger
@@ -296,8 +296,8 @@ export default function ListingsPage() {
                                 </div>
                                 <SheetFooter className="p-0 pt-8 border-t border-slate-100 mt-auto">
                                     <div className="flex items-center gap-3 w-full">
-                                        <Button 
-                                            variant="ghost" 
+                                        <Button
+                                            variant="ghost"
                                             className="flex-1 h-14 rounded-2xl font-bold text-slate-500 hover:text-slate-900"
                                             onClick={handleResetFilters}
                                         >
@@ -306,7 +306,7 @@ export default function ListingsPage() {
                                         </Button>
                                         <SheetClose
                                             render={
-                                                <Button 
+                                                <Button
                                                     className="flex-[2] h-14 rounded-2xl font-bold bg-[#003399] hover:bg-blue-900 shadow-xl shadow-blue-900/10"
                                                     onClick={handleApplyFilters}
                                                 >
@@ -318,10 +318,10 @@ export default function ListingsPage() {
                                 </SheetFooter>
                             </SheetContent>
                         </Sheet>
-                        <Button variant="outline" className="border-slate-100 rounded-xl px-6 h-12 font-bold text-xs text-slate-600 hover:bg-slate-50">
+                        {/* <Button variant="outline" className="border-slate-100 rounded-xl px-6 h-12 font-bold text-xs text-slate-600 hover:bg-slate-50">
                             <Download size={16} className="mr-2" />
                             Export
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
 
@@ -330,7 +330,7 @@ export default function ListingsPage() {
                         {statusFilter !== 'all' && (
                             <div className="flex items-center gap-2 bg-blue-50 text-[#003399] pl-3 pr-2 py-1.5 rounded-lg border border-blue-100 shadow-sm">
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Status: {statusFilter}</span>
-                                <button 
+                                <button
                                     onClick={() => clearFilter('status')}
                                     className="text-[#003399] p-0.5 hover:bg-blue-100 rounded-md transition-colors"
                                 >
@@ -341,7 +341,7 @@ export default function ListingsPage() {
                         {makeFilter && (
                             <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Make: {makeFilter}</span>
-                                <button 
+                                <button
                                     onClick={() => clearFilter('make')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
                                 >
@@ -352,7 +352,7 @@ export default function ListingsPage() {
                         {modelFilter && (
                             <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Model: {modelFilter}</span>
-                                <button 
+                                <button
                                     onClick={() => clearFilter('model')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
                                 >
@@ -363,7 +363,7 @@ export default function ListingsPage() {
                         {yearFilter && (
                             <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Year: {yearFilter}</span>
-                                <button 
+                                <button
                                     onClick={() => clearFilter('year')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
                                 >
@@ -374,7 +374,7 @@ export default function ListingsPage() {
                         {stateIdFilter && (
                             <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
                                 <span className="text-[10px] font-bold uppercase tracking-widest">State: {stateIdFilter}</span>
-                                <button 
+                                <button
                                     onClick={() => clearFilter('stateId')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
                                 >
@@ -382,7 +382,7 @@ export default function ListingsPage() {
                                 </button>
                             </div>
                         )}
-                        <button 
+                        <button
                             onClick={handleResetFilters}
                             className="text-[10px] font-bold text-rose-500 uppercase tracking-widest px-4 hover:underline"
                         >Clear All Filters</button>
@@ -399,14 +399,14 @@ export default function ListingsPage() {
                             {meta ? `Showing ${meta.from}-${meta.to} of ${meta.total} listings` : 'Loading listings...'}
                         </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    {/* <div className="flex items-center gap-3">
                         <Button className="bg-emerald-500 hover:bg-emerald-600 rounded-xl px-6 h-11 font-bold text-xs text-white shadow-lg shadow-emerald-900/10">
                             Approve Selected
                         </Button>
                         <Button className="bg-rose-500 hover:bg-rose-600 rounded-xl px-6 h-11 font-bold text-xs text-white shadow-lg shadow-rose-900/10">
                             Reject Selected
                         </Button>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="overflow-x-auto">
                     <Table>
@@ -465,7 +465,7 @@ export default function ListingsPage() {
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col gap-0.5">
-                                                    <Link href={`/listings/${listing.id}`} className="block">
+                                                    <Link href={`/admin/listings/${listing.id}`} className="block">
                                                         <span className="text-xs font-black text-slate-900 leading-tight hover:text-[#003399] transition-colors">{listing.title}</span>
                                                     </Link>
                                                     <div className="flex items-center gap-2 mt-1">
@@ -514,13 +514,13 @@ export default function ListingsPage() {
                                         <TableCell className="px-4 py-6 text-center">
                                             <Badge className={cn(
                                                 "text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border-0 pointer-events-none inline-flex items-center gap-1.5",
-                                                listing.status === 'available' ? 'bg-emerald-50 text-emerald-600' : 
-                                                listing.status === 'pending' ? 'bg-orange-50 text-orange-600' : 
-                                                listing.status === 'draft' ? 'bg-slate-100 text-slate-500' : 'bg-rose-50 text-rose-600'
+                                                listing.status === 'available' ? 'bg-emerald-50 text-emerald-600' :
+                                                    listing.status === 'pending' ? 'bg-orange-50 text-orange-600' :
+                                                        listing.status === 'draft' ? 'bg-slate-100 text-slate-500' : 'bg-rose-50 text-rose-600'
                                             )}>
-                                                <div className={cn("w-1.5 h-1.5 rounded-full", 
-                                                    listing.status === 'available' ? 'bg-emerald-600' : 
-                                                    listing.status === 'pending' ? 'bg-orange-600' : 'bg-slate-400'
+                                                <div className={cn("w-1.5 h-1.5 rounded-full",
+                                                    listing.status === 'available' ? 'bg-emerald-600' :
+                                                        listing.status === 'pending' ? 'bg-orange-600' : 'bg-slate-400'
                                                 )}></div>
                                                 {listing.status}
                                             </Badge>
@@ -549,7 +549,7 @@ export default function ListingsPage() {
                             Showing {meta.from}-{meta.to} of {meta.total} listings
                         </p>
                         <div className="flex items-center gap-2">
-                            <button 
+                            <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
                                 className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors disabled:opacity-30"
@@ -560,8 +560,8 @@ export default function ListingsPage() {
                                 {Array.from({ length: Math.min(meta.last_page, 5) }, (_, i) => {
                                     const p = i + 1;
                                     return (
-                                        <button 
-                                            key={p} 
+                                        <button
+                                            key={p}
                                             onClick={() => setPage(p)}
                                             className={cn(
                                                 "h-10 w-10 rounded-xl font-bold text-xs transition-all",
@@ -574,16 +574,16 @@ export default function ListingsPage() {
                                 })}
                                 {meta.last_page > 5 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
                                 {meta.last_page > 5 && (
-                                    <button 
+                                    <button
                                         onClick={() => setPage(meta.last_page)}
                                         className={cn(
                                             "h-10 px-4 rounded-xl bg-white border border-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-50",
                                             page === meta.last_page && "bg-[#003399] text-white"
                                         )}
-                                >{meta.last_page}</button>
+                                    >{meta.last_page}</button>
                                 )}
                             </div>
-                            <button 
+                            <button
                                 onClick={() => setPage(p => Math.min(meta.last_page, p + 1))}
                                 disabled={page === meta.last_page}
                                 className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-100 bg-white hover:bg-slate-50 transition-colors disabled:opacity-30"
@@ -596,7 +596,7 @@ export default function ListingsPage() {
             </Card>
 
             {/* Audit foundations remains same */}
-            <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
+            {/* <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
                 <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
                     <h3 className="font-bold text-slate-900 text-lg">Recent Listing Activity</h3>
                     <button className="text-blue-600 font-bold text-[10px] uppercase tracking-widest hover:underline">View All</button>
@@ -612,7 +612,7 @@ export default function ListingsPage() {
                         </div>
                     </div>
                 </div>
-            </Card>
+            </Card> */}
         </div>
     );
 }

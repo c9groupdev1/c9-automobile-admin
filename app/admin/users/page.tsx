@@ -133,7 +133,7 @@ export default function UsersPage() {
                     <p className="text-slate-500 font-medium text-sm">Manage all registered customers and personal user accounts across the platform</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button 
+                    <Button
                         onClick={() => {
                             setEditingUser(undefined);
                             setIsFormOpen(true);
@@ -147,7 +147,7 @@ export default function UsersPage() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
                 <StatsCard
                     title="Total Users"
                     value={loadingAnalysis || !analysis ? '...' : analysis.totalUsers?.toLocaleString()}
@@ -250,13 +250,13 @@ export default function UsersPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                    <Button className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-11 font-bold text-xs shadow-lg shadow-blue-900/10">
+                    {/* <Button className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-11 font-bold text-xs shadow-lg shadow-blue-900/10">
                         <Download size={16} className="mr-2" />
                         Export Users
-                    </Button>
+                    </Button> */}
                     <div className="flex items-center gap-2">
                         <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                            <SheetTrigger 
+                            <SheetTrigger
                                 render={<Button variant="ghost" size="sm" className="text-slate-500 font-bold text-[10px] uppercase tracking-widest"><Filter size={14} className="mr-2" /> All Filters</Button>}
                             />
                             <SheetContent className="w-[400px] sm:w-[540px] rounded-l-[3rem] border-l-slate-100 p-10 flex flex-col">
@@ -267,7 +267,7 @@ export default function UsersPage() {
                                     <SheetTitle className="text-2xl font-black text-slate-900">Advanced Filters</SheetTitle>
                                     <SheetDescription className="text-slate-500 font-medium">Refine user entries using comprehensive parameters</SheetDescription>
                                 </SheetHeader>
-                                
+
                                 <div className="flex-1 space-y-8 overflow-y-auto pr-4 -mr-4">
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sorting Configuration</label>
@@ -311,8 +311,8 @@ export default function UsersPage() {
                                 </div>
 
                                 <div className="pt-8 border-t border-slate-50 flex gap-4">
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         className="flex-1 h-12 rounded-xl font-bold border-slate-100 text-slate-600"
                                         onClick={() => {
                                             setAccountStatus('all-status');
@@ -325,7 +325,7 @@ export default function UsersPage() {
                                     >
                                         Reset Filters
                                     </Button>
-                                    <Button 
+                                    <Button
                                         className="flex-1 h-12 rounded-xl font-bold bg-[#003399] hover:bg-blue-800"
                                         onClick={() => setIsFilterOpen(false)}
                                     >
@@ -352,7 +352,7 @@ export default function UsersPage() {
                                 <TableHead className="w-12 px-8 py-4">
                                     <Checkbox className="rounded-md border-slate-300" />
                                 </TableHead>
-                                <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User ID</TableHead>
+                                {/* <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User ID</TableHead> */}
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</TableHead>
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</TableHead>
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone Number</TableHead>
@@ -370,13 +370,13 @@ export default function UsersPage() {
                                         <TableCell className="px-8 py-5">
                                             <Checkbox className="rounded-md border-slate-300 group-hover:border-[#003399]" />
                                         </TableCell>
-                                        <TableCell className="px-4 py-5">
+                                        {/* <TableCell className="px-4 py-5">
                                             <span className="text-[10px] font-bold text-slate-400 tracking-tight uppercase truncate max-w-[80px] block" title={user.id}>
                                                 {user.id?.split('-')?.[0] || 'USER'}...
                                             </span>
-                                        </TableCell>
+                                        </TableCell> */}
                                         <TableCell className="px-4 py-5">
-                                            <Link href={`/users/${user.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                                            <Link href={`/admin/users/${user.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                                                 <Avatar className="h-9 w-9 rounded-xl border border-white shadow-sm ring-1 ring-slate-100">
                                                     {user.avatar && <AvatarImage src={`${STORAGE_URL}${user.avatar}`} className="object-cover" />}
                                                     <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-[10px]">{user.fullName[0]}</AvatarFallback>
@@ -423,19 +423,19 @@ export default function UsersPage() {
                                         </TableCell>
                                         <TableCell className="px-4 py-5 text-right">
                                             <DropdownMenu>
-                                                <DropdownMenuTrigger 
+                                                <DropdownMenuTrigger
                                                     render={<Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600"><MoreVertical size={16} /></Button>}
                                                 />
                                                 <DropdownMenuContent align="end" className="w-56 rounded-2xl border-slate-100 shadow-2xl p-2">
                                                     <DropdownMenuLabel className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Administrative Actions</DropdownMenuLabel>
                                                     <DropdownMenuSeparator className="bg-slate-50" />
-                                                    <DropdownMenuItem 
+                                                    <DropdownMenuItem
                                                         onClick={() => {
                                                             setEditingUser({
                                                                 id: user.id,
                                                                 name: user.fullName,
                                                                 email: user.emailAddress,
-                                                                role: user.accountType 
+                                                                role: user.accountType
                                                             });
                                                             setIsFormOpen(true);
                                                         }}
@@ -444,7 +444,7 @@ export default function UsersPage() {
                                                         <User size={14} className="text-[#003399]" />
                                                         Modify User Profile
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem 
+                                                    <DropdownMenuItem
                                                         onClick={() => handleResetPassword(user.id)}
                                                         className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors"
                                                     >
@@ -452,7 +452,7 @@ export default function UsersPage() {
                                                         Force Credentials Reset
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator className="bg-slate-50" />
-                                                    <DropdownMenuItem 
+                                                    <DropdownMenuItem
                                                         onClick={() => handleToggleStatus(user.id, user.accountStatus)}
                                                         className={cn(
                                                             "px-3 py-3 rounded-xl font-bold text-xs cursor-pointer flex items-center gap-3 transition-colors",
@@ -555,14 +555,14 @@ export default function UsersPage() {
                         <SheetTitle className="text-2xl font-black text-slate-900">{editingUser ? 'Modify User Profile' : 'Initialize New User'}</SheetTitle>
                         <SheetDescription className="text-slate-500 font-medium">{editingUser ? `Updating access and credentials for User ID: ${editingUser.id}` : 'Configure access clearance and identities for a new protocol member'}</SheetDescription>
                     </SheetHeader>
-                    
+
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4">
-                        <UserForm 
-                            initialData={editingUser} 
+                        <UserForm
+                            initialData={editingUser}
                             onSuccess={() => {
                                 setIsFormOpen(false);
                                 refetch();
-                            }} 
+                            }}
                         />
                     </div>
                 </SheetContent>

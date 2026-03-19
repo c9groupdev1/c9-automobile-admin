@@ -10,15 +10,17 @@ export interface KycRequest {
         id: string;
         name: string;
         email: string;
-        memberSince?: string;
+        memberSince: string;
     };
     verificationDetails: {
         phoneNumber: string;
-        address?: string;
-        idNumber?: string;
         selfiePicture: string;
-        meansOfIdentity?: string;
-        meansOfIdentityType?: string;
+        individualInfo?: {
+            address: string;
+            idType: string;
+            idNumber: string;
+            idImage: string;
+        };
         businessInfo?: {
             businessName: string;
             businessAddress: string;
@@ -81,11 +83,12 @@ export function useReviewKyc() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async ({ id, status, comments }: { id: string | number; status: string; comments: string }) => {
-            const response = await api.post(`/admin/kyc/${id}/review`, { status, comments });
+            const response = await api.post<{ success: boolean; data: any; message: string }>(`/admin/kyc/${id}/review`, { status, comments });
             return response.data;
         },
-        onSuccess: () => {
+        onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['kyc'] });
+            queryClient.invalidateQueries({ queryKey: ['kyc-request', variables.id] });
         },
     });
 }

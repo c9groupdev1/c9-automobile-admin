@@ -1,11 +1,11 @@
 'use client';
 
-import { 
-    ShieldCheck, 
-    UserCheck, 
-    UserX, 
-    FileText, 
-    Users, 
+import {
+    ShieldCheck,
+    UserCheck,
+    UserX,
+    FileText,
+    Users,
     Store,
     Search,
     Download,
@@ -59,7 +59,7 @@ export default function KYCManagementPage() {
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('all');
     const [typeFilter, setTypeFilter] = useState('all');
-    
+
     const { data: kycData, isLoading } = useKycRequests({
         page,
         status: statusFilter === 'all' ? undefined : statusFilter
@@ -100,7 +100,7 @@ export default function KYCManagementPage() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+            {/* <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
                 <StatsCard
                     title="Total Submissions"
                     value={meta?.total?.toLocaleString() || '...'}
@@ -149,7 +149,7 @@ export default function KYCManagementPage() {
                     iconBg="bg-violet-50"
                     iconColor="text-violet-600"
                 />
-            </div>
+            </div> */}
 
             {/* Search & Filters Bar */}
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 space-y-4">
@@ -161,8 +161,8 @@ export default function KYCManagementPage() {
                             className="h-12 pl-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 transition-all text-sm font-medium"
                         />
                     </div>
-                    
-                    <div className="flex items-center gap-2">
+
+                    {/* <div className="flex items-center gap-2">
                         <Button className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10 whitespace-nowrap">
                             Bulk Actions
                         </Button>
@@ -170,7 +170,7 @@ export default function KYCManagementPage() {
                             <Download size={16} className="mr-2" />
                             Export
                         </Button>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
@@ -268,7 +268,7 @@ export default function KYCManagementPage() {
                                                 <Checkbox className="rounded-md border-slate-300 group-hover:border-[#003399]" />
                                             </TableCell>
                                             <TableCell className="px-4 py-6">
-                                                <Link href={`/kyc/${req.id}`} className="group/link block">
+                                                <Link href={`/admin/kyc/${req.id}`} className="group/link block">
                                                     <div className="flex items-center gap-3">
                                                         <Avatar className="h-11 w-11 rounded-2xl border border-white shadow-sm ring-1 ring-slate-100 overflow-hidden group-hover/link:ring-blue-200 transition-all">
                                                             {req.verificationDetails?.selfiePicture && (
@@ -287,7 +287,7 @@ export default function KYCManagementPage() {
                                             </TableCell>
                                             <TableCell className="px-4 py-6">
                                                 <div className={cn(
-                                                    "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl whitespace-nowrap", 
+                                                    "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl whitespace-nowrap",
                                                     req.type.toLowerCase() === 'business' ? 'bg-violet-50 text-violet-600' : 'bg-blue-50 text-blue-600'
                                                 )}>
                                                     {req.type.toLowerCase() === 'business' ? <Building2 size={12} /> : <User size={12} />}
@@ -302,12 +302,14 @@ export default function KYCManagementPage() {
                                             </TableCell>
                                             <TableCell className="px-4 py-6">
                                                 <div className="flex items-center justify-center gap-3">
-                                                    {req.verificationDetails?.meansOfIdentityType && (
+                                                    {(req.verificationDetails?.individualInfo?.idType || req.verificationDetails?.businessInfo?.rcNumber) && (
                                                         <div className="flex flex-col items-center gap-1 group/item">
                                                             <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover/item:bg-blue-50 group-hover/item:text-blue-500 transition-colors">
                                                                 <CreditCard size={14} />
                                                             </div>
-                                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{req.verificationDetails.meansOfIdentityType}</span>
+                                                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-tighter truncate max-w-[60px]">
+                                                                {req.verificationDetails?.individualInfo?.idType || `RC: ${req.verificationDetails?.businessInfo?.rcNumber}`}
+                                                            </span>
                                                         </div>
                                                     )}
                                                     {req.verificationDetails?.selfiePicture && (
@@ -358,9 +360,9 @@ export default function KYCManagementPage() {
                             Showing {meta.from} to {meta.to} of {meta.total} submissions
                         </p>
                         <div className="flex items-center gap-2">
-                            <Button 
-                                variant="outline" 
-                                size="icon" 
+                            <Button
+                                variant="outline"
+                                size="icon"
                                 className="h-10 w-10 rounded-xl border-slate-100 bg-white hover:bg-slate-50 disabled:opacity-30"
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
@@ -371,8 +373,8 @@ export default function KYCManagementPage() {
                                 {Array.from({ length: Math.min(meta.last_page, 5) }, (_, i) => {
                                     const p = i + 1;
                                     return (
-                                        <Button 
-                                            key={p} 
+                                        <Button
+                                            key={p}
                                             onClick={() => setPage(p)}
                                             className={cn(
                                                 "h-10 w-10 rounded-xl font-bold text-xs transition-all",
@@ -385,9 +387,9 @@ export default function KYCManagementPage() {
                                 })}
                                 {meta.last_page > 5 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
                             </div>
-                            <Button 
-                                variant="outline" 
-                                size="icon" 
+                            <Button
+                                variant="outline"
+                                size="icon"
                                 className="h-10 w-10 rounded-xl border-slate-100 bg-white hover:bg-slate-50 disabled:opacity-30"
                                 onClick={() => setPage(p => Math.min(meta.last_page, p + 1))}
                                 disabled={page === meta.last_page}
@@ -400,7 +402,7 @@ export default function KYCManagementPage() {
             </Card>
 
             {/* Recent KYC Review Activity foundations (remains same) */}
-            <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
+            {/* <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
                 <CardHeader className="px-10 py-8 border-b border-slate-50">
                     <CardTitle className="text-lg font-bold text-slate-900">Recent KYC Review Activity</CardTitle>
                 </CardHeader>
@@ -415,7 +417,7 @@ export default function KYCManagementPage() {
                         </div>
                     </div>
                 </CardContent>
-            </Card>
+            </Card> */}
         </div>
     );
 }

@@ -25,7 +25,7 @@ export function StatsCard({
     iconBg = "bg-blue-50"
 }: StatsCardProps) {
     return (
-        <Card className="border-slate-100 shadow-sm rounded-[1.5rem] overflow-hidden hover:shadow-md transition-shadow">
+        <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden hover:shadow-md transition-shadow">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", iconBg)}>

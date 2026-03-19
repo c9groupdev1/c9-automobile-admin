@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { isAuthenticated, _hasHydrated } = useAuthStore();
+    const { isAuthenticated, _hasHydrated, token: storeToken } = useAuthStore();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
@@ -23,8 +23,13 @@ export default function DashboardLayout({
 
     useEffect(() => {
         // Only redirect if hydration is complete and user is not authenticated
-        if (_hasHydrated && !isAuthenticated) {
-            router.push('/auth/login');
+        // Also check if there's no token in localStorage as a secondary check
+        if (_hasHydrated) {
+            const hasLocalToken = localStorage.getItem('token');
+            if (!isAuthenticated && !hasLocalToken) {
+                console.log('Redirecting to login: Not authenticated and no local token');
+                router.push('/auth/login');
+            }
         }
     }, [_hasHydrated, isAuthenticated, router]);
 
@@ -50,8 +55,15 @@ export default function DashboardLayout({
         );
     }
 
-    // Still check auth here just in case, though the useEffect handles redirect
-    if (!isAuthenticated) return null;
+    // Instead of returning null (white screen), show a placeholder if not authenticated
+    if (!isAuthenticated) {
+        return (
+            <div className="flex flex-col items-center justify-center h-screen bg-white">
+                <Loader2 className="h-10 w-10 animate-spin text-[#0066CC] mb-4" />
+                <p className="text-sm font-bold text-slate-500">Securing Session...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen overflow-hidden bg-white gradient-bg relative">
