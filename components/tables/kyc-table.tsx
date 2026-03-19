@@ -135,15 +135,15 @@ export function KycTable() {
                                                     <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Residential Address</p>
-                                                            <p className="font-bold text-slate-700">{request.verificationDetails.address || 'N/A'}</p>
+                                                            <p className="font-bold text-slate-700">{request.verificationDetails.individualInfo?.address || 'N/A'}</p>
                                                         </div>
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Contact Phone</p>
                                                             <p className="font-bold text-slate-700">{request.verificationDetails.phoneNumber}</p>
                                                         </div>
                                                         <div>
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">{(request.verificationDetails.meansOfIdentityType || 'Identity').replace('_', ' ')} Number</p>
-                                                            <p className="font-bold text-slate-700">{request.verificationDetails.idNumber || 'N/A'}</p>
+                                                            <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">{(request.verificationDetails.individualInfo?.idType || 'Identity').replace('_', ' ')} Number</p>
+                                                            <p className="font-bold text-slate-700">{request.verificationDetails.individualInfo?.idNumber || 'N/A'}</p>
                                                         </div>
                                                         <div>
                                                             <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] mb-1">Profile Type</p>
@@ -170,13 +170,13 @@ export function KycTable() {
                                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                         <div className="space-y-3 group">
                                                             <div className="flex items-center justify-between">
-                                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">{(request.verificationDetails.meansOfIdentityType || 'Identity').replace('_', ' ')}</p>
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">{(request.verificationDetails.individualInfo?.idType || 'Identity').replace('_', ' ')}</p>
                                                                 <span className="text-[10px] font-black uppercase text-slate-300">Identity Document</span>
                                                             </div>
                                                             <div className="aspect-[4/3] relative rounded-2xl border-2 border-slate-100 bg-slate-50 overflow-hidden shadow-sm group-hover:shadow-md transition-all">
-                                                                {request.verificationDetails.meansOfIdentity ? (
+                                                                {request.verificationDetails.individualInfo?.idImage ? (
                                                                     <img
-                                                                        src={getImageUrl(request.verificationDetails.meansOfIdentity)}
+                                                                        src={getImageUrl(request.verificationDetails.individualInfo.idImage)}
                                                                         alt="Identity"
                                                                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                                                                     />
