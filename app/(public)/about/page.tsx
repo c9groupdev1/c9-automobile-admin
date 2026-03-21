@@ -33,12 +33,31 @@ export default function AboutPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="space-y-8"
+            className="space-y-12"
           >
-            <h2 className="text-3xl font-bold tracking-tight">Our Mission</h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              We aim to eliminate friction in the Nigerian automotive market by providing verified listings, secure payment protocols, and a transparent auction system. Through our mobile-first approach, we empower users to trade with absolute confidence.
-            </p>
+            <div className="space-y-4">
+              <h2 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em]">Our Mission</h2>
+              <p className="text-2xl font-bold text-slate-900 leading-tight">
+                To power Africa’s automotive economy by digitizing vehicle transactions, optimizing supply chains, and enabling seamless access to premium vehicles across the continent.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-sm font-black text-blue-600 uppercase tracking-[0.3em]">Our Vision</h2>
+              <ul className="space-y-3">
+                {[
+                  'Building Africa’s Automotive Commerce Infrastructure',
+                  'Digitizing premium vehicle trade across Africa',
+                  'Creating the dominant automotive ecosystem platform'
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-lg text-slate-600 font-medium leading-relaxed">
+                    <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div className="grid grid-cols-2 gap-6 pt-4">
               {stats.map((stat, i) => (
                 <div key={i} className="p-6 rounded-2xl bg-slate-50 border border-slate-100">

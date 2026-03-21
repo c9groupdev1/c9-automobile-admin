@@ -33,6 +33,7 @@ import { useListing, useUpdateListingStatus } from '@/hooks/useListings';
 import { format, parseISO } from 'date-fns';
 import { useState, use } from 'react';
 import { toast } from 'sonner';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 
 export default function ListingDetailPage() {
     const params = useParams();
@@ -128,22 +129,24 @@ export default function ListingDetailPage() {
                         <span className="text-3xl font-black text-[#003399] tracking-tight">{listing.header.price}</span>
                     </div>
                     {listing.status === 'pending' && (
-                        <div className="flex gap-2 w-full sm:w-auto">
-                            <Button
-                                onClick={() => handleStatusUpdate('available')}
-                                className="h-11 md:h-12 flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-emerald-900/10"
-                            >
-                                <CheckCircle2 size={16} className="mr-2" />
-                                Approve
-                            </Button>
-                            <Button
-                                onClick={() => handleStatusUpdate('rejected')}
-                                className="h-11 md:h-12 flex-1 sm:flex-none bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-rose-900/10"
-                            >
-                                <XCircle size={16} className="mr-2" />
-                                Reject
-                            </Button>
-                        </div>
+                        <PermissionGuard permission="listing.status_manage">
+                            <div className="flex gap-2 w-full sm:w-auto">
+                                <Button
+                                    onClick={() => handleStatusUpdate('available')}
+                                    className="h-11 md:h-12 flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-emerald-900/10"
+                                >
+                                    <CheckCircle2 size={16} className="mr-2" />
+                                    Approve
+                                </Button>
+                                <Button
+                                    onClick={() => handleStatusUpdate('rejected')}
+                                    className="h-11 md:h-12 flex-1 sm:flex-none bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-rose-900/10"
+                                >
+                                    <XCircle size={16} className="mr-2" />
+                                    Reject
+                                </Button>
+                            </div>
+                        </PermissionGuard>
                     )}
                 </div>
             </div>

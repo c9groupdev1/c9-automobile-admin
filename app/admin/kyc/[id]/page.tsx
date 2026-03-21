@@ -36,6 +36,7 @@ import { useKycRequest, useReviewKyc } from '@/hooks/useKyc';
 import { format, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -137,23 +138,27 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                        <Button 
-                            disabled={reviewMutation.isPending || kyc.status === 'approved'}
-                            onClick={() => handleReview('approved')}
-                            className="h-11 flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-xs text-white px-6 shadow-lg shadow-emerald-500/20"
-                        >
-                            <ShieldCheck size={16} className="mr-2" />
-                            Approve
-                        </Button>
-                        <Button 
-                            disabled={reviewMutation.isPending || kyc.status === 'rejected'}
-                            onClick={() => handleReview('rejected')}
-                            variant="outline"
-                            className="h-11 flex-1 sm:flex-none rounded-xl border-rose-100 text-rose-600 hover:bg-rose-50 font-bold text-xs px-6"
-                        >
-                            <XCircle size={16} className="mr-2" />
-                            Reject
-                        </Button>
+                        <PermissionGuard permission="kyc.approve">
+                            <Button 
+                                disabled={reviewMutation.isPending || kyc.status === 'approved'}
+                                onClick={() => handleReview('approved')}
+                                className="h-11 flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-xs text-white px-6 shadow-lg shadow-emerald-500/20"
+                            >
+                                <ShieldCheck size={16} className="mr-2" />
+                                Approve
+                            </Button>
+                        </PermissionGuard>
+                        <PermissionGuard permission="kyc.reject">
+                            <Button 
+                                disabled={reviewMutation.isPending || kyc.status === 'rejected'}
+                                onClick={() => handleReview('rejected')}
+                                variant="outline"
+                                className="h-11 flex-1 sm:flex-none rounded-xl border-rose-100 text-rose-600 hover:bg-rose-50 font-bold text-xs px-6"
+                            >
+                                <XCircle size={16} className="mr-2" />
+                                Reject
+                            </Button>
+                        </PermissionGuard>
                     </div>
                 </div>
 

@@ -69,6 +69,8 @@ import {
 import { UserForm } from '@/components/forms/user-form';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import { PermissionGuard } from '@/components/auth/permission-guard';
+import { usePermissions } from '@/hooks/use-permissions';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -133,16 +135,18 @@ export default function UsersPage() {
                     <p className="text-slate-500 font-medium text-sm">Manage all registered customers and personal user accounts across the platform</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button
-                        onClick={() => {
-                            setEditingUser(undefined);
-                            setIsFormOpen(true);
-                        }}
-                        className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10"
-                    >
-                        <UserPlus size={16} className="mr-2" />
-                        Add New User
-                    </Button>
+                    <PermissionGuard permission="user.create">
+                        <Button
+                            onClick={() => {
+                                setEditingUser(undefined);
+                                setIsFormOpen(true);
+                            }}
+                            className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10"
+                        >
+                            <UserPlus size={16} className="mr-2" />
+                            Add New User
+                        </Button>
+                    </PermissionGuard>
                 </div>
             </div>
 
@@ -429,48 +433,54 @@ export default function UsersPage() {
                                                 <DropdownMenuContent align="end" className="w-56 rounded-2xl border-slate-100 shadow-2xl p-2">
                                                     <DropdownMenuLabel className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Administrative Actions</DropdownMenuLabel>
                                                     <DropdownMenuSeparator className="bg-slate-50" />
-                                                    <DropdownMenuItem
-                                                        onClick={() => {
-                                                            setEditingUser({
-                                                                id: user.id,
-                                                                name: user.fullName,
-                                                                email: user.emailAddress,
-                                                                role: user.accountType
-                                                            });
-                                                            setIsFormOpen(true);
-                                                        }}
-                                                        className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors"
-                                                    >
-                                                        <User size={14} className="text-[#003399]" />
-                                                        Modify User Profile
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onClick={() => handleResetPassword(user.id)}
-                                                        className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors"
-                                                    >
-                                                        <Shield size={14} className="text-orange-500" />
-                                                        Force Credentials Reset
-                                                    </DropdownMenuItem>
+                                                    <PermissionGuard permission="user.update">
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setEditingUser({
+                                                                    id: user.id,
+                                                                    name: user.fullName,
+                                                                    email: user.emailAddress,
+                                                                    role: user.accountType
+                                                                });
+                                                                setIsFormOpen(true);
+                                                            }}
+                                                            className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors"
+                                                        >
+                                                            <User size={14} className="text-[#003399]" />
+                                                            Modify User Profile
+                                                        </DropdownMenuItem>
+                                                    </PermissionGuard>
+                                                    <PermissionGuard permission="user.update">
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleResetPassword(user.id)}
+                                                            className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors"
+                                                        >
+                                                            <Shield size={14} className="text-orange-500" />
+                                                            Force Credentials Reset
+                                                        </DropdownMenuItem>
+                                                    </PermissionGuard>
                                                     <DropdownMenuSeparator className="bg-slate-50" />
-                                                    <DropdownMenuItem
-                                                        onClick={() => handleToggleStatus(user.id, user.accountStatus)}
-                                                        className={cn(
-                                                            "px-3 py-3 rounded-xl font-bold text-xs cursor-pointer flex items-center gap-3 transition-colors",
-                                                            user.accountStatus === 'Active' ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"
-                                                        )}
-                                                    >
-                                                        {user.accountStatus === 'Active' ? (
-                                                            <>
-                                                                <UserX size={14} />
-                                                                Suspend Protocol Access
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <UserCheck size={14} />
-                                                                Restore Account Access
-                                                            </>
-                                                        )}
-                                                    </DropdownMenuItem>
+                                                    <PermissionGuard permission="user.suspend">
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleToggleStatus(user.id, user.accountStatus)}
+                                                            className={cn(
+                                                                "px-3 py-3 rounded-xl font-bold text-xs cursor-pointer flex items-center gap-3 transition-colors",
+                                                                user.accountStatus === 'Active' ? "text-rose-600 hover:bg-rose-50" : "text-emerald-600 hover:bg-emerald-50"
+                                                            )}
+                                                        >
+                                                            {user.accountStatus === 'Active' ? (
+                                                                <>
+                                                                    <UserX size={14} />
+                                                                    Suspend Protocol Access
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <UserCheck size={14} />
+                                                                    Restore Account Access
+                                                                </>
+                                                            )}
+                                                        </DropdownMenuItem>
+                                                    </PermissionGuard>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

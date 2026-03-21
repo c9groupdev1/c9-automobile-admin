@@ -9,7 +9,7 @@ export default function ContactPage() {
   return (
     <div className="bg-white min-h-screen pt-32 pb-40 text-slate-900 font-sans">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-3xl mx-auto mb-20"
@@ -23,7 +23,7 @@ export default function ContactPage() {
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-12">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-1 space-y-8"
@@ -34,7 +34,7 @@ export default function ContactPage() {
                 {[
                   { icon: Mail, label: 'Email Us', value: 'support@c9x.com' },
                   { icon: Phone, label: 'Call Us', value: '+234 800 C9X AUTO' },
-                  { icon: MapPin, label: 'Headquarters', value: 'Lagos, Nigeria' },
+                  { icon: MapPin, label: 'Headquarters', value: 'Abuja, Nigeria' },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-[#003399]">
@@ -59,7 +59,7 @@ export default function ContactPage() {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
