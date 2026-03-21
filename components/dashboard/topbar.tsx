@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Bell, LogOut, User, Settings } from 'lucide-react';
+import { Search, Bell, LogOut, User, Settings, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,12 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+} from "@/components/ui/sheet";
+import { Sidebar } from "./sidebar";
 import { ThemeToggle } from './theme-toggle';
 import { useAuthStore } from '@/store/authStore';
 import { buttonVariants } from '@/components/ui/button';
@@ -22,8 +28,21 @@ export function Topbar() {
     const { user, logout } = useAuthStore();
 
     return (
-        <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-slate-100 bg-white/80 backdrop-blur-xl px-6 md:px-10">
-            <div className="flex flex-1 items-center gap-6">
+        <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-slate-100 bg-white/80 backdrop-blur-xl px-4 md:px-8 lg:px-10">
+            <div className="flex flex-1 items-center gap-4 md:gap-6">
+                <Sheet>
+                    <SheetTrigger
+                        render={
+                            <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10 rounded-xl text-slate-500 hover:text-[#003399] hover:bg-slate-50">
+                                <Menu className="h-6 w-6" />
+                            </Button>
+                        }
+                    />
+                    <SheetContent side="left" className="p-0 w-72 border-none">
+                        <Sidebar className="flex" />
+                    </SheetContent>
+                </Sheet>
+
                 <div className="relative w-full max-w-md hidden md:block group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                     <Input
@@ -34,7 +53,7 @@ export function Topbar() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 md:gap-6">
                 <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-100 gap-1">
                     <ThemeToggle />
                     <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-slate-500 hover:text-[#003399] hover:bg-white">

@@ -45,7 +45,7 @@ const menuItems = [
     { icon: Settings, label: 'Settings', href: '/admin/system-config' },
 ];
 
-export function Sidebar() {
+export function Sidebar({ className }: { className?: string }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const pathname = usePathname();
     const { logout, user } = useAuthStore();
@@ -53,8 +53,9 @@ export function Sidebar() {
     return (
         <aside
             className={cn(
-                'relative flex flex-col bg-white border-r border-slate-100 transition-all duration-300 ease-in-out z-40',
-                isCollapsed ? 'w-20' : 'w-72'
+                'relative flex flex-col bg-white border-r border-slate-100 transition-all duration-300 ease-in-out z-40 h-full',
+                isCollapsed ? 'w-20' : 'w-72',
+                className
             )}
         >
             {/* Header / Logo */}

@@ -255,14 +255,14 @@ export default function DashboardPage() {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+                <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
                     <OverviewChart
-                        className="col-span-4"
+                        className="col-span-1 lg:col-span-4"
                         data={listingsPerMonth}
                         isLoading={isLoadingMonths}
                     />
                     <StateDistributionChart
-                        className="col-span-3"
+                        className="col-span-1 lg:col-span-3"
                         data={listingsByState}
                         isLoading={isLoadingStates}
                     />
@@ -270,9 +270,9 @@ export default function DashboardPage() {
             </div>
 
             {/* Section: Intelligence Hub */}
-            <div className="grid gap-6 lg:grid-cols-5">
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-5">
                 {/* Recent Platform Activity */}
-                <Card className="col-span-3 border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
+                <Card className="col-span-1 lg:col-span-3 border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
                     <CardHeader className="p-8 pb-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Pending Approvals */}
-                <Card className="col-span-2 border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
+                <Card className="col-span-1 lg:col-span-2 border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
                     <CardHeader className="p-8 pb-4">
                         <CardTitle className="text-lg font-bold text-slate-900">Verification Queue</CardTitle>
                         <div className="pt-4">

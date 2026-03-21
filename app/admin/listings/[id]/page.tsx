@@ -118,28 +118,32 @@ export default function ListingDetailPage() {
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3 md:gap-4 mt-2 md:mt-0">
+                    <div className="flex flex-col md:hidden w-full mb-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Valuation</span>
+                        <span className="text-2xl font-black text-[#003399] tracking-tight">{listing.header.price}</span>
+                    </div>
                     <div className="text-right mr-4 hidden md:block">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Valuation</span>
                         <span className="text-3xl font-black text-[#003399] tracking-tight">{listing.header.price}</span>
                     </div>
                     {listing.status === 'pending' && (
-                        <>
+                        <div className="flex gap-2 w-full sm:w-auto">
                             <Button
                                 onClick={() => handleStatusUpdate('available')}
-                                className="h-12 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest px-6 shadow-lg shadow-emerald-900/10"
+                                className="h-11 md:h-12 flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-emerald-900/10"
                             >
-                                <CheckCircle2 size={18} className="mr-2" />
+                                <CheckCircle2 size={16} className="mr-2" />
                                 Approve
                             </Button>
                             <Button
                                 onClick={() => handleStatusUpdate('rejected')}
-                                className="h-12 bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest px-6 shadow-lg shadow-rose-900/10"
+                                className="h-11 md:h-12 flex-1 sm:flex-none bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-rose-900/10"
                             >
-                                <XCircle size={18} className="mr-2" />
+                                <XCircle size={16} className="mr-2" />
                                 Reject
                             </Button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

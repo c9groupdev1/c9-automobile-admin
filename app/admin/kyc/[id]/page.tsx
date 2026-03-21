@@ -136,23 +136,23 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                         <Button 
                             disabled={reviewMutation.isPending || kyc.status === 'approved'}
                             onClick={() => handleReview('approved')}
-                            className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-xs text-white px-6 shadow-lg shadow-emerald-500/20"
+                            className="h-11 flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-xs text-white px-6 shadow-lg shadow-emerald-500/20"
                         >
                             <ShieldCheck size={16} className="mr-2" />
-                            Approve Case
+                            Approve
                         </Button>
                         <Button 
                             disabled={reviewMutation.isPending || kyc.status === 'rejected'}
                             onClick={() => handleReview('rejected')}
                             variant="outline"
-                            className="h-11 rounded-xl border-rose-100 text-rose-600 hover:bg-rose-50 font-bold text-xs px-6"
+                            className="h-11 flex-1 sm:flex-none rounded-xl border-rose-100 text-rose-600 hover:bg-rose-50 font-bold text-xs px-6"
                         >
                             <XCircle size={16} className="mr-2" />
-                            Reject Artifacts
+                            Reject
                         </Button>
                     </div>
                 </div>
@@ -169,14 +169,14 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8 pt-0">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                                <div className="space-y-1.5">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                                <div className="space-y-1.5 col-span-2 md:col-span-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Full Legal Name</p>
-                                    <p className="text-sm font-bold text-slate-900 uppercase">{kyc.user.name}</p>
+                                    <p className="text-sm font-bold text-slate-900 uppercase truncate">{kyc.user.name}</p>
                                 </div>
-                                <div className="space-y-1.5">
+                                <div className="space-y-1.5 col-span-2 md:col-span-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Email Address</p>
-                                    <p className="text-sm font-bold text-slate-900">{kyc.user.email}</p>
+                                    <p className="text-sm font-bold text-slate-900 truncate">{kyc.user.email}</p>
                                 </div>
                                 <div className="space-y-1.5">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Member Since</p>

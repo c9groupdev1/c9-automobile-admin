@@ -70,7 +70,7 @@ export default function DashboardLayout({
             {/* Grid Overlay for Texture */}
             <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none z-0" />
 
-            <Sidebar />
+            <Sidebar className="hidden lg:flex" />
 
             <div className="flex flex-col flex-1 overflow-hidden relative z-10">
                 <Topbar />
