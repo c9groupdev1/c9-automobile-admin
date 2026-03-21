@@ -39,26 +39,54 @@ import {
     useListingsByState,
     useListingsPerMonth
 } from '@/hooks/useDashboard';
+import { useListingTypes } from '@/hooks/useListings';
 
 export default function DashboardPage() {
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [listingTypeFilter, setListingTypeFilter] = useState('all');
-    const [listingStatusFilter, setListingStatusFilter] = useState('all');
+    // Dynamic Protocol Definitions
+    const { data: listingTypes, isLoading: isLoadingTypes } = useListingTypes();
+
+    // Section 1: Stats Filters
+    const [statsStartDate, setStatsStartDate] = useState('');
+    const [statsEndDate, setStatsEndDate] = useState('');
+
+    // Section 2: Chart Filters
+    const [chartListingType, setChartListingType] = useState('all');
+
+    // Section 3: Listings Table Filters
+    const [tableListingType, setTableListingType] = useState('all');
+    const [tableListingStatus, setTableListingStatus] = useState('all');
+
+    // Section 4: Activity Feed Filters
     const [activityTypeFilter, setActivityTypeFilter] = useState('all');
 
-    const dashboardParams = useMemo(() => ({
-        dateFrom: startDate || undefined,
-        dateTo: endDate || undefined,
-        status: listingStatusFilter === 'all' ? undefined : listingStatusFilter,
-        type: listingTypeFilter === 'all' ? undefined : listingTypeFilter,
-    }), [startDate, endDate, listingStatusFilter, listingTypeFilter]);
+    const statsParams = useMemo(() => ({
+        startDate: statsStartDate || undefined,
+        endDate: statsEndDate || undefined,
+    }), [statsStartDate, statsEndDate]);
 
-    const { data: stats, isLoading: isLoadingStats } = useDashboardStats(dashboardParams);
-    const { data: latestListings, isLoading: isLoadingListings } = useLatestListings(dashboardParams);
-    const { data: pendingKycs, isLoading: isLoadingKycs } = usePendingKycs(dashboardParams);
-    const { data: listingsByState, isLoading: isLoadingStates } = useListingsByState(dashboardParams);
-    const { data: listingsPerMonth, isLoading: isLoadingMonths } = useListingsPerMonth(dashboardParams);
+    const chartParams = useMemo(() => ({
+        listingTypeId: chartListingType === 'all' ? undefined : Number(chartListingType),
+    }), [chartListingType]);
+
+    const listingsParams = useMemo(() => ({
+        status: tableListingStatus === 'all' ? undefined : tableListingStatus,
+        listingTypeId: tableListingType === 'all' ? undefined : Number(tableListingType),
+        limit: 10
+    }), [tableListingStatus, tableListingType]);
+
+    const kycParams = useMemo(() => ({
+        limit: 10
+    }), []);
+
+    const { data: stats, isLoading: isLoadingStats } = useDashboardStats(statsParams);
+    const { data: latestListings, isLoading: isLoadingListings } = useLatestListings(listingsParams);
+    const { data: listingsByState, isLoading: isLoadingStates } = useListingsByState(chartParams);
+    const { data: listingsPerMonth, isLoading: isLoadingMonths } = useListingsPerMonth({ ...chartParams, months: 6 });
+
+    // Independent data for Intelligence Feed & Verification Queue
+    const { data: activityListings, isLoading: isLoadingActivityListings } = useLatestListings({ limit: 5 });
+    const { data: activityKycs, isLoading: isLoadingActivityKycs } = usePendingKycs({ limit: 5 });
+    const { data: queueKycs, isLoading: isLoadingQueueKycs } = usePendingKycs({ limit: 10 });
 
     const formatTrend = (change: number) => {
         return {
@@ -69,12 +97,12 @@ export default function DashboardPage() {
 
     const filteredListings = useMemo(() => {
         if (!latestListings) return [];
-        return latestListings; // Hook now handles actual filtering via dashboardParams
+        return latestListings;
     }, [latestListings]);
 
     const filteredActivity = useMemo(() => {
         const activities = [
-            ...(latestListings?.map(l => ({
+            ...(activityListings?.map(l => ({
                 id: l.id,
                 type: 'listing',
                 title: 'New Listing Submitted',
@@ -86,7 +114,7 @@ export default function DashboardPage() {
                 status: 'warning',
                 badge: l.status.toUpperCase()
             })) || []),
-            ...(pendingKycs?.map(k => ({
+            ...(activityKycs?.map(k => ({
                 id: k.id,
                 type: 'kyc',
                 title: 'KYC Verification Requested',
@@ -102,7 +130,7 @@ export default function DashboardPage() {
 
         if (activityTypeFilter === 'all') return activities;
         return activities.filter(a => a.type === activityTypeFilter);
-    }, [latestListings, pendingKycs, activityTypeFilter]);
+    }, [activityListings, activityKycs, activityTypeFilter]);
 
     if (!stats && isLoadingStats) {
         return (
@@ -130,53 +158,44 @@ export default function DashboardPage() {
                 </div> */}
             </div>
 
-            {/* Global Filters Bar */}
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex flex-wrap items-center justify-between gap-6">
-                    <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Date From</label>
-                            <Input
-                                type="date"
-                                value={startDate}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
-                                className="h-10 w-[180px] rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 transition-all text-xs font-bold"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Date To</label>
-                            <div className="flex items-center gap-3">
-                                <Input
-                                    type="date"
-                                    value={endDate}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
-                                    className="h-10 w-[180px] rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 transition-all text-xs font-bold"
-                                />
-                                {(startDate || endDate) && (
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => { setStartDate(''); setEndDate(''); }}
-                                        className="h-10 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-50 hover:text-rose-600"
-                                    >
-                                        Reset Range
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    {/* <div className="flex items-center gap-4 pt-4 md:pt-0">
-                        <Badge variant="outline" className="h-10 px-4 rounded-xl border-slate-100 bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-[#003399]">
-                            Node Status: Operational
-                        </Badge>
-                    </div> */}
-                </div>
-            </div>
-
             {/* Section: Platform Overview */}
             <div className="space-y-6">
-                <div className="flex items-center justify-between px-1">
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Platform Overview</h3>
-                    {isLoadingStats && <Loader2 className="w-4 h-4 text-slate-300 animate-spin" />}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+                    <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Platform Overview</h3>
+                        {isLoadingStats && <Loader2 className="w-4 h-4 text-slate-300 animate-spin" />}
+                    </div>
+                    
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">From</label>
+                            <Input
+                                type="date"
+                                value={statsStartDate}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStatsStartDate(e.target.value)}
+                                className="h-9 w-[140px] rounded-xl bg-white border-slate-200 text-xs font-bold"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">To</label>
+                            <Input
+                                type="date"
+                                value={statsEndDate}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStatsEndDate(e.target.value)}
+                                className="h-9 w-[140px] rounded-xl bg-white border-slate-200 text-xs font-bold"
+                            />
+                        </div>
+                        {(statsStartDate || statsEndDate) && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => { setStatsStartDate(''); setStatsEndDate(''); }}
+                                className="h-9 rounded-xl text-[10px] font-black uppercase text-rose-500 hover:bg-rose-50"
+                            >
+                                Reset
+                            </Button>
+                        )}
+                    </div>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <StatsCard
@@ -220,7 +239,22 @@ export default function DashboardPage() {
 
             {/* Section: Performance & Analytics */}
             <div className="space-y-6">
-                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest px-1">Performance & Growth</h3>
+                <div className="flex items-center justify-between px-1">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Performance & Growth</h3>
+                    <Select value={chartListingType} onValueChange={(val) => setChartListingType(val || 'all')}>
+                        <SelectTrigger className="w-[160px] h-9 rounded-xl border-slate-200 bg-white text-[10px] font-black uppercase tracking-widest">
+                            <SelectValue placeholder={isLoadingTypes ? "Loading..." : "All Categories"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {Array.isArray(listingTypes?.data) ? listingTypes.data.map((t: any) => (
+                                <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                            )) : Array.isArray(listingTypes) ? listingTypes.map((t: any) => (
+                                <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                            )) : null}
+                        </SelectContent>
+                    </Select>
+                </div>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
                     <OverviewChart
                         className="col-span-4"
@@ -261,7 +295,7 @@ export default function DashboardPage() {
                         </div>
                     </CardHeader>
                     <CardContent className="p-0">
-                        {isLoadingListings || isLoadingKycs ? (
+                        {isLoadingActivityListings || isLoadingActivityKycs ? (
                             <div className="flex flex-col items-center justify-center p-20 gap-3">
                                 <Loader2 className="w-8 h-8 text-slate-200 animate-spin" />
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Streaming Logs</p>
@@ -313,16 +347,16 @@ export default function DashboardPage() {
                         <div className="pt-4">
                             <Tabs defaultValue="kyc" className="w-full">
                                 <TabsList className="bg-slate-100/50 rounded-xl p-1 gap-1 h-11 w-full flex">
-                                    <TabsTrigger value="kyc" className="flex-1 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">KYC ({pendingKycs?.length || 0})</TabsTrigger>
-                                    <TabsTrigger value="listings" className="flex-1 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Listings ({latestListings?.filter(l => l.status === 'pending').length || 0})</TabsTrigger>
+                                    <TabsTrigger value="kyc" className="flex-1 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">KYC ({queueKycs?.length || 0})</TabsTrigger>
+                                    <TabsTrigger value="listings" className="flex-1 rounded-lg text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Listings ({activityListings?.filter(l => l.status === 'pending').length || 0})</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="kyc" className="mt-8 space-y-4">
-                                    {isLoadingKycs ? (
+                                    {isLoadingQueueKycs ? (
                                         <div className="flex justify-center p-10">
                                             <Loader2 className="w-6 h-6 text-slate-200 animate-spin" />
                                         </div>
-                                    ) : pendingKycs?.length ? (
-                                        pendingKycs.slice(0, 5).map((k, i) => (
+                                    ) : queueKycs?.length ? (
+                                        queueKycs.slice(0, 5).map((k, i) => (
                                             <div key={i} className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-10 w-10 rounded-xl border border-slate-200">
@@ -366,8 +400,21 @@ export default function DashboardPage() {
                             <h4 className="font-bold text-slate-900">Latest Platform Listings</h4>
                             <p className="text-xs font-medium text-slate-500 mt-1">Real-time inventory submissions across the network.</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <Select value={listingStatusFilter} onValueChange={(val) => setListingStatusFilter(val || 'all')}>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <Select value={tableListingType} onValueChange={(val) => setTableListingType(val || 'all')}>
+                                <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 bg-white text-xs font-bold">
+                                    <SelectValue placeholder={isLoadingTypes ? "Loading..." : "All types"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    {Array.isArray(listingTypes?.data) ? listingTypes.data.map((t: any) => (
+                                        <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                                    )) : Array.isArray(listingTypes) ? listingTypes.map((t: any) => (
+                                        <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                                    )) : null}
+                                </SelectContent>
+                            </Select>
+                            <Select value={tableListingStatus} onValueChange={(val) => setTableListingStatus(val || 'all')}>
                                 <SelectTrigger className="w-[140px] h-10 rounded-xl border-slate-200 bg-white text-xs font-bold">
                                     <SelectValue placeholder="All Status" />
                                 </SelectTrigger>

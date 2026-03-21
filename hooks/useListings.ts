@@ -70,8 +70,8 @@ export interface ListingsResponse {
     message: string;
 }
 
-export function useListings(params?: { 
-    page?: number; 
+export function useListings(params?: {
+    page?: number;
     search?: string;
     status?: string;
     make?: string;
@@ -102,8 +102,8 @@ export function useListingAnalysis() {
     return useQuery({
         queryKey: ['listings-analysis'],
         queryFn: async () => {
-            const response = await api.get<{ 
-                success: boolean; 
+            const response = await api.get<{
+                success: boolean;
                 data: ListingAnalysisData;
             }>('/admin/listings/vehicles/analysis');
             return response.data.data;
@@ -233,7 +233,7 @@ export const useListingTypes = () => {
     return useQuery({
         queryKey: ['listing-types'],
         queryFn: async () => {
-            const response = await api.get('/admin/listing-types');
+            const response = await api.get('/listing-types');
             return response.data;
         },
     });

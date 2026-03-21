@@ -46,14 +46,33 @@ export interface MonthListingCount {
     count: number;
 }
 
-export interface DashboardParams {
-    dateFrom?: string;
-    dateTo?: string;
-    status?: string;
-    type?: string;
+export interface DashboardStatsParams {
+    startDate?: string;
+    endDate?: string;
 }
 
-export const useDashboardStats = (params?: DashboardParams) => {
+export interface LatestListingsParams {
+    listingTypeId?: number;
+    status?: string;
+    limit?: number;
+}
+
+export interface PendingKycsParams {
+    type?: string;
+    limit?: number;
+}
+
+export interface ListingsByStateParams {
+    listingTypeId?: number;
+}
+
+export interface ListingsPerMonthParams {
+    months?: number;
+    listingTypeId?: number;
+    stateId?: number;
+}
+
+export const useDashboardStats = (params?: DashboardStatsParams) => {
     return useQuery({
         queryKey: ['dashboard-stats', params],
         queryFn: async () => {
@@ -63,7 +82,7 @@ export const useDashboardStats = (params?: DashboardParams) => {
     });
 };
 
-export const useLatestListings = (params?: DashboardParams) => {
+export const useLatestListings = (params?: LatestListingsParams) => {
     return useQuery({
         queryKey: ['latest-listings', params],
         queryFn: async () => {
@@ -73,7 +92,7 @@ export const useLatestListings = (params?: DashboardParams) => {
     });
 };
 
-export const usePendingKycs = (params?: DashboardParams) => {
+export const usePendingKycs = (params?: PendingKycsParams) => {
     return useQuery({
         queryKey: ['pending-kycs', params],
         queryFn: async () => {
@@ -83,7 +102,7 @@ export const usePendingKycs = (params?: DashboardParams) => {
     });
 };
 
-export const useListingsByState = (params?: DashboardParams) => {
+export const useListingsByState = (params?: ListingsByStateParams) => {
     return useQuery({
         queryKey: ['listings-by-state', params],
         queryFn: async () => {
@@ -93,7 +112,7 @@ export const useListingsByState = (params?: DashboardParams) => {
     });
 };
 
-export const useListingsPerMonth = (params?: DashboardParams) => {
+export const useListingsPerMonth = (params?: ListingsPerMonthParams) => {
     return useQuery({
         queryKey: ['listings-per-month', params],
         queryFn: async () => {

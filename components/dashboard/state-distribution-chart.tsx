@@ -33,6 +33,17 @@ export function StateDistributionChart({ className, data, isLoading }: StateDist
         value: d.count
     })) || [];
 
+    if (!isLoading && chartData.length === 0) {
+        return (
+            <Card className={cn("border-slate-100 shadow-sm rounded-[1.5rem] overflow-hidden flex items-center justify-center h-[400px]", className)}>
+                <div className="flex flex-col items-center gap-2 text-center p-6">
+                    <p className="text-sm font-bold text-slate-400">No geographical data detected.</p>
+                    <p className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">No listings found for the selected category.</p>
+                </div>
+            </Card>
+        );
+    }
+
     return (
         <Card className={cn("border-slate-100 shadow-sm rounded-[1.5rem] overflow-hidden", className)}>
             <CardHeader className="flex flex-row items-center justify-between pb-8">
