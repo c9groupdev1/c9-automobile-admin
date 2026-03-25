@@ -29,11 +29,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useParams, useRouter } from 'next/navigation';
-import { useListing, useUpdateListingStatus } from '@/hooks/useListings';
+import { useListing, useUpdateListingStatus, useVerifyVin } from '@/hooks/useListings';
 import { format, parseISO } from 'date-fns';
 import { useState, use } from 'react';
 import { toast } from 'sonner';
 import { PermissionGuard } from '@/components/auth/permission-guard';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function ListingDetailPage() {
     const params = useParams();
@@ -41,7 +50,12 @@ export default function ListingDetailPage() {
     const router = useRouter();
     const { data: listing, isLoading } = useListing(id);
     const updateStatusMutation = useUpdateListingStatus();
+    const verifyVinMutation = useVerifyVin();
     const [activeImage, setActiveImage] = useState(0);
+    const [reviewComment, setReviewComment] = useState('');
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isVinModalOpen, setIsVinModalOpen] = useState(false);
+    const [vinData, setVinData] = useState<any>(null);
 
     if (isLoading) {
         return (
@@ -70,10 +84,34 @@ export default function ListingDetailPage() {
 
     const handleStatusUpdate = async (status: string) => {
         try {
-            await updateStatusMutation.mutateAsync({ id, status });
+            await updateStatusMutation.mutateAsync({
+                id,
+                status,
+                comments: reviewComment
+            });
             toast.success(`Listing status updated to ${status}`);
-        } catch (error) {
-            toast.error('Failed to update listing status');
+            setIsReviewModalOpen(false);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to update listing status');
+        }
+    };
+
+    const handleVerifyVin = async () => {
+        if (!listing.vehicleInformation.vinChassisNumber) {
+            toast.error('No VIN available for verification');
+            return;
+        }
+        try {
+            const result = await verifyVinMutation.mutateAsync(listing.vehicleInformation.vinChassisNumber);
+            if (result.success) {
+                setVinData(result.data.data);
+                setIsVinModalOpen(true);
+                toast.success('VIN decoded successfully');
+            } else {
+                toast.error(result.message || 'VIN verification failed');
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to connect to VIN Registry');
         }
     };
 
@@ -98,7 +136,8 @@ export default function ListingDetailPage() {
                                 "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border-0 pointer-events-none",
                                 listing.status === 'available' ? 'bg-emerald-50 text-emerald-600' :
                                     listing.status === 'pending' ? 'bg-orange-50 text-orange-600' :
-                                        'bg-rose-50 text-rose-600'
+                                        listing.status === 'suspended' ? 'bg-rose-50 text-rose-600' :
+                                            'bg-slate-50 text-slate-600'
                             )}>
                                 {listing.status}
                             </Badge>
@@ -130,22 +169,56 @@ export default function ListingDetailPage() {
                     </div>
                     {listing.status === 'pending' && (
                         <PermissionGuard permission="listing.status_manage">
-                            <div className="flex gap-2 w-full sm:w-auto">
-                                <Button
-                                    onClick={() => handleStatusUpdate('available')}
-                                    className="h-11 md:h-12 flex-1 sm:flex-none bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-emerald-900/10"
-                                >
-                                    <CheckCircle2 size={16} className="mr-2" />
-                                    Approve
-                                </Button>
-                                <Button
-                                    onClick={() => handleStatusUpdate('rejected')}
-                                    className="h-11 md:h-12 flex-1 sm:flex-none bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest px-4 md:px-6 shadow-lg shadow-rose-900/10"
-                                >
-                                    <XCircle size={16} className="mr-2" />
-                                    Reject
-                                </Button>
-                            </div>
+                            <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+                                <DialogTrigger render={
+                                    <Button className="h-11 md:h-12 bg-[#003399] hover:bg-[#002266] rounded-2xl font-black text-xs uppercase tracking-widest px-8 shadow-lg shadow-blue-900/10">
+                                        <FileCheck size={16} className="mr-2" />
+                                        Review Vehicle Listing
+                                    </Button>
+                                } />
+                                <DialogContent className="sm:max-w-[500px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden">
+                                    <div className="p-8 space-y-6">
+                                        <DialogHeader>
+                                            <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Review Decision</DialogTitle>
+                                            <DialogDescription className="text-slate-500 font-medium">
+                                                Provide a final decision for this vehicle submission. Rejection requires a descriptive comment for the vendor.
+                                            </DialogDescription>
+                                        </DialogHeader>
+
+                                        <div className="space-y-3">
+                                            <label className="text-[10px] font-black text-[#003399] uppercase tracking-widest">Decision Commentary</label>
+                                            <textarea
+                                                value={reviewComment}
+                                                onChange={(e) => setReviewComment(e.target.value)}
+                                                placeholder="Enter review notes or detailed rejection reason..."
+                                                className="w-full min-h-[140px] rounded-[1.5rem] bg-slate-50 border-slate-100 focus:ring-4 focus:ring-[#003399]/5 focus:bg-white border focus:border-[#003399]/20 transition-all p-5 text-sm font-medium leading-relaxed resize-none"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 pt-4">
+                                            <Button
+                                                onClick={() => handleStatusUpdate('available')}
+                                                disabled={updateStatusMutation.isPending}
+                                                className="h-14 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-900/10 transition-all active:scale-[0.98]"
+                                            >
+                                                <CheckCircle2 size={18} className="mr-2" />
+                                                Approve Asset
+                                            </Button>
+                                            <Button
+                                                onClick={() => handleStatusUpdate('suspended')}
+                                                disabled={updateStatusMutation.isPending}
+                                                className="h-14 bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-900/10 transition-all active:scale-[0.98]"
+                                            >
+                                                <XCircle size={18} className="mr-2" />
+                                                Reject Asset
+                                            </Button>
+                                        </div>
+                                    </div>
+                                    <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
+                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Digital Registry Protocol • C9X Admin v4.2</p>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </PermissionGuard>
                     )}
                 </div>
@@ -300,6 +373,17 @@ export default function ListingDetailPage() {
                                     <div className="flex items-center gap-2">
                                         <spec.icon size={14} className="text-slate-300" />
                                         <span className="text-sm font-bold text-slate-900">{spec.value}</span>
+                                        {spec.label === 'VIN/Chassis' && listing.vehicleInformation.vinChassisNumber && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={handleVerifyVin}
+                                                disabled={verifyVinMutation.isPending}
+                                                className="h-6 px-2 text-[9px] font-black uppercase tracking-widest bg-blue-50 text-[#003399] hover:bg-blue-100 rounded-lg ml-2"
+                                            >
+                                                {verifyVinMutation.isPending ? 'Checking...' : 'Verify'}
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -390,6 +474,53 @@ export default function ListingDetailPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* VIN Verification Results Modal */}
+                <Dialog open={isVinModalOpen} onOpenChange={setIsVinModalOpen}>
+                    <DialogContent className="sm:max-w-[600px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden">
+                        <div className="p-8 space-y-6">
+                            <DialogHeader>
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+                                    <ShieldCheck size={24} />
+                                </div>
+                                <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Verification Results</DialogTitle>
+                                <DialogDescription className="text-slate-500 font-medium">
+                                    Official technical decoding for VIN: <span className="text-slate-900 font-bold font-mono">{listing.vehicleInformation.vinChassisNumber}</span>
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            {vinData && (
+                                <div className="grid grid-cols-2 gap-x-8 gap-y-5 py-4 border-y border-slate-50">
+                                    {[
+                                        { label: 'Year', value: vinData.year },
+                                        { label: 'Make', value: vinData.make },
+                                        { label: 'Model', value: vinData.model },
+                                        { label: 'Body Class', value: vinData.body_class },
+                                        { label: 'Fuel Type', value: vinData.fuel_type },
+                                        { label: 'Manufacturer', value: vinData.manufacturer },
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="space-y-1">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">{item.label}</span>
+                                            <span className="text-sm font-bold text-slate-900">{item.value || 'N/A'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="flex justify-end">
+                                <Button
+                                    onClick={() => setIsVinModalOpen(false)}
+                                    className="h-12 bg-slate-900 hover:bg-black text-white rounded-2xl px-8 font-black text-xs uppercase tracking-widest"
+                                >
+                                    Close Record
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="bg-[#003399] p-4 text-center">
+                            <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest">Digital Registry Protocol • Authentication Success</p>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );

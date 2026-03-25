@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 
 export interface ListingListing {
@@ -240,10 +240,31 @@ export const useListingTypes = () => {
 };
 
 export function useUpdateListingStatus() {
-    return {
-        mutateAsync: async ({ id, status }: { id: string; status: string }) => {
-            const response = await api.patch(`/admin/listings/vehicles/${id}/status`, { status });
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, status, comments }: { id: string; status: string; comments?: string }) => {
+            const response = await api.post(`/admin/listings/vehicles/${id}/review`, { 
+                status,
+                comments 
+            });
             return response.data;
         },
-    };
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['listings'] });
+            queryClient.invalidateQueries({ queryKey: ['listing', variables.id] });
+        },
+    });
+}
+
+export function useVerifyVin() {
+    return useMutation({
+        mutationFn: async (vin: string) => {
+            const response = await api.post<{
+                success: boolean;
+                data: any;
+                message: string;
+            }>('/listings/vin/verify', { vin });
+            return response.data;
+        },
+    });
 }
