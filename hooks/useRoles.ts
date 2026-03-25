@@ -5,6 +5,7 @@ export interface Role {
     id: string;
     name: string;
     permissions_count: number;
+    permissions?: string[];
 }
 
 export interface Permission {
@@ -40,6 +41,32 @@ export function useAssignPermissions() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['roles'] });
+        },
+    });
+}
+
+export function useCreateRole() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (name: string) => {
+            const response = await api.post('/admin/roles', { name });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['roles'] });
+        },
+    });
+}
+
+export function useCreatePermission() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (name: string) => {
+            const response = await api.post('/admin/permissions', { name });
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['permissions'] });
         },
     });
 }
