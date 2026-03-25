@@ -246,7 +246,7 @@ export default function UsersPage() {
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-100">
                             <SelectItem value="all-types">All Protocol Types</SelectItem>
-                            {roles?.map((role) => (
+                            {roles?.map((role: any) => (
                                 <SelectItem key={role.id} value={role.name} className="capitalize">{role.name.replace('_', ' ')}</SelectItem>
                             ))}
                         </SelectContent>

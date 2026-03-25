@@ -18,7 +18,8 @@ export function useRoles() {
         queryKey: ['roles'],
         queryFn: async () => {
             const response = await api.get('/admin/roles');
-            return response.data;
+            const data = response.data;
+            return Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
         },
     });
 }
@@ -28,7 +29,8 @@ export function usePermissions() {
         queryKey: ['permissions'],
         queryFn: async () => {
             const response = await api.get('/admin/permissions');
-            return response.data;
+            const data = response.data;
+            return Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
         },
     });
 }

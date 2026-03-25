@@ -143,8 +143,9 @@ export function useRoles() {
     return useQuery({
         queryKey: ['roles'],
         queryFn: async () => {
-            const response = await api.get<{ success: boolean; data: Role[] }>('/admin/roles');
-            return response.data.data;
+            const response = await api.get('/admin/roles');
+            const data = response.data;
+            return Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
         },
     });
 }
