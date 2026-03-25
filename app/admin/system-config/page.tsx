@@ -132,7 +132,7 @@ export default function SystemConfigPage() {
                 <TabsContent value="roles" className="space-y-4">
                     <div className="flex justify-between items-center">
                         <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Access Groups</h4>
-                        <Button 
+                        <Button
                             onClick={() => setIsCreateRoleOpen(true)}
                             className="bg-[#0066CC] hover:bg-blue-700 text-white rounded-xl px-6 font-bold h-10 transition-all active:scale-95"
                         >
@@ -220,7 +220,7 @@ export default function SystemConfigPage() {
                                         className="flex-1 h-14 rounded-2xl bg-[#0066CC] hover:bg-blue-700 font-bold shadow-lg shadow-primary/10"
                                     >
                                         {isAssigning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        Commit Sequence
+                                        Update Permissions
                                     </Button>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@ export default function SystemConfigPage() {
                 <TabsContent value="permissions" className="space-y-4">
                     <div className="flex justify-between items-center">
                         <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Security Identifiers</h4>
-                        <Button 
+                        <Button
                             onClick={() => setIsCreatePermissionOpen(true)}
                             className="bg-[#0066CC] hover:bg-blue-700 text-white rounded-xl px-6 font-bold h-10 transition-all active:scale-95"
                         >
@@ -278,7 +278,7 @@ export default function SystemConfigPage() {
                         <div className="p-8 space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Role Identifier</label>
-                                <input 
+                                <input
                                     value={newName}
                                     onChange={(e) => setNewName(e.target.value)}
                                     placeholder="e.g. Protocol Auditor"
@@ -307,7 +307,7 @@ export default function SystemConfigPage() {
                         <div className="p-8 space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Permission Scope</label>
-                                <input 
+                                <input
                                     value={newName}
                                     onChange={(e) => setNewName(e.target.value)}
                                     placeholder="e.g. audit.reports"
