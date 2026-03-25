@@ -167,60 +167,64 @@ export default function ListingDetailPage() {
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Valuation</span>
                         <span className="text-3xl font-black text-[#003399] tracking-tight">{listing.header.price}</span>
                     </div>
-                    {listing.status === 'pending' && (
-                        <PermissionGuard permission="listing.status_manage">
-                            <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
-                                <DialogTrigger render={
-                                    <Button className="h-11 md:h-12 bg-[#003399] hover:bg-[#002266] rounded-2xl font-black text-xs uppercase tracking-widest px-8 shadow-lg shadow-blue-900/10">
-                                        <FileCheck size={16} className="mr-2" />
-                                        Review Vehicle Listing
-                                    </Button>
-                                } />
-                                <DialogContent className="sm:max-w-[500px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden">
-                                    <div className="p-8 space-y-6">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Review Decision</DialogTitle>
-                                            <DialogDescription className="text-slate-500 font-medium">
-                                                Provide a final decision for this vehicle submission. Rejection requires a descriptive comment for the vendor.
-                                            </DialogDescription>
-                                        </DialogHeader>
+                    {/* {(listing.status === 'pending' || listing.status === 'suspended') && ( */}
+                    <PermissionGuard permission="listing.status_manage">
+                        <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+                            <DialogTrigger render={
+                                <Button className="h-11 md:h-12 bg-[#003399] hover:bg-[#002266] rounded-2xl font-black text-xs uppercase tracking-widest px-8 shadow-lg shadow-blue-900/10">
+                                    <FileCheck size={16} className="mr-2" />
+                                    {listing.status === 'pending' ? 'Review Vehicle Listing' : 'Manage Listing Status'}
+                                </Button>
+                            } />
+                            <DialogContent className="sm:max-w-[500px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden">
+                                <div className="p-8 space-y-6">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">
+                                            {listing.status === 'pending' ? 'Review Decision' : 'Status Management'}
+                                        </DialogTitle>
+                                        <DialogDescription className="text-slate-500 font-medium">
+                                            {listing.status === 'pending'
+                                                ? 'Provide a final decision for this vehicle submission. Rejection requires a descriptive comment for the vendor.'
+                                                : 'Update the current status of this suspended asset. You can reactivate it or update the suspension notes.'}
+                                        </DialogDescription>
+                                    </DialogHeader>
 
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-[#003399] uppercase tracking-widest">Decision Commentary</label>
-                                            <textarea
-                                                value={reviewComment}
-                                                onChange={(e) => setReviewComment(e.target.value)}
-                                                placeholder="Enter review notes or detailed rejection reason..."
-                                                className="w-full min-h-[140px] rounded-[1.5rem] bg-slate-50 border-slate-100 focus:ring-4 focus:ring-[#003399]/5 focus:bg-white border focus:border-[#003399]/20 transition-all p-5 text-sm font-medium leading-relaxed resize-none"
-                                            />
-                                        </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-[#003399] uppercase tracking-widest">Decision Commentary</label>
+                                        <textarea
+                                            value={reviewComment}
+                                            onChange={(e) => setReviewComment(e.target.value)}
+                                            placeholder="Enter review notes or detailed rejection reason..."
+                                            className="w-full min-h-[140px] rounded-[1.5rem] bg-slate-50 border-slate-100 focus:ring-4 focus:ring-[#003399]/5 focus:bg-white border focus:border-[#003399]/20 transition-all p-5 text-sm font-medium leading-relaxed resize-none"
+                                        />
+                                    </div>
 
-                                        <div className="grid grid-cols-2 gap-4 pt-4">
-                                            <Button
-                                                onClick={() => handleStatusUpdate('available')}
-                                                disabled={updateStatusMutation.isPending}
-                                                className="h-14 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-900/10 transition-all active:scale-[0.98]"
-                                            >
-                                                <CheckCircle2 size={18} className="mr-2" />
-                                                Approve Asset
-                                            </Button>
-                                            <Button
-                                                onClick={() => handleStatusUpdate('suspended')}
-                                                disabled={updateStatusMutation.isPending}
-                                                className="h-14 bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-900/10 transition-all active:scale-[0.98]"
-                                            >
-                                                <XCircle size={18} className="mr-2" />
-                                                Reject Asset
-                                            </Button>
-                                        </div>
+                                    <div className="grid grid-cols-2 gap-4 pt-4">
+                                        <Button
+                                            onClick={() => handleStatusUpdate('available')}
+                                            disabled={updateStatusMutation.isPending}
+                                            className="h-14 bg-emerald-500 hover:bg-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-900/10 transition-all active:scale-[0.98]"
+                                        >
+                                            <CheckCircle2 size={18} className="mr-2" />
+                                            {listing.status === 'pending' ? 'Approve Asset' : 'Re-activate Asset'}
+                                        </Button>
+                                        <Button
+                                            onClick={() => handleStatusUpdate('suspended')}
+                                            disabled={updateStatusMutation.isPending}
+                                            className="h-14 bg-rose-500 hover:bg-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-900/10 transition-all active:scale-[0.98]"
+                                        >
+                                            <XCircle size={18} className="mr-2" />
+                                            {listing.status === 'pending' ? 'Reject Asset' : 'Suspend Asset'}
+                                        </Button>
                                     </div>
-                                    <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Digital Registry Protocol • C9X Admin v4.2</p>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </PermissionGuard>
-                    )}
+                                </div>
+                                <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Digital Registry Protocol • C9X Admin v4.2</p>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </PermissionGuard>
+                    {/* // )} */}
                 </div>
             </div>
 
