@@ -22,6 +22,7 @@ export type Permission =
     | 'order.create'
     | 'order.view_own'
     | 'payment.make'
+    | 'payment.view'
     | 'review.create'
     | 'review.moderate'
     | 'user.view'
@@ -66,5 +67,6 @@ export function usePermissions() {
         canManageListings: hasPermission(['listing.status_manage', 'listing.update_any', 'listing.delete_any']),
         canReviewKyc: hasPermission(['kyc.approve', 'kyc.reject']),
         canManageSystem: hasPermission('system.manage'),
+        canViewPayments: hasPermission('payment.view'),
     };
 }

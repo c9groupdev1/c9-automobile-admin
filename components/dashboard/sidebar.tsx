@@ -21,6 +21,7 @@ import {
     Crown,
     BarChart3,
     FileText,
+    CreditCard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useMemo } from 'react';
@@ -50,6 +51,7 @@ const menuItems: MenuItem[] = [
     // { icon: Crown, label: 'Subscription Management', href: '/admin/subscriptions' },
     // { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
     // { icon: FileText, label: 'Reports', href: '/admin/reports' },
+    { icon: CreditCard, label: 'Payments', href: '/admin/payments', permission: 'payment.view' },
     { icon: Settings, label: 'Settings', href: '/admin/system-config', permission: 'system.manage' },
 ];
 
