@@ -61,3 +61,15 @@ export function useActivePromotions(page: number = 1) {
         },
     });
 }
+
+export function usePaymentDetail(id: number | null) {
+    return useQuery({
+        queryKey: ['payment-detail', id],
+        queryFn: async () => {
+            if (!id) return null;
+            const response = await api.get(`/admin/payments/${id}`);
+            return response.data;
+        },
+        enabled: !!id,
+    });
+}
