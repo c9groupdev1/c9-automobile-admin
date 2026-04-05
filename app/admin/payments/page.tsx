@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-    CreditCard, 
-    Zap, 
-    Search, 
-    ArrowUpRight, 
-    Clock, 
-    CheckCircle2, 
+import {
+    CreditCard,
+    Zap,
+    Search,
+    ArrowUpRight,
+    Clock,
+    CheckCircle2,
     XCircle,
     Filter,
     Download,
@@ -17,25 +17,38 @@ import {
     MoreVertical,
     Loader2
 } from 'lucide-react';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { usePaymentHistory, useActivePromotions, PaymentHistory, ActivePromotion } from '@/hooks/usePayments';
+import {
+    usePaymentHistory,
+    useActivePromotions,
+    usePaymentDetail,
+    PaymentHistory,
+    ActivePromotion
+} from '@/hooks/usePayments';
 
 const StatusBadge = ({ status }: { status: string }) => {
     switch (status) {
         case 'success':
         case 'active':
+        case 'successful':
             return (
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-wider">
                     <CheckCircle2 className="w-3 h-3" />
@@ -67,30 +80,40 @@ const StatusBadge = ({ status }: { status: string }) => {
     }
 };
 
+const DetailItem = ({ label, value, icon: Icon, className }: { label: string, value: string | number | React.ReactNode, icon?: any, className?: string }) => (
+    <div className={cn("p-6 rounded-2xl bg-slate-50 border border-slate-100 transition-all hover:bg-slate-100/50", className)}>
+        <div className="flex items-center gap-2 mb-2 text-slate-400">
+            {Icon && <Icon className="w-3 h-3" />}
+            <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+        </div>
+        <div className="text-sm font-black text-slate-900">{value}</div>
+    </div>
+);
+
 export default function PaymentsPage() {
     const [page, setPage] = useState(1);
     const [boostPage, setBoostPage] = useState(1);
+    const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
+
     const { data: historyResponse, isLoading: historyLoading } = usePaymentHistory(page);
     const { data: promotionsResponse, isLoading: promotionsLoading } = useActivePromotions(boostPage);
+    const { data: detailResponse, isLoading: detailLoading } = usePaymentDetail(selectedPaymentId);
+
     const [searchQuery, setSearchQuery] = useState('');
 
     const history = historyResponse?.data || [];
     const meta = historyResponse?.meta;
+    const paymentDetail = detailResponse?.data;
 
-    const promotions = promotionsResponse?.data || [];
-    const boostsMeta = promotionsResponse; // The backend structure provided has nested data in 'data' actually
-
-    // Wait, let's look at the JSON again. 
-    // "data": { "current_page": 1, "data": [...] }
     const actualPromotions = promotionsResponse?.data?.data || [];
     const actualBoostsMeta = promotionsResponse?.data;
 
-    const filteredHistory = history.filter((item: PaymentHistory) => 
+    const filteredHistory = history.filter((item: PaymentHistory) =>
         (item.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (item.reference || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const filteredPromotions = actualPromotions.filter((promo: ActivePromotion) => 
+    const filteredPromotions = actualPromotions.filter((promo: ActivePromotion) =>
         promo.listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (promo.promotion.type || '').toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -180,11 +203,11 @@ export default function PaymentsPage() {
                     <div className="flex items-center gap-3">
                         <div className="relative group">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#0066CC] transition-colors" />
-                            <Input 
-                                placeholder="Filter ledger..." 
+                            <Input
+                                placeholder="Filter ledger..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="h-14 w-[300px] rounded-2xl border-slate-100 bg-white pl-11 font-bold text-sm focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm shadow-slate-100/50" 
+                                className="h-14 w-[300px] rounded-2xl border-slate-100 bg-white pl-11 font-bold text-sm focus:ring-4 focus:ring-blue-500/5 transition-all shadow-sm shadow-slate-100/50"
                             />
                         </div>
                         <Button size="icon" variant="outline" className="h-14 w-14 rounded-2xl border-slate-100 bg-white transition-all hover:bg-slate-50">
@@ -218,7 +241,11 @@ export default function PaymentsPage() {
                                     </TableHeader>
                                     <TableBody>
                                         {filteredHistory.map((item: PaymentHistory) => (
-                                            <TableRow key={item.id} className="group border-slate-50 transition-colors hover:bg-slate-50/50">
+                                            <TableRow
+                                                key={item.id}
+                                                className="group border-slate-50 transition-colors hover:bg-slate-50/50 cursor-pointer"
+                                                onClick={() => setSelectedPaymentId(item.id)}
+                                            >
                                                 <TableCell className="py-6 px-8">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-black text-slate-400 text-[10px] uppercase tracking-tighter">
@@ -271,9 +298,9 @@ export default function PaymentsPage() {
                                 showing {meta.from} to {meta.to} of {meta.total} operations
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     className="h-10 px-4 rounded-xl border-slate-100 font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                                     onClick={() => setPage(p => Math.max(1, p - 1))}
                                     disabled={page === 1}
@@ -284,9 +311,9 @@ export default function PaymentsPage() {
                                 <div className="px-4 h-10 flex items-center bg-slate-50 rounded-xl font-black text-[10px] text-[#0066CC] uppercase tracking-widest border border-blue-100">
                                     PAGE {page} OF {meta.last_page}
                                 </div>
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     className="h-10 px-4 rounded-xl border-slate-100 font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                                     onClick={() => setPage(p => Math.min(meta.last_page, p + 1))}
                                     disabled={page === meta.last_page}
@@ -315,7 +342,7 @@ export default function PaymentsPage() {
                                         <TableRow className="border-none hover:bg-transparent">
                                             <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-amber-600">Asset Identity</TableHead>
                                             <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-amber-600">Protocol Tier</TableHead>
-                                            <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-amber-600">Temporal Range</TableHead>
+                                            <TableHead className="py-7 px-8 text-[11px) font-black uppercase tracking-widest text-amber-600">Temporal Range</TableHead>
                                             <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-amber-600">Investment</TableHead>
                                             <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-amber-600">Integrity</TableHead>
                                             <TableHead className="py-7 px-8 text-right text-[11px] font-black uppercase tracking-widest text-amber-600"></TableHead>
@@ -376,9 +403,9 @@ export default function PaymentsPage() {
                                 showing {actualBoostsMeta.from} to {actualBoostsMeta.to} of {actualBoostsMeta.total} active boosts
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     className="h-10 px-4 rounded-xl border-slate-100 font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                                     onClick={() => setBoostPage(p => Math.max(1, p - 1))}
                                     disabled={boostPage === 1}
@@ -389,9 +416,9 @@ export default function PaymentsPage() {
                                 <div className="px-4 h-10 flex items-center bg-slate-50 rounded-xl font-black text-[10px] text-amber-600 uppercase tracking-widest border border-amber-100">
                                     PAGE {boostPage} OF {actualBoostsMeta.last_page}
                                 </div>
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
                                     className="h-10 px-4 rounded-xl border-slate-100 font-black text-[10px] uppercase tracking-widest disabled:opacity-50"
                                     onClick={() => setBoostPage(p => Math.min(actualBoostsMeta.last_page, p + 1))}
                                     disabled={boostPage === actualBoostsMeta.last_page}
@@ -404,6 +431,105 @@ export default function PaymentsPage() {
                     )}
                 </TabsContent>
             </Tabs>
+
+            {/* Detailed Payment Record Sheet */}
+            <Sheet open={!!selectedPaymentId} onOpenChange={(open) => !open && setSelectedPaymentId(null)}>
+                <SheetContent className="sm:max-w-xl border-l border-slate-100 p-0 overflow-y-auto custom-scrollbar">
+                    {detailLoading ? (
+                        <div className="p-12 space-y-8">
+                            <Skeleton className="h-12 w-3/4 rounded-2xl" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <Skeleton className="h-32 rounded-3xl" />
+                                <Skeleton className="h-32 rounded-3xl" />
+                            </div>
+                            <Skeleton className="h-64 rounded-[2.5rem]" />
+                        </div>
+                    ) : paymentDetail ? (
+                        <div className="space-y-0">
+                            <div className="p-8 bg-slate-50/50 border-b border-slate-100">
+                                <SheetHeader className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                                            <CreditCard className="w-6 h-6 text-[#0066CC]" />
+                                        </div>
+                                        {handleStatusBadge(paymentDetail.status)}
+                                    </div>
+                                    <div>
+                                        <SheetTitle className="text-2xl font-black text-slate-900 leading-tight">
+                                            {paymentDetail.description}
+                                        </SheetTitle>
+                                        <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mt-2 px-1">
+                                            Operation Analysis
+                                        </p>
+                                    </div>
+                                </SheetHeader>
+                            </div>
+
+                            <div className="p-8 space-y-8">
+                                {/* Fiscal Breakdown */}
+                                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+                                    <div className="p-8 bg-slate-50/30 border-b border-slate-50">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#0066CC]">Fiscal Breakdown</h4>
+                                    </div>
+                                    <div className="p-8 space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm font-bold text-slate-400">Gross Amount</span>
+                                            <span className="text-sm font-black text-slate-900">{paymentDetail.formattedAmount}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm font-bold text-slate-400">Processing Charges</span>
+                                            <span className="text-sm font-black text-rose-500">{paymentDetail.formattedCharges}</span>
+                                        </div>
+                                        <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+                                            <span className="text-base font-black text-slate-900">Net Protocol Total</span>
+                                            <span className="text-2xl font-black text-emerald-600">{paymentDetail.formattedTotal}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Protocol Metadata */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <DetailItem
+                                        label="Reference"
+                                        value={paymentDetail.reference}
+                                        icon={History}
+                                        className="col-span-2"
+                                    />
+                                    <DetailItem
+                                        label="Transaction ID"
+                                        value={paymentDetail.transactionId || 'NOT_ASSIGNED'}
+                                        icon={Clock}
+                                    />
+                                    <DetailItem
+                                        label="Gateway"
+                                        value={paymentDetail.gateway}
+                                        icon={LayoutGrid}
+                                    />
+                                    <DetailItem
+                                        label="Operation Date"
+                                        value={paymentDetail.date}
+                                        icon={Clock}
+                                        className="col-span-2"
+                                    />
+                                </div>
+
+                                <div className="pt-8">
+                                    <Button className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all">
+                                        Generate Receipt Artifact
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="p-12 text-center space-y-4">
+                            <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto text-slate-300">
+                                <Search className="w-8 h-8" />
+                            </div>
+                            <p className="text-slate-500 font-bold">Failed to retrieve operation data</p>
+                        </div>
+                    )}
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

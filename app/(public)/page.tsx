@@ -82,22 +82,15 @@ export default function LandingPage() {
               <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight text-white">
                 Nigeria's Automotive <br />
                 Marketplace for <br />
-                Cars and Auctions
+                Cars.
               </h1>
               <p className="text-lg md:text-xl text-white/80 font-medium leading-relaxed max-w-lg">
                 Connect with thousands of buyers and sellers in Nigeria’s most trusted automotive ecosystem.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <Button 
-                  size="lg" 
-                  onClick={() => router.push('/auth/login')}
-                  className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold bg-white text-[#003399] hover:bg-slate-100 transition-all"
-                >
-                  Login
-                </Button>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   variant="outline"
                   onClick={() => router.push('/about')}
                   className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold border-white/30 bg-transparent hover:bg-white/10 text-white"
@@ -105,7 +98,7 @@ export default function LandingPage() {
                   About Us
                 </Button>
               </div>
-              
+
               <div className="flex items-center space-x-2 text-sm font-semibold opacity-70">
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span>Over 10,000 active users this month</span>
@@ -245,13 +238,6 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Button 
-                size="lg" 
-                onClick={() => router.push('/auth/login')}
-                className="h-12 px-10 rounded-xl text-base font-bold bg-[#003399] hover:bg-blue-800 text-white shadow-xl shadow-blue-900/10"
-              >
-                Explore More
-              </Button>
             </motion.div>
 
             <motion.div
@@ -350,20 +336,15 @@ export default function LandingPage() {
         <div className="absolute inset-0 grid-pattern opacity-5 pointer-events-none" />
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
           <motion.div
-             initial="hidden"
-             whileInView="visible"
-             viewport={{ once: true }}
-             variants={revealVariants}
-             className="space-y-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={revealVariants}
+            className="space-y-12"
           >
             <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
               Start Buying, Selling and Bidding Today
             </h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Button size="lg" onClick={() => router.push('/auth/login')} className="h-14 px-10 rounded-xl text-lg font-bold bg-[#003399] hover:bg-blue-700 shadow-xl">
-                Login to Portal
-              </Button>
-            </div>
           </motion.div>
         </div>
       </section>

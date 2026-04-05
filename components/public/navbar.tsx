@@ -47,9 +47,6 @@ export function PublicNavbar() {
                             <Link href="/about" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>About Us</Link>
                             <Link href="/contact" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Contact Us</Link>
                             <Link href="/faq" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>FAQ</Link>
-                            <Button onClick={() => router.push('/auth/login')} variant={scrolled ? "outline" : "default"} className={`rounded-xl px-8 h-10 font-bold ${scrolled ? 'border-[#0066CC] text-[#0066CC] hover:bg-blue-50' : 'bg-white text-[#0066CC] hover:bg-slate-100'}`}>
-                                Login
-                            </Button>
                         </div>
 
                         {/* Mobile toggle */}
@@ -74,7 +71,6 @@ export function PublicNavbar() {
                             <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Contact Us</Link>
                             <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">FAQ</Link>
                             <div className="pt-10 border-t border-slate-100 flex flex-col space-y-5">
-                                <Button onClick={() => { setIsMenuOpen(false); router.push('/auth/login'); }} className="w-full h-16 rounded-2xl text-xl font-bold bg-[#0066CC]">Login</Button>
                             </div>
                         </div>
                     </motion.div>

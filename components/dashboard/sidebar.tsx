@@ -22,6 +22,8 @@ import {
     BarChart3,
     FileText,
     CreditCard,
+    Zap,
+    Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useMemo } from 'react';
@@ -48,10 +50,9 @@ const menuItems: MenuItem[] = [
     // { icon: Gavel, label: 'Auctions', href: '/admin/auctions' },
     // { icon: ShoppingBag, label: 'C9 Store Management', href: '/admin/store' },
     // { icon: MessageSquare, label: 'Messages / Support', href: '/admin/messages' },
-    // { icon: Crown, label: 'Subscription Management', href: '/admin/subscriptions' },
-    // { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
-    // { icon: FileText, label: 'Reports', href: '/admin/reports' },
     { icon: CreditCard, label: 'Payments', href: '/admin/payments', permission: 'payment.view' },
+    { icon: Crown, label: 'Subscription Plans', href: '/admin/plans', permission: 'system.manage' },
+    { icon: Zap, label: 'Promotions', href: '/admin/promotions', permission: 'system.manage' },
     { icon: Settings, label: 'Settings', href: '/admin/system-config', permission: 'system.manage' },
 ];
 

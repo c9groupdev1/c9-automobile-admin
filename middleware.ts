@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/admin')) {
         if (!token) {
             // Redirect to login if no token is found
-            const loginUrl = new URL('/auth/login', request.url);
+            const loginUrl = new URL('/secured-admin/login', request.url);
             // Optionally add a redirect parameter to return here after login
             loginUrl.searchParams.set('redirect', pathname);
             return NextResponse.redirect(loginUrl);

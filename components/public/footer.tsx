@@ -32,6 +32,8 @@ export function PublicFooter() {
                             <li><Link href="/#features" className="hover:text-[#0066CC] transition-colors">Auctions</Link></li>
                             <li><Link href="/#features" className="hover:text-[#0066CC] transition-colors">Marketplace</Link></li>
                             <li><Link href="/services" className="hover:text-[#0066CC] transition-colors">Services</Link></li>
+                            <li><Link href="/vendor-guidelines" className="hover:text-[#0066CC] transition-colors">Vendor Guidelines</Link></li>
+                            <li><Link href="/guidelines" className="hover:text-[#0066CC] transition-colors">Guidelines</Link></li>
                         </ul>
                     </div>
 
