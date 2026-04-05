@@ -1,72 +1,75 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import { Shield, Eye, UserCheck, Share2, Lock, MessageCircle } from 'lucide-react';
+import { InformationScreen } from '@/components/public/information-screen';
 
-export default function PrivacyPage() {
-    const revealVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.6,
-                ease: "easeOut" as any
-            }
-        }
-    };
+const SECTIONS = [
+  {
+    title: 'Overview',
+    icon: Shield,
+    content: 'C9x collects and processes user data to provide a secure automotive marketplace. By using C9x, you agree to this Privacy Policy and our commitment to protecting your personal information.'
+  },
+  {
+    title: 'Information We Collect',
+    icon: Eye,
+    content: [
+      'Full name and contact details',
+      'Phone number and verified email address',
+      'Location data for localized listings',
+      'Government ID (for institutional verification)',
+      'Vehicle and transaction history',
+      'Device metadata and usage analytics'
+    ]
+  },
+  {
+    title: 'How We Use Information',
+    icon: UserCheck,
+    content: [
+      'Create and manage secure accounts',
+      'Enable reliable buying and selling of vehicles',
+      'Verify users and prevent fraudulent activities',
+      'Process secure transactions and payments',
+      'Provide specialized customer support'
+    ]
+  },
+  {
+    title: 'Data Sharing',
+    icon: Share2,
+    content: [
+      'Verified dealers or buyers during active transactions',
+      'Integrated payment processors (e.g., Paystack)',
+      'Logistics and inspection partners',
+      'Legal authorities where required by regulatory laws'
+    ]
+  },
+  {
+    title: 'Data Security',
+    icon: Lock,
+    content: 'We implement institutional-grade technical and organizational measures to protect your data against unauthorized access, alteration, or disclosure. We do not sell user data to third parties.'
+  },
+  {
+    title: 'Your Rights',
+    icon: UserCheck,
+    content: [
+      'Access and review your personal data',
+      'Request immediate corrections of inaccuracies',
+      'Request permanent deletion of your account and data',
+      'Withdraw consent for data processing at any time'
+    ]
+  },
+  {
+    title: 'Contact Us',
+    icon: MessageCircle,
+    content: 'If you have any questions about this Privacy Policy, please contact our support team at support@c9x.com.'
+  }
+];
 
-    return (
-        <div className="pt-40 pb-32">
-            <section className="max-w-4xl mx-auto px-6">
-                <motion.div
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={revealVariants}
-                    className="space-y-12"
-                >
-                    <div className="space-y-4">
-                        <div className="text-[#0066CC] font-black text-xs uppercase tracking-widest">Legal / Protocol v0.4.2</div>
-                        <h1 className="text-5xl md:text-6xl font-bold text-slate-900 tracking-tight font-display">Privacy Policy.</h1>
-                        <p className="text-slate-500 font-medium">Last Updated: March 2026</p>
-                    </div>
-
-                    <div className="glass p-10 md:p-16 rounded-[3rem] border-slate-100 shadow-xl space-y-10 text-lg text-slate-600 leading-relaxed font-medium">
-                        <section className="space-y-4">
-                            <h2 className="text-2xl font-bold text-slate-900 font-display">1. Data Architecture</h2>
-                            <p>
-                                C9x operates under a "Security First" protocol. We collect only the information necessary to facilitate institutional automotive transactions and ensure the integrity of our vetted community. This includes identity verification data (KYC), professional contact details, and transaction-related metadata.
-                            </p>
-                        </section>
-
-                        <section className="space-y-4">
-                            <h2 className="text-2xl font-bold text-slate-900 font-display">2. Encryption & Security</h2>
-                            <p>
-                                All sensitive data transmitted through the C9x Protocol is encrypted using bank-grade AES-256 standards. Interaction logs and negotiation data are stored in isolated, encrypted environments with strict audit trails.
-                            </p>
-                        </section>
-
-                        <section className="space-y-4">
-                            <h2 className="text-2xl font-bold text-slate-900 font-display">3. Third-Party Integration</h2>
-                            <p>
-                                We do not sell or trade your data to third parties. Data sharing is limited to essential service providers (e.g., identity verification partners, escrow services) who are strictly bound by our security protocols and confidentiality agreements.
-                            </p>
-                        </section>
-
-                        <section className="space-y-4">
-                            <h2 className="text-2xl font-bold text-slate-900 font-display">4. Your Sovereignty</h2>
-                            <p>
-                                As a participant in the C9x Ecosystem, you retain full rights to your data. You may request data access, rectification, or complete removal from the protocol at any time through our secure messaging hub or priority support line.
-                            </p>
-                        </section>
-
-                        <div className="pt-10 border-t border-slate-100 italic text-sm text-slate-400">
-                            For institutional inquiries regarding our data governance, please contact our Compliance Officer at legal@c9automobile.com.
-                        </div>
-                    </div>
-                </motion.div>
-            </section>
-        </div>
-    );
+export default function PrivacyPolicyRoute() {
+  return (
+    <InformationScreen 
+      title="Privacy Policy" 
+      sections={SECTIONS}
+      lastUpdated="March 26, 2026" 
+    />
+  );
 }

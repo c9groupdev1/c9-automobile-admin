@@ -134,7 +134,7 @@ export function LoginForm() {
                             </label>
                         </div>
                         <Link
-                            href="/auth/forgot-password"
+                            href="/secured-admin/forgot-password"
                             className="text-xs font-bold text-[#003399] hover:underline"
                         >
                             Forgot Password?

@@ -91,13 +91,6 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
                 <Button 
                   size="lg" 
-                  onClick={() => router.push('/auth/login')}
-                  className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold bg-white text-[#003399] hover:bg-slate-100 transition-all"
-                >
-                  Login
-                </Button>
-                <Button 
-                  size="lg" 
                   variant="outline"
                   onClick={() => router.push('/about')}
                   className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold border-white/30 bg-transparent hover:bg-white/10 text-white"
@@ -245,13 +238,6 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Button 
-                size="lg" 
-                onClick={() => router.push('/auth/login')}
-                className="h-12 px-10 rounded-xl text-base font-bold bg-[#003399] hover:bg-blue-800 text-white shadow-xl shadow-blue-900/10"
-              >
-                Explore More
-              </Button>
             </motion.div>
 
             <motion.div
@@ -359,11 +345,6 @@ export default function LandingPage() {
             <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
               Start Buying, Selling and Bidding Today
             </h2>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Button size="lg" onClick={() => router.push('/auth/login')} className="h-14 px-10 rounded-xl text-lg font-bold bg-[#003399] hover:bg-blue-700 shadow-xl">
-                Login to Portal
-              </Button>
-            </div>
           </motion.div>
         </div>
       </section>

@@ -28,7 +28,7 @@ export default function DashboardLayout({
             const hasLocalToken = localStorage.getItem('token');
             if (!isAuthenticated && !hasLocalToken) {
                 console.log('Redirecting to login: Not authenticated and no local token');
-                router.push('/auth/login');
+                router.push('/secured-admin/login');
             }
         }
     }, [_hasHydrated, isAuthenticated, router]);

@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
         try {
             await api.post('/users/forgot-password', values);
             toast.success('Reset code sent to your email.');
-            router.push(`/auth/reset-password?email=${encodeURIComponent(values.email)}`);
+            router.push(`/secured-admin/reset-password?email=${encodeURIComponent(values.email)}`);
         } catch (error: any) {
             toast.error('Failed to send reset code. Please try again.');
         } finally {
@@ -93,7 +93,7 @@ export function ForgotPasswordForm() {
                     </Button>
 
                     <div className="text-center pt-2">
-                        <Link href="/auth/login" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-[#003399] transition-colors">
+                        <Link href="/secured-admin/login" className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-[#003399] transition-colors">
                             <ArrowLeft size={14} className="mr-2" />
                             Return to Login
                         </Link>

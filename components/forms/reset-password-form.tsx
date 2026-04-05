@@ -66,7 +66,7 @@ function ResetPasswordFormContent() {
                 password_confirmation: values.password_confirmation,
             });
             toast.success('Password reset successful! You can now login with your new password.');
-            router.push('/auth/login');
+            router.push('/secured-admin/login');
         } catch (error: any) {
             const message = error.response?.data?.message || 'Reset failed. Please check the code and try again.';
             toast.error(message);
@@ -179,7 +179,7 @@ function ResetPasswordFormContent() {
                     </Button>
 
                     <div className="text-center pt-2">
-                        <Link href="/auth/login" className="text-xs font-bold text-slate-500 hover:text-[#003399] transition-colors">
+                        <Link href="/secured-admin/login" className="text-xs font-bold text-slate-500 hover:text-[#003399] transition-colors">
                             Return to Login
                         </Link>
                     </div>
