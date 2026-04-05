@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,8 +24,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useCreateListing, useListingTypes } from '@/hooks/useListings';
-import { Loader2, Upload, X, Car, Plus, Coins, FileText, Zap, Compass, RefreshCw } from 'lucide-react';
+import { Listing, useUpdateListing, useListingTypes } from '@/hooks/useListings';
+import { Loader2, Upload, X, Car, Save, Coins, FileText, Zap, Compass, RefreshCw } from 'lucide-react';
 
 const formSchema = z.object({
     listingTypeId: z.string().min(1, { message: 'Required' }),
@@ -43,30 +43,38 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function AddListingForm({ onSuccess }: { onSuccess: () => void }) {
+interface EditListingFormProps {
+    listing: Listing;
+    onSuccess: () => void;
+}
+
+export function EditListingForm({ listing, onSuccess }: EditListingFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [images, setImages] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const createListing = useCreateListing();
+    const updateListing = useUpdateListing();
     const { data: listingTypes, isLoading: isLoadingTypes } = useListingTypes();
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            listingTypeId: '1',
-            title: '',
-            description: '',
-            amount: '',
-            isNegotiable: false,
-            make: '',
-            model: '',
-            year: new Date().getFullYear().toString(),
-            transmission: 'automatic',
-            fuelType: 'petrol',
-            mileage: '',
+            listingTypeId: listing.listingTypeId?.toString() || '1',
+            title: listing.title || '',
+            description: listing.description || '',
+            amount: listing.amount?.toString() || '',
+            isNegotiable: Boolean(listing.is_negotiable),
+            make: listing.car?.make || '',
+            model: listing.car?.model || '',
+            year: listing.car?.year?.toString() || new Date().getFullYear().toString(),
+            transmission: listing.car?.transmission || 'automatic',
+            fuelType: listing.car?.fuel_type || 'petrol',
+            mileage: listing.car?.mileage?.toString() || '',
         },
     });
+
+    // Existing media previews
+    const existingMedia = listing.media || [];
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -79,18 +87,13 @@ export function AddListingForm({ onSuccess }: { onSuccess: () => void }) {
         setPreviews((prev) => [...prev, ...newPreviews]);
     };
 
-    const removeImage = (index: number) => {
+    const removeNewImage = (index: number) => {
         setImages((prev) => prev.filter((_, i) => i !== index));
         URL.revokeObjectURL(previews[index]);
         setPreviews((prev) => prev.filter((_, i) => i !== index));
     };
 
     async function onSubmit(values: FormValues) {
-        if (images.length === 0) {
-            toast.error('Please upload at least one image');
-            return;
-        }
-
         setIsLoading(true);
         try {
             const formData = new FormData();
@@ -113,11 +116,11 @@ export function AddListingForm({ onSuccess }: { onSuccess: () => void }) {
                 formData.append('images[]', image);
             });
 
-            await createListing.mutateAsync(formData);
-            toast.success('Listing initialized successfully');
+            await updateListing.mutateAsync({ id: listing.id, data: formData });
+            toast.success('Asset protocol updated successfully');
             onSuccess();
         } catch (error: any) {
-            toast.error(error.response?.data?.message || 'Failed to initialize listing protocol');
+            toast.error(error.response?.data?.message || 'Failed to update asset protocol');
         } finally {
             setIsLoading(false);
         }
@@ -366,7 +369,7 @@ export function AddListingForm({ onSuccess }: { onSuccess: () => void }) {
                             <Upload className="text-[#0066CC] w-5 h-5" />
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Visual Documentation</h3>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Min 2 Assets Recommended</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">New Assets Append to Existing</span>
                     </div>
 
                     <div
@@ -383,22 +386,36 @@ export function AddListingForm({ onSuccess }: { onSuccess: () => void }) {
                             <Upload size={24} />
                         </div>
                         <div className="text-center">
-                            <p className="text-sm font-bold text-slate-900">Upload Asset Media</p>
-                            <p className="text-xs font-medium text-slate-400 mt-1">Drag and drop high-resolution JPG/PNG files.</p>
+                            <p className="text-sm font-bold text-slate-900">Add New Assets</p>
+                            <p className="text-xs font-medium text-slate-400 mt-1">Append high-resolution JPG/PNG files to the registry.</p>
                         </div>
                         <input type="file" multiple accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageChange} />
                     </div>
 
-                    {previews.length > 0 && (
+                    {/* Previews of existing and new media */}
+                    {(existingMedia.length > 0 || previews.length > 0) && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                            {/* Existing Media */}
+                            {existingMedia.map((media, index) => (
+                                <div key={`existing-${index}`} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-xl group grayscale hover:grayscale-0 transition-all">
+                                    <img
+                                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${media.path}`}
+                                        alt="Current Asset"
+                                        className="object-cover w-full h-full"
+                                    />
+                                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-slate-900/60 backdrop-blur-md rounded-md text-[8px] font-black text-white uppercase tracking-widest border border-white/10">Existing</div>
+                                </div>
+                            ))}
+                            {/* New Media Previews */}
                             {previews.map((preview, index) => (
-                                <div key={index} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-xl group">
-                                    <img src={preview} alt="Asset Preview" className="object-cover w-full h-full transition-transform group-hover:scale-110" />
+                                <div key={`new-${index}`} className="relative aspect-square rounded-2xl overflow-hidden border border-[#0066CC]/20 shadow-xl group ring-2 ring-[#0066CC]/10">
+                                    <img src={preview} alt="New Asset Preview" className="object-cover w-full h-full transition-transform group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <button type="button" onClick={(e) => { e.stopPropagation(); removeImage(index); }} className="bg-white/20 backdrop-blur-md text-white rounded-xl p-2 hover:bg-rose-500 transition-colors">
+                                        <button type="button" onClick={(e) => { e.stopPropagation(); removeNewImage(index); }} className="bg-white/20 backdrop-blur-md text-white rounded-xl p-2 hover:bg-rose-500 transition-colors">
                                             <X size={16} />
                                         </button>
                                     </div>
+                                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#0066CC]/80 backdrop-blur-md rounded-md text-[8px] font-black text-white uppercase tracking-widest border border-white/10">New Asset</div>
                                 </div>
                             ))}
                         </div>
@@ -406,16 +423,16 @@ export function AddListingForm({ onSuccess }: { onSuccess: () => void }) {
                 </div>
 
                 <div className="pt-8 border-t border-slate-100">
-                    <Button type="submit" className="w-full h-16 rounded-[1.5rem] text-lg font-bold bg-[#0066CC] hover:bg-blue-700 shadow-xl shadow-primary/20 transition-all active:scale-[0.98]" disabled={isLoading}>
+                    <Button type="submit" className="w-full h-16 rounded-[1.5rem] text-lg font-bold bg-[#0066CC] hover:bg-blue-700 shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]" disabled={isLoading}>
                         {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                Synchronizing Network Protocol...
+                                Synchronizing Patch Records...
                             </>
                         ) : (
                             <>
-                                <Plus className="mr-2 h-5 w-5" />
-                                Finalize Asset Deployment
+                                <Save className="mr-2 h-5 w-5" />
+                                Commit Protocol Changes
                             </>
                         )}
                     </Button>

@@ -1,69 +1,270 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 
-export interface Listing {
+export interface ListingListing {
     id: string;
-    listing_type_id: string | number;
+    image: string | null;
     title: string;
-    description: string;
-    amount: string | number;
-    status: 'available' | 'sold' | 'pending' | 'rejected';
-    is_negotiable: string | number | boolean;
-    is_c9_collection?: boolean;
-    created_at: string;
-    updated_at: string;
-    car?: {
-        id: number | string;
-        make: string;
-        model: string;
-        year: string | number;
-        transmission: string;
-        fuel_type: string;
-        mileage: number | string;
-        custom_duty?: number | string;
-    };
-    media?: Array<{
-        id: number | string;
-        path: string;
-        is_primary: number | boolean;
-    }>;
+    isFeatured: boolean;
+    isVerified: boolean;
+    isFlagged: boolean;
+    avatar: string | null;
+    name: string;
+    type: string;
+    brandModel: string;
+    yearModel: string;
+    price: string;
+    condition: string | null;
+    city: string | null;
+    area: string | null;
+    status: string;
+    formatted: string;
+    relative: string;
 }
 
-export function useListings(params?: { page?: number; search?: string }) {
+// For compatibility with components expecting the old structure
+export interface Listing {
+    id: string;
+    title: string;
+    description: string;
+    amount: number;
+    listingTypeId: string | number;
+    is_negotiable: boolean | number;
+    status: string;
+    car?: {
+        make: string;
+        model: string;
+        year: number;
+        transmission: string;
+        fuel_type: string;
+        mileage: number;
+    };
+    media?: Array<{ id: string; path: string }>;
+    user?: {
+        name: string;
+        email: string;
+    };
+}
+
+export interface ListingsResponse {
+    success: boolean;
+    data: {
+        data: ListingListing[];
+        links: {
+            first: string;
+            last: string;
+            prev: string | null;
+            next: string | null;
+        };
+        meta: {
+            current_page: number;
+            from: number;
+            last_page: number;
+            links: Array<{ url: string | null; label: string; active: boolean }>;
+            path: string;
+            per_page: number;
+            to: number;
+            total: number;
+        };
+    };
+    message: string;
+}
+
+export function useListings(params?: {
+    page?: number;
+    search?: string;
+    status?: string;
+    make?: string;
+    model?: string;
+    year?: string | number;
+    stateId?: string | number;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    perPage?: number;
+}) {
     return useQuery({
         queryKey: ['listings', params],
         queryFn: async () => {
-            const response = await api.get('/admin/listings', { params });
-            return response.data;
+            const response = await api.get<ListingsResponse>('/admin/listings/vehicles', { params });
+            return response.data.data;
         },
+    });
+}
+
+export interface ListingAnalysisData {
+    totalVehicleListings: number;
+    approvedListings: number;
+    rejectedListings: number;
+    flaggedListings: number;
+}
+
+export function useListingAnalysis() {
+    return useQuery({
+        queryKey: ['listings-analysis'],
+        queryFn: async () => {
+            const response = await api.get<{
+                success: boolean;
+                data: ListingAnalysisData;
+            }>('/admin/listings/vehicles/analysis');
+            return response.data.data;
+        },
+    });
+}
+
+export interface ListingDetail {
+    id: string;
+    status: string;
+    title: string;
+    amount: number;
+    viewCounts: number;
+    badges: {
+        pendingReview: boolean;
+        verifiedSeller: boolean;
+        featuredListing: boolean;
+    };
+    header: {
+        title: string;
+        price: string;
+        location: string;
+        basicSpecs: string;
+        submittedDate: string;
+        publishedDate: string;
+        lastUpdated: string;
+    };
+    vehicleInformation: {
+        make: string;
+        model: string;
+        year: string;
+        trimVariant: string;
+        bodyType: string;
+        condition: string;
+        transmission: string;
+        fuelType: string;
+        engineType: string;
+        driveType: string | null;
+        exteriorColor: string;
+        interiorColor: string;
+        registrationStatus: string;
+        vinChassisNumber: string | null;
+        videoUrl: string | null;
+        inspectionAccepted: boolean;
+        negotiable: string;
+        location: {
+            city: string | null;
+            area: string | null;
+            landmark: string | null;
+            fullAddress: string | null;
+        };
+    };
+    contentQuality: {
+        descriptionProfessionalism: string;
+        imageCount: number;
+        isFlagged: boolean;
+    };
+    complianceReview: {
+        kycVerified: boolean;
+        vinProvided: boolean;
+    };
+    description: string;
+    carFeatures: string[];
+    mediaReview: {
+        images: Array<{
+            id: string;
+            url: string;
+            isPrimary: boolean;
+        }>;
+    };
+    sellerInformation: {
+        name: string;
+        email: string;
+        phone: string;
+        verified: boolean;
+        phoneStatus: string;
+        totalActiveListings: number;
+        memberSince: string;
+        sellerType: string;
+        location: string;
+    };
+}
+
+export function useListing(id: string) {
+    return useQuery({
+        queryKey: ['listing', id],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: ListingDetail; message: string }>(`/admin/listings/vehicles/${id}/show`);
+            return response.data.data;
+        },
+        enabled: !!id,
     });
 }
 
 export function useCreateListing() {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: async (data: FormData) => {
-            const response = await api.post('/user/listings', data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+    return {
+        mutateAsync: async (data: FormData) => {
+            const response = await api.post('/admin/listings/vehicles', data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
             return response.data;
         },
-        onSuccess: () => {
+    };
+}
+
+export function useUpdateListing() {
+    return {
+        mutateAsync: async ({ id, data }: { id: string; data: FormData }) => {
+            const response = await api.post(`/admin/listings/vehicles/${id}/update`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            return response.data;
+        },
+    };
+}
+
+export function useDeleteListing() {
+    return {
+        mutateAsync: async (id: string) => {
+            const response = await api.delete(`/admin/listings/vehicles/${id}/delete`);
+            return response.data;
+        },
+    };
+}
+
+export const useListingTypes = () => {
+    return useQuery({
+        queryKey: ['listing-types'],
+        queryFn: async () => {
+            const response = await api.get('/listing-types');
+            return response.data;
+        },
+    });
+};
+
+export function useUpdateListingStatus() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, status, comments }: { id: string; status: string; comments?: string }) => {
+            const response = await api.post(`/admin/listings/vehicles/${id}/review`, { 
+                status,
+                comments 
+            });
+            return response.data;
+        },
+        onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['listings'] });
+            queryClient.invalidateQueries({ queryKey: ['listing', variables.id] });
         },
     });
 }
 
-export function useDeleteListing() {
-    const queryClient = useQueryClient();
+export function useVerifyVin() {
     return useMutation({
-        mutationFn: async (id: string) => {
-            await api.delete(`/admin/listings/${id}`);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['listings'] });
+        mutationFn: async (vin: string) => {
+            const response = await api.post<{
+                success: boolean;
+                data: any;
+                message: string;
+            }>('/listings/vin/verify', { vin });
+            return response.data;
         },
     });
 }

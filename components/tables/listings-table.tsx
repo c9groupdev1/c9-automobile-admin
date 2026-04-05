@@ -21,18 +21,18 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { MoreHorizontal, Car, Trash2, ExternalLink } from 'lucide-react';
-import { Listing, useListings, useDeleteListing } from '@/hooks/useListings';
+import { MoreHorizontal, Car, Trash2, ExternalLink, Settings2 } from 'lucide-react';
+import { ListingListing as Listing, useListings, useDeleteListing } from '@/hooks/useListings';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
-export function ListingsTable() {
+export function ListingsTable({ onEdit }: { onEdit?: (listing: Listing) => void }) {
     const [page, setPage] = useState(1);
     const { data, isLoading } = useListings({ page });
     const deleteListing = useDeleteListing();
 
-    const listings = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
-    const meta = data?.meta || data?.data?.meta || { current_page: 1, last_page: 1, total: 0 };
+    const listings = data?.data || [];
+    const meta = data?.meta || { current_page: 1, last_page: 1, total: 0 };
 
     const handleDelete = async (id: string) => {
         if (confirm('Are you sure you want to delete this listing?')) {
@@ -64,10 +64,11 @@ export function ListingsTable() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Vehicle</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Seller</TableHead>
                             <TableHead>Year</TableHead>
                             <TableHead>Amount</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead>Transmission</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -84,9 +85,9 @@ export function ListingsTable() {
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 relative rounded-lg overflow-hidden bg-slate-100 border border-slate-100 shadow-sm">
-                                                {listing.media?.[0]?.path ? (
+                                                {listing.image ? (
                                                     <img
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${listing.media[0].path}`}
+                                                        src={listing.image}
                                                         alt={listing.title}
                                                         className="object-cover w-full h-full"
                                                     />
@@ -99,16 +100,27 @@ export function ListingsTable() {
                                             <div>
                                                 <div className="font-bold text-sm text-slate-900 line-clamp-1">{listing.title}</div>
                                                 <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest leading-none mt-1">
-                                                    {listing.car?.make} {listing.car?.model}
+                                                    {listing.brandModel}
                                                 </div>
                                             </div>
                                         </div>
                                     </TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className="rounded-lg bg-slate-50 border-slate-100 text-[10px] font-bold text-slate-500">
+                                            {listing.type || 'Vehicle'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col">
+                                            <div className="text-xs font-bold text-slate-700">{listing.name}</div>
+                                            <div className="text-[10px] text-slate-400 font-medium">{listing.type}</div>
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="font-semibold text-slate-600">
-                                        {listing.car?.year || 'N/A'}
+                                        {listing.yearModel || 'N/A'}
                                     </TableCell>
                                     <TableCell className="font-bold text-[#0066CC]">
-                                        ${Number(listing.amount).toLocaleString()}
+                                        {listing.price}
                                     </TableCell>
                                     <TableCell>
                                         <Badge
@@ -124,9 +136,6 @@ export function ListingsTable() {
                                             {listing.status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="capitalize text-slate-500 font-medium text-xs">
-                                        {listing.car?.transmission || 'N/A'}
-                                    </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger render={
@@ -137,23 +146,23 @@ export function ListingsTable() {
                                             <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl p-2 min-w-[160px]">
                                                 <DropdownMenuGroup>
                                                     <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-3 py-2">Asset Control</DropdownMenuLabel>
+                                                    <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
+                                                        <ExternalLink className="mr-3 h-4 w-4 text-slate-400" />
+                                                        <span className="text-sm font-bold text-slate-700">View Public</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onEdit?.(listing)} className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
+                                                        <Settings2 className="mr-3 h-4 w-4 text-slate-400" />
+                                                        <span className="text-sm font-bold text-slate-700">Edit Details</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator className="bg-slate-50 my-1" />
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleDelete(listing.id)}
+                                                        className="rounded-xl px-3 py-2 cursor-pointer focus:bg-rose-50 group"
+                                                    >
+                                                        <Trash2 className="mr-3 h-4 w-4 text-slate-400 group-hover:text-rose-500 transition-colors" />
+                                                        <span className="text-sm font-bold text-slate-700 group-hover:text-rose-600">Delete Asset</span>
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuGroup>
-                                                <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
-                                                    <ExternalLink className="mr-3 h-4 w-4 text-slate-400" />
-                                                    <span className="text-sm font-bold text-slate-700">View Public</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer focus:bg-slate-50">
-                                                    <Trash2 className="mr-3 h-4 w-4 text-slate-400" />
-                                                    <span className="text-sm font-bold text-slate-700">Edit Details</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator className="bg-slate-50 my-1" />
-                                                <DropdownMenuItem
-                                                    onClick={() => handleDelete(listing.id)}
-                                                    className="rounded-xl px-3 py-2 cursor-pointer focus:bg-rose-50 group"
-                                                >
-                                                    <Trash2 className="mr-3 h-4 w-4 text-slate-400 group-hover:text-rose-500 transition-colors" />
-                                                    <span className="text-sm font-bold text-slate-700 group-hover:text-rose-600">Delete Asset</span>
-                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

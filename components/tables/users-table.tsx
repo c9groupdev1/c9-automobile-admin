@@ -44,8 +44,8 @@ export function UsersTable() {
         }
     };
 
-    const users = Array.isArray(data?.data?.data) ? data.data.data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []));
-    const meta = data?.meta || data?.data?.meta || { current_page: 1, last_page: 1, total: 0 };
+    const users = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
+    const meta = data?.meta || { current_page: 1, last_page: 1, total: 0 };
     if (isLoading) {
         return (
             <div className="space-y-4">
@@ -113,9 +113,9 @@ export function UsersTable() {
                         ) : (
                             users.map((user: User) => (
                                 <TableRow key={user.id}>
-                                    <TableCell className="font-medium">{user.name}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell className="capitalize">{user.roles?.join(', ')}</TableCell>
+                                    <TableCell className="font-medium">{user.fullName}</TableCell>
+                                    <TableCell>{user.emailAddress}</TableCell>
+                                    <TableCell className="capitalize">{user.roles?.join(', ') || user.accountType}</TableCell>
                                     <TableCell>
                                         <Badge
                                             variant={
@@ -129,7 +129,7 @@ export function UsersTable() {
                                             {user.kycStatus.replace('_', ' ')}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                                    <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger className={cn(buttonVariants({ variant: 'ghost' }), "h-8 w-8 p-0")}>
@@ -138,24 +138,24 @@ export function UsersTable() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuGroup>
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'active')}>
+                                                        <UserCheck className="mr-2 h-4 w-4" />
+                                                        Activate
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'suspended')}>
+                                                        <UserMinus className="mr-2 h-4 w-4" />
+                                                        Suspend
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleStatusUpdate(user.id, 'blocked')}
+                                                        className="text-destructive focus:text-destructive"
+                                                    >
+                                                        <UserX className="mr-2 h-4 w-4" />
+                                                        Block
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 </DropdownMenuGroup>
-                                                <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'active')}>
-                                                    <UserCheck className="mr-2 h-4 w-4" />
-                                                    Activate
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleStatusUpdate(user.id, 'suspended')}>
-                                                    <UserMinus className="mr-2 h-4 w-4" />
-                                                    Suspend
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => handleStatusUpdate(user.id, 'blocked')}
-                                                    className="text-destructive focus:text-destructive"
-                                                >
-                                                    <UserX className="mr-2 h-4 w-4" />
-                                                    Block
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>View Details</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
