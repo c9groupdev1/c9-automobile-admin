@@ -30,7 +30,7 @@ export function InformationScreen({ title, sections, lastUpdated, subtitle }: In
             y: 0,
             transition: {
                 duration: 0.6,
-                ease: "easeOut"
+                ease: "easeOut" as any
             }
         }
     };
