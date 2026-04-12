@@ -87,7 +87,7 @@ export function LoginForm() {
                                             <Input
                                                 placeholder="admin@c9x.com"
                                                 {...field}
-                                                className="h-14 rounded-2xl bg-slate-50 border-slate-100 focus:bg-white text-slate-900 placeholder:text-slate-400 px-12 font-medium transition-all"
+                                                className="h-14 rounded-lg bg-slate-50 border-2 border-slate-400  text-slate-900 placeholder:text-slate-400 px-12 font-medium transition-all"
                                             />
                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#003399] transition-colors" size={18} />
                                         </div>
@@ -108,10 +108,10 @@ export function LoginForm() {
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="Enter password"
                                                 {...field}
-                                                className="h-14 rounded-2xl bg-slate-50 border-slate-100 focus:bg-white text-slate-900 placeholder:text-slate-400 px-12 font-medium transition-all"
+                                                className="h-14 rounded-lg bg-slate-50 border-2 border-slate-400  text-slate-900 placeholder:text-slate-400 px-12 font-medium transition-all"
                                             />
                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#003399] transition-colors" size={18} />
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
@@ -157,7 +157,7 @@ export function LoginForm() {
                     <ShieldAlert className="text-[#003399]" size={20} />
                 </div>
                 <p className="text-[11px] leading-relaxed text-slate-500 font-medium">
-                    <span className="font-bold text-slate-900">Security Notice:</span> This portal is restricted to authorized C9X administrators only.
+                    <span className="font-bold">Security Notice:</span> This portal is restricted to authorized C9X administrators only.
                 </p>
             </div>
         </div>

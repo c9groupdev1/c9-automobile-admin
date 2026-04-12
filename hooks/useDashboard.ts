@@ -5,6 +5,9 @@ export interface DashboardStats {
     totalUsers: { current: number; change: number };
     verifiedVendors: { current: number; change: number };
     activeListings: { current: number; change: number };
+    activeSubscriptions: { current: number; status: string };
+    totalRevenue: { current: number; status: string };
+    monthlyRevenue: { current: number; change: number };
     pendingKyc: { current: number; status: string };
 }
 

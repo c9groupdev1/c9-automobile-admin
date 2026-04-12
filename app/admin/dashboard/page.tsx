@@ -16,7 +16,11 @@ import {
     Loader2,
     AlertCircle,
     Filter,
-    Activity as ActivityIcon
+    Activity as ActivityIcon,
+    CreditCard,
+    HandCoins,
+    BadgeDollarSign,
+    TrendingUp
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -87,6 +91,10 @@ export default function DashboardPage() {
     const { data: activityListings, isLoading: isLoadingActivityListings } = useLatestListings({ limit: 5 });
     const { data: activityKycs, isLoading: isLoadingActivityKycs } = usePendingKycs({ limit: 5 });
     const { data: queueKycs, isLoading: isLoadingQueueKycs } = usePendingKycs({ limit: 10 });
+
+    const formatRevenue = (value: number) => {
+        return `₦${value.toLocaleString()}`;
+    };
 
     const formatTrend = (change: number) => {
         return {
@@ -213,8 +221,8 @@ export default function DashboardPage() {
                         description="Authorized system vendors"
                         icon={Store}
                         trend={stats ? formatTrend(stats.verifiedVendors.change) : undefined}
-                        iconBg="bg-emerald-50"
-                        iconColor="text-emerald-600"
+                        iconBg="bg-amber-50"
+                        iconColor="text-amber-600"
                     />
                     <StatsCard
                         title="Active Listings"
@@ -231,8 +239,42 @@ export default function DashboardPage() {
                         description="Awaiting identity verification"
                         icon={ShieldCheck}
                         trend={stats?.pendingKyc.current ? { value: 'Urgent', positive: false } : undefined}
-                        iconBg="bg-orange-50"
-                        iconColor="text-orange-500"
+                        iconBg="bg-rose-50"
+                        iconColor="text-rose-500"
+                    />
+                </div>
+
+                {/* Section: Fiscal Intelligence */}
+                <div className="flex items-center gap-2 px-1 pt-4">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Fiscal Intelligence</h3>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
+                    <StatsCard
+                        title="Total Revenue"
+                        value={stats ? formatRevenue(stats.totalRevenue.current) : '...'}
+                        description="Cumulative platform earnings"
+                        icon={BadgeDollarSign}
+                        trend={stats ? { value: stats.totalRevenue.status, positive: true } : undefined}
+                        iconBg="bg-emerald-50"
+                        iconColor="text-emerald-600"
+                    />
+                    <StatsCard
+                        title="Monthly Revenue"
+                        value={stats ? formatRevenue(stats.monthlyRevenue.current) : '...'}
+                        description="Current cycle fiscal growth"
+                        icon={TrendingUp}
+                        trend={stats ? formatTrend(stats.monthlyRevenue.change) : undefined}
+                        iconBg="bg-blue-50"
+                        iconColor="text-blue-600"
+                    />
+                    <StatsCard
+                        title="Active Subscriptions"
+                        value={stats?.activeSubscriptions.current ?? '...'}
+                        description="Direct monetization participants"
+                        icon={CreditCard}
+                        trend={stats ? { value: stats.activeSubscriptions.status, positive: true } : undefined}
+                        iconBg="bg-violet-50"
+                        iconColor="text-violet-600"
                     />
                 </div>
             </div>

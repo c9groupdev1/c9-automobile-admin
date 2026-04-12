@@ -50,9 +50,9 @@ export function PublicFooter() {
 
                 <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40">
                     <p className="text-xs font-bold uppercase tracking-widest">© 2026 C9x Automobile Ecosystem. All Rights Reserved.</p>
-                    <div className="flex items-center gap-6">
+                    {/* <div className="flex items-center gap-6">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em]">Protocol v0.4.2</span>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </footer>
