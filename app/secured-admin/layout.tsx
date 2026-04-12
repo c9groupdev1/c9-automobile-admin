@@ -106,7 +106,7 @@ export default function AuthLayout({
                         {new Date().getFullYear()} C9X Automotive Marketplace. All rights reserved.
                     </p>
                     <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.3em]">
-                        C9X Admin Portal v1.0 | Secure Environment
+                        C9X Admin Portal v1.0
                     </p>
                 </div>
             </div>

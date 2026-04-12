@@ -22,7 +22,6 @@ export type Permission =
     | 'order.create'
     | 'order.view_own'
     | 'payment.make'
-    | 'payment.view'
     | 'review.create'
     | 'review.moderate'
     | 'user.view'
@@ -38,7 +37,14 @@ export type Permission =
     | 'kyc.reject'
     | 'category.manage'
     | 'system.manage'
-    | 'referral.refer';
+    | 'referral.refer'
+    | 'payment.view'
+    | 'payment.manage'
+    | 'plan.manage'
+    | 'promotion.manage'
+    | 'support.manage'
+    | 'news.manage'
+    | 'referral.view';
 
 export function usePermissions() {
     const { user } = useAuthStore();
@@ -67,6 +73,10 @@ export function usePermissions() {
         canManageListings: hasPermission(['listing.status_manage', 'listing.update_any', 'listing.delete_any']),
         canReviewKyc: hasPermission(['kyc.approve', 'kyc.reject']),
         canManageSystem: hasPermission('system.manage'),
-        canViewPayments: hasPermission('payment.view'),
+        canViewPayments: hasPermission(['payment.view', 'payment.manage']),
+        canManagePayments: hasPermission('payment.manage'),
+        canManagePlans: hasPermission('plan.manage'),
+        canManagePromotions: hasPermission('promotion.manage'),
+        canManageSupport: hasPermission('support.manage'),
     };
 }
