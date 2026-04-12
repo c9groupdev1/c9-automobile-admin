@@ -15,7 +15,7 @@ import {
     ArrowUpRight
 } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/stats-card';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
     Select,
@@ -45,11 +45,11 @@ export default function SupportPage() {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebounce(search, 500);
-    const [status, setStatus] = useState<string>('all');
+    const [status, setStatus] = useState<string | null>('all');
 
     const { data: enquiriesData, isLoading, refetch } = useSupportEnquiries({
         page,
-        status: status === 'all' ? undefined : status,
+        status: status === 'all' ? undefined : (status ?? undefined),
         search: debouncedSearch,
     });
 
@@ -181,12 +181,16 @@ export default function SupportPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="px-4 py-5 text-right">
-                                            <Button asChild variant="ghost" size="sm" className="h-8 rounded-lg text-slate-400 hover:text-[#003399] hover:bg-blue-50 font-bold text-xs">
-                                                <Link href={`/admin/support/${enquiry.id}`}>
-                                                    <Eye size={14} className="mr-2" />
-                                                    View Details
-                                                </Link>
-                                            </Button>
+                                            <Link 
+                                                href={`/admin/support/${enquiry.id}`}
+                                                className={cn(
+                                                    buttonVariants({ variant: "ghost", size: "sm" }), 
+                                                    "h-8 rounded-lg text-slate-400 hover:text-[#003399] hover:bg-blue-50 font-bold text-xs flex items-center gap-2"
+                                                )}
+                                            >
+                                                <Eye size={14} />
+                                                View Details
+                                            </Link>
                                         </TableCell>
                                     </TableRow>
                                 ))

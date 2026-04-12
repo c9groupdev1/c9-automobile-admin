@@ -17,7 +17,7 @@ import {
   Share2,
   Newspaper
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -100,9 +100,15 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
         </div>
         <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Record Invalid</h3>
         <p className="text-slate-500 font-medium max-w-xs">The requested announcement artifact could not be localized on our clusters.</p>
-        <Button asChild className="bg-[#003399] rounded-2xl px-8 h-12 font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-900/10">
-          <Link href="/admin/news">Return to Hub</Link>
-        </Button>
+        <Link 
+          href="/admin/news"
+          className={cn(
+            buttonVariants({ variant: "default" }),
+            "bg-[#003399] rounded-2xl px-8 h-12 font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-900/10 flex items-center justify-center transition-all"
+          )}
+        >
+          Return to Hub
+        </Link>
       </div>
     );
   }
@@ -111,19 +117,23 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
     <div className="max-w-6xl mx-auto space-y-10 pb-20">
       {/* Navigation & Actions Header */}
       <div className="flex items-center justify-between">
-        <Button variant="ghost" asChild className="text-slate-500 font-black text-xs uppercase tracking-widest hover:text-[#003399] transition-colors p-0 hover:bg-transparent">
-          <Link href="/admin/news">
-            <ArrowLeft size={16} className="mr-2" /> Back to Communication Hub
-          </Link>
-        </Button>
+        <Link 
+          href="/admin/news"
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            "text-slate-500 font-black text-xs uppercase tracking-widest hover:text-[#003399] transition-colors p-0 hover:bg-transparent flex items-center gap-2"
+          )}
+        >
+          <ArrowLeft size={16} /> Back to Communication Hub
+        </Link>
         <div className="flex items-center gap-4">
           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-            <DialogTrigger asChild>
+            <DialogTrigger render={
               <Button variant="outline" className="h-12 rounded-2xl border-slate-100 hover:border-blue-500 hover:text-blue-600 font-black text-xs uppercase tracking-widest gap-2 bg-white shadow-sm">
                 <Edit3 size={16} />
                 Modify Content
               </Button>
-            </DialogTrigger>
+            } />
             <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
               <div className="p-10 border-b border-slate-50 bg-white">
                 <DialogHeader>

@@ -14,7 +14,7 @@ import {
     MessageSquare,
     Save
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -39,7 +39,7 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
     const { data: enquiry, isLoading } = useSupportEnquiry(params.id);
     const { mutate: respond, isPending } = useRespondToEnquiry();
     
-    const [status, setStatus] = useState<string>('');
+    const [status, setStatus] = useState<string | null>(null);
     const [message, setMessage] = useState<string>('');
 
     // Update local status state when enquiry data is loaded
@@ -81,9 +81,15 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
             <div className="h-[60vh] flex flex-col items-center justify-center space-y-4">
                 <XCircle className="h-12 w-12 text-rose-500" />
                 <h3 className="text-xl font-bold text-slate-900">Enquiry not found</h3>
-                <Button asChild className="bg-[#003399] rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10">
-                   <Link href="/admin/support">Back to List</Link>
-                </Button>
+                <Link 
+                    href="/admin/support"
+                    className={cn(
+                        buttonVariants({ variant: "default" }),
+                        "bg-[#003399] rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10 flex items-center justify-center"
+                    )}
+                >
+                    Back to List
+                </Link>
             </div>
         );
     }
@@ -143,13 +149,19 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
                             {enquiry.attachment_path && (
                                 <div className="pt-8 border-t border-slate-50">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Attached Document</h4>
-                                    <Button asChild variant="outline" className="h-14 rounded-2xl border-slate-200 bg-slate-50 hover:bg-white hover:border-[#003399] hover:text-[#003399] transition-all px-6 gap-3 group">
-                                        <a href={enquiry.attachment_path} target="_blank" rel="noopener noreferrer">
-                                            <Paperclip size={20} className="text-slate-400 group-hover:text-[#003399]" />
-                                            <span className="font-bold">View Attachment</span>
-                                            <Badge variant="secondary" className="bg-slate-200 text-slate-600 text-[9px] font-black ml-2 uppercase">File</Badge>
-                                        </a>
-                                    </Button>
+                                    <a 
+                                        href={enquiry.attachment_path} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className={cn(
+                                            buttonVariants({ variant: "outline" }),
+                                            "h-14 rounded-2xl border-slate-200 bg-slate-50 hover:bg-white hover:border-[#003399] hover:text-[#003399] transition-all px-6 gap-3 group flex items-center"
+                                        )}
+                                    >
+                                        <Paperclip size={20} className="text-slate-400 group-hover:text-[#003399]" />
+                                        <span className="font-bold">View Attachment</span>
+                                        <Badge variant="secondary" className="bg-slate-200 text-slate-600 text-[9px] font-black ml-2 uppercase">File</Badge>
+                                    </a>
                                 </div>
                             )}
 
@@ -253,17 +265,21 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
                                 {enquiry.user && (
                                     <div className="pt-6 border-t border-slate-50 space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-blue-400">Associated Protocol Account</label>
-                                        <Button asChild variant="outline" className="w-full h-14 rounded-2xl justify-between border-slate-100 hover:border-[#003399] group">
-                                            <Link href={`/admin/users/${enquiry.user.id}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[#003399]">
-                                                        <User size={16} />
-                                                    </div>
-                                                    <span className="text-xs font-bold text-slate-700">Account Profile</span>
+                                        <Link 
+                                            href={`/admin/users/${enquiry.user.id}`}
+                                            className={cn(
+                                                buttonVariants({ variant: "outline" }),
+                                                "w-full h-14 rounded-2xl justify-between border-slate-100 hover:border-[#003399] group flex items-center px-4"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-[#003399]">
+                                                    <User size={16} />
                                                 </div>
-                                                <ArrowLeft size={14} className="rotate-180 text-slate-300 group-hover:text-[#003399]" />
-                                            </Link>
-                                        </Button>
+                                                <span className="text-xs font-bold text-slate-700">Account Profile</span>
+                                            </div>
+                                            <ArrowLeft size={14} className="rotate-180 text-slate-300 group-hover:text-[#003399]" />
+                                        </Link>
                                     </div>
                                 )}
                             </div>

@@ -18,7 +18,7 @@ import {
   TrendingUp,
   Newspaper
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -121,12 +121,12 @@ export default function NewsPage() {
         </div>
 
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger render={
             <Button className="bg-[#003399] hover:bg-blue-800 rounded-2xl px-8 h-14 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-900/10 gap-2">
               <Plus size={16} />
               Draft New Update
             </Button>
-          </DialogTrigger>
+          } />
           <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
             <div className="p-10 border-b border-slate-50 bg-white">
               <DialogHeader>
@@ -259,17 +259,21 @@ export default function NewsPage() {
                       </TableCell>
                       <TableCell className="py-6 px-10 text-right">
                         <div className="flex items-center justify-end gap-2">
-                           <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-white hover:text-[#003399] border-0">
-                              <Link href={`/admin/news/${item.id}`}>
+                           <Link 
+                              href={`/admin/news/${item.id}`}
+                              className={cn(
+                                buttonVariants({ variant: "ghost", size: "icon" }),
+                                "h-10 w-10 rounded-xl hover:bg-white hover:text-[#003399] border-0 flex items-center justify-center transition-all"
+                              )}
+                           >
                                 <Eye size={18} />
-                              </Link>
-                           </Button>
+                           </Link>
                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
+                              <DropdownMenuTrigger render={
                                 <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
                                   <MoreVertical size={18} className="text-slate-400" />
                                 </Button>
-                              </DropdownMenuTrigger>
+                              } />
                               <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 p-2 min-w-[160px]">
                                 <DropdownMenuItem className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 cursor-pointer">
                                   Modify Update

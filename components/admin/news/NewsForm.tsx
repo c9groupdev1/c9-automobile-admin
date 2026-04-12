@@ -22,11 +22,16 @@ import { cn } from '@/lib/utils';
 const newsSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   content: z.string().min(20, 'Content must be at least 20 characters'),
-  send_email: z.boolean().default(false),
-  send_popup: z.boolean().default(true),
+  send_email: z.boolean(),
+  send_popup: z.boolean(),
 });
 
-type NewsFormValues = z.infer<typeof newsSchema>;
+type NewsFormValues = {
+  title: string;
+  content: string;
+  send_email: boolean;
+  send_popup: boolean;
+};
 
 interface NewsFormProps {
   initialData?: NewsItem;
