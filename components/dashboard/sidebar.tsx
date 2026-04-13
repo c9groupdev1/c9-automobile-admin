@@ -54,6 +54,7 @@ const menuItems: MenuItem[] = [
     { icon: Crown, label: 'Subscription Plans', href: '/admin/plans', permission: 'plan.manage' },
     { icon: Zap, label: 'Promotions', href: '/admin/promotions', permission: 'promotion.manage' },
     { icon: FileText, label: 'News & Updates', href: '/admin/news', permission: 'news.manage' },
+    { icon: BarChart3, label: 'Referral Management', href: '/admin/referrals', permission: 'referral.view' },
     { icon: Settings, label: 'Settings', href: '/admin/system-config', permission: 'system.manage' },
 ];
 

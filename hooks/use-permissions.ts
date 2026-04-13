@@ -78,5 +78,6 @@ export function usePermissions() {
         canManagePlans: hasPermission('plan.manage'),
         canManagePromotions: hasPermission('promotion.manage'),
         canManageSupport: hasPermission('support.manage'),
+        canViewReferrals: hasPermission('referral.view'),
     };
 }
