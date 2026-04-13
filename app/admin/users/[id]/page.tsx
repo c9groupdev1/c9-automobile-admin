@@ -339,7 +339,7 @@ export default function UserDetailPage() {
                         <div className="pt-6 border-t border-slate-50">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Assign New Authorization</p>
                             <div className="flex gap-3 max-w-md">
-                                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v)}>
+                                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v || '')}>
                                     <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-transparent font-bold text-xs flex-1">
                                         <SelectValue placeholder="Select role to provision" />
                                     </SelectTrigger>
