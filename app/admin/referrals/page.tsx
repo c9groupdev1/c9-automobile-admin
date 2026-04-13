@@ -48,10 +48,20 @@ export default function ReferralsPage() {
     year: String(new Date().getFullYear()),
   });
 
-  const { data: statsData, isLoading } = useReferralStats(filters);
+  const [localFilters, setLocalFilters] = useState<ReferralFilters>(filters);
 
-  const handleFilterChange = (key: keyof ReferralFilters, value: string | number | null) => {
-    setFilters((prev) => ({ ...prev, [key]: value ?? undefined, page: 1 }));
+  const { data: statsData, isLoading, isFetching } = useReferralStats(filters);
+
+  const handleLocalFilterChange = (key: keyof ReferralFilters, value: string | number | null) => {
+    setLocalFilters((prev) => ({ ...prev, [key]: value ?? undefined }));
+  };
+
+  const handleApplyFilters = () => {
+    setFilters({ ...localFilters, page: 1 });
+  };
+
+  const handlePaginationChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
   };
   const ambassadors = statsData?.data?.data || [];
   const meta = statsData?.data;
@@ -133,13 +143,21 @@ export default function ReferralsPage() {
 
       {/* Advanced Filters */}
       <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
-        <CardHeader className="p-10 border-b border-slate-50">
+        <CardHeader className="p-10 border-b border-slate-50 flex flex-row items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
               <Filter size={16} />
             </div>
-            <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Filters</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Search Protocol</h3>
           </div>
+          <Button
+            onClick={handleApplyFilters}
+            disabled={isFetching}
+            className="h-12 px-8 rounded-2xl bg-[#003399] hover:bg-blue-800 text-white font-black text-[10px] uppercase tracking-[0.15em] flex items-center gap-2 shadow-lg shadow-blue-900/10 transition-all active:scale-95"
+          >
+            {isFetching ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+            Search
+          </Button>
         </CardHeader>
         <CardContent className="p-10 bg-slate-50/30">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -149,15 +167,16 @@ export default function ReferralsPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#003399] transition-colors" size={16} />
                 <Input
                   placeholder="Name"
+                  value={localFilters.search || ''}
                   className="h-12 pl-12 rounded-2xl bg-white border-slate-100 focus:border-[#003399]/30 transition-all font-bold text-xs"
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  onChange={(e) => handleLocalFilterChange('search', e.target.value)}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Period Month</label>
-              <Select value={filters.month} onValueChange={(v) => handleFilterChange('month', v)}>
+              <Select value={localFilters.month} onValueChange={(v) => handleLocalFilterChange('month', v)}>
                 <SelectTrigger className="h-12 rounded-2xl bg-white border-slate-100 font-bold text-xs">
                   <SelectValue placeholder="Select Month" />
                 </SelectTrigger>
@@ -170,7 +189,7 @@ export default function ReferralsPage() {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Period Year</label>
-              <Select value={filters.year} onValueChange={(v) => handleFilterChange('year', v)}>
+              <Select value={localFilters.year} onValueChange={(v) => handleLocalFilterChange('year', v)}>
                 <SelectTrigger className="h-12 rounded-2xl bg-white border-slate-100 font-bold text-xs">
                   <SelectValue placeholder="Select Year" />
                 </SelectTrigger>
@@ -184,8 +203,9 @@ export default function ReferralsPage() {
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Filter by Referrer</label>
               <Input
                 placeholder="Referrer Name..."
+                value={localFilters.ambassadorName || ''}
                 className="h-12 rounded-2xl bg-white border-slate-100 focus:border-[#003399]/30 transition-all font-bold text-xs"
-                onChange={(e) => handleFilterChange('ambassadorName', e.target.value)}
+                onChange={(e) => handleLocalFilterChange('ambassadorName', e.target.value)}
               />
             </div>
           </div>
@@ -275,7 +295,7 @@ export default function ReferralsPage() {
               <Button
                 variant="outline"
                 disabled={filters.page === 1}
-                onClick={() => handleFilterChange('page', filters.page! - 1)}
+                onClick={() => handlePaginationChange(filters.page! - 1)}
                 className="h-12 rounded-2xl border-slate-100 font-black text-xs uppercase tracking-widest px-6"
               >
                 Previous Sequence
@@ -283,7 +303,7 @@ export default function ReferralsPage() {
               <Button
                 variant="outline"
                 disabled={!meta?.next_page_url}
-                onClick={() => handleFilterChange('page', filters.page! + 1)}
+                onClick={() => handlePaginationChange(filters.page! + 1)}
                 className="h-12 rounded-2xl border-slate-100 font-black text-xs uppercase tracking-widest px-6"
               >
                 Next Node
