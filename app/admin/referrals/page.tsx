@@ -50,10 +50,9 @@ export default function ReferralsPage() {
 
   const { data: statsData, isLoading } = useReferralStats(filters);
 
-  const handleFilterChange = (key: keyof ReferralFilters, value: string | number) => {
-    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
+  const handleFilterChange = (key: keyof ReferralFilters, value: string | number | null) => {
+    setFilters((prev) => ({ ...prev, [key]: value ?? undefined, page: 1 }));
   };
-
   const ambassadors = statsData?.data?.data || [];
   const meta = statsData?.data;
 
