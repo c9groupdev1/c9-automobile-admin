@@ -201,6 +201,20 @@ export default function UserDetailPage() {
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Total Listings</p>
                                     <p className="text-sm font-bold text-slate-900">{user.activityOverview.totalListings}</p>
                                 </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Authorized Roles</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {(user.roles || []).length > 0 ? (
+                                            user.roles.map((role: string) => (
+                                                <Badge key={role} variant="secondary" className="bg-slate-100 text-[#003399] text-[9px] font-black uppercase px-2 py-0 border-0">
+                                                    {role.replace('_', ' ')}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <p className="text-xs font-bold text-slate-900 uppercase">Standard User</p>
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="col-span-2 md:col-span-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Last Active</p>
                                     <p className="text-sm font-bold text-emerald-600">

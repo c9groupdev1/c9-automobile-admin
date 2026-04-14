@@ -148,7 +148,7 @@ export default function ReferralsPage() {
             <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
               <Filter size={16} />
             </div>
-            <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Search Protocol</h3>
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Search</h3>
           </div>
           <Button
             onClick={handleApplyFilters}

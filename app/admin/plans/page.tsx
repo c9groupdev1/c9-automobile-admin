@@ -136,9 +136,9 @@ export default function PlansPage() {
                         <Skeleton className="h-5 w-96 rounded-lg" />
                     </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((i) => (
-                        <Skeleton key={i} className="h-80 rounded-[2.5rem]" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4].map((i) => (
+                        <Skeleton key={i} className="h-80 rounded-3xl" />
                     ))}
                 </div>
             </div>
@@ -172,13 +172,13 @@ export default function PlansPage() {
             </div>
 
             {/* Plans Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                 {plansList.map((plan: Plan) => (
                     <Card key={plan.id} className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white group hover:border-[#003399]/20 transition-all duration-500">
-                        <CardHeader className="p-10 pb-6 border-b border-slate-50 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-500 group-hover:scale-110">
-                                <Crown size={120} />
-                            </div>
+                    <CardHeader className="p-6 pb-4 border-b border-slate-50 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-500 group-hover:scale-110">
+                            <Crown size={80} />
+                        </div>
                             <div className="flex items-center justify-between relative z-10">
                                 <Badge className={cn(
                                     "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border-0",
@@ -211,9 +211,9 @@ export default function PlansPage() {
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="p-10 space-y-8">
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50/30 transition-colors">
+                        <CardContent className="p-6 space-y-6">
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-100 group-hover:bg-blue-50/30 transition-colors">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-slate-400">
                                             <Zap size={14} />
@@ -223,14 +223,14 @@ export default function PlansPage() {
                                     <span className="text-sm font-black text-slate-900">{plan.listing_limit} Assets</span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Featured Ads</span>
-                                        <span className="text-lg font-black text-slate-900">{plan.featured_ads_limit}</span>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Featured Ads</span>
+                                        <span className="text-base font-black text-slate-900">{plan.featured_ads_limit}</span>
                                     </div>
-                                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Boosted Ads</span>
-                                        <span className="text-lg font-black text-slate-900">{plan.boosted_ads_limit}</span>
+                                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-0.5">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Boosted Ads</span>
+                                        <span className="text-base font-black text-slate-900">{plan.boosted_ads_limit}</span>
                                     </div>
                                 </div>
                             </div>
