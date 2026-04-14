@@ -18,7 +18,7 @@ export default function AuthLayout({
                 {/* Background Patterns */}
                 <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-                
+
                 <div className="relative z-10 space-y-12">
                     {/* Logo & Portal Label */}
                     <div className="space-y-4">
@@ -31,7 +31,7 @@ export default function AuthLayout({
                     </div>
 
                     {/* Main Heading */}
-                    <motion.h1 
+                    <motion.h1
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.8 }}
@@ -47,7 +47,7 @@ export default function AuthLayout({
                     </p>
 
                     {/* Authorized Card */}
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
@@ -101,12 +101,12 @@ export default function AuthLayout({
                 </motion.div>
 
                 {/* Bottom Copyright */}
-                <div className="mt-12 text-center space-y-2 opacity-40">
+                <div className="mt-12 text-center space-y-2 opacity-100">
                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        © 2026 C9X Automotive Marketplace. All rights reserved.
+                        {new Date().getFullYear()} C9X Automotive Marketplace. All rights reserved.
                     </p>
                     <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.3em]">
-                        C9X Admin Portal v1.0 | Secure Environment
+                        C9X Admin Portal v1.0
                     </p>
                 </div>
             </div>

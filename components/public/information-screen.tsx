@@ -5,7 +5,7 @@ import { LucideIcon, Clock, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface Section {
     title: string;
@@ -23,7 +23,7 @@ interface InformationScreenProps {
 }
 
 export function InformationScreen({ title, sections, lastUpdated, subtitle }: InformationScreenProps) {
-    const revealVariants = {
+    const revealVariants: Variants = {
         hidden: { opacity: 0, y: 20 },
         visible: {
             opacity: 1,

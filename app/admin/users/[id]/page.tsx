@@ -20,11 +20,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { useUserDetails } from '@/hooks/useUsers';
+import { useUserDetails, useAssignUserRole, useRemoveUserRole, useRoles, useUpdateUserStatus } from '@/hooks/useUsers';
 import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from '@/components/ui/select';
+import { 
+    Plus, 
+    Trash2, 
+    Shield, 
+    Loader2,
+    Settings
+} from 'lucide-react';
+import { useState } from 'react';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -32,6 +47,41 @@ export default function UserDetailPage() {
     const { id } = useParams();
     const router = useRouter();
     const { data: user, isLoading } = useUserDetails(id as string);
+    const [selectedRole, setSelectedRole] = useState<string>('');
+
+    const assignRole = useAssignUserRole();
+    const removeRole = useRemoveUserRole();
+    const updateStatus = useUpdateUserStatus();
+    const { data: allRoles } = useRoles();
+
+    const handleAssignRole = async () => {
+        if (!selectedRole) return;
+        try {
+            await assignRole.mutateAsync({ userId: id as string, role: selectedRole });
+            toast.success('Role assigned successfully');
+            setSelectedRole('');
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to assign role');
+        }
+    };
+
+    const handleRemoveRole = async (role: string) => {
+        try {
+            await removeRole.mutateAsync({ userId: id as string, role });
+            toast.success('Role removed successfully');
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to remove role');
+        }
+    };
+
+    const handleUpdateStatus = async (status: string) => {
+        try {
+            await updateStatus.mutateAsync({ id: id as string, status });
+            toast.success(`User status updated to ${status}`);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to update status');
+        }
+    };
 
     if (isLoading) {
         return (
@@ -151,6 +201,20 @@ export default function UserDetailPage() {
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Total Listings</p>
                                     <p className="text-sm font-bold text-slate-900">{user.activityOverview.totalListings}</p>
                                 </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Authorized Roles</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {user.roles && user.roles.length > 0 ? (
+                                            user.roles.map((role: string) => (
+                                                <Badge key={role} variant="secondary" className="bg-slate-100 text-[#003399] text-[9px] font-black uppercase px-2 py-0 border-0">
+                                                    {role.replace('_', ' ')}
+                                                </Badge>
+                                            ))
+                                        ) : (
+                                            <p className="text-xs font-bold text-slate-900 uppercase">Standard User</p>
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="col-span-2 md:col-span-1">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Last Active</p>
                                     <p className="text-sm font-bold text-emerald-600">
@@ -202,7 +266,7 @@ export default function UserDetailPage() {
                     <CardHeader className="p-6 px-8 pb-4">
                         <CardTitle className="text-base font-bold text-slate-900">Account Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="px-8 pb-8">
+                    <CardContent className="px-8 pb-8 space-y-8">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-8">
                             {/* Account Information Items */}
                             {[
@@ -226,6 +290,88 @@ export default function UserDetailPage() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+
+                        <div className="pt-8 border-t border-slate-50">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Account Status Protocol</p>
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { label: 'Activate Account', value: 'active', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: CheckCircle2 },
+                                    { label: 'Suspend Access', value: 'suspended', bg: 'bg-rose-50', text: 'text-rose-600', icon: UserX },
+                                    { label: 'Under Review', value: 'under_review', bg: 'bg-amber-50', text: 'text-amber-600', icon: Info }
+                                ].map((status) => (
+                                    <Button
+                                        key={status.value}
+                                        variant="ghost"
+                                        onClick={() => handleUpdateStatus(status.value)}
+                                        disabled={updateStatus.isPending || user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase()}
+                                        className={cn(
+                                            "h-11 rounded-xl px-4 font-bold text-xs gap-2 transition-all",
+                                            status.bg, status.text,
+                                            user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase() && "ring-2 ring-offset-2 ring-slate-100 opacity-50"
+                                        )}
+                                    >
+                                        <status.icon size={14} />
+                                        {status.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Role Management */}
+                <Card className="rounded-[2rem] border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="flex flex-row items-center justify-between p-6 px-8 border-b border-slate-50">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-blue-50 text-[#003399]">
+                                <Shield size={18} />
+                            </div>
+                            <CardTitle className="text-base font-bold text-slate-900">Access Roles & Clearances</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-8 space-y-6">
+                        <div className="flex flex-wrap gap-2">
+                            {(user.roles || []).length > 0 ? (
+                                user.roles?.map((role: string) => (
+                                    <Badge key={role} className="bg-slate-50 text-slate-700 border border-slate-100 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider flex items-center gap-2">
+                                        {role.replace('_', ' ')}
+                                        <button 
+                                            onClick={() => handleRemoveRole(role)}
+                                            disabled={removeRole.isPending}
+                                            className="hover:text-rose-500 transition-colors disabled:opacity-30"
+                                        >
+                                            {removeRole.isPending ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                                        </button>
+                                    </Badge>
+                                ))
+                            ) : (
+                                <p className="text-xs text-slate-400 font-medium italic">No custom roles assigned. Default protocol applies.</p>
+                            )}
+                        </div>
+
+                        <div className="pt-6 border-t border-slate-50">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Assign New Authorization</p>
+                            <div className="flex gap-3 max-w-md">
+                                <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v || '')}>
+                                    <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-transparent font-bold text-xs flex-1">
+                                        <SelectValue placeholder="Select role to provision" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-slate-100">
+                                        {allRoles?.filter((r: any) => !(user.roles || []).includes(r.name)).map((role: any) => (
+                                            <SelectItem key={role.id} value={role.name} className="capitalize font-bold text-xs">{role.name.replace('_', ' ')}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Button 
+                                    onClick={handleAssignRole}
+                                    disabled={!selectedRole || assignRole.isPending}
+                                    className="h-12 px-6 rounded-xl bg-[#003399] hover:bg-blue-800 font-bold text-xs shadow-lg shadow-blue-900/10"
+                                >
+                                    {assignRole.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus size={16} className="mr-2" />}
+                                    Assign 
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

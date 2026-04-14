@@ -84,6 +84,7 @@ export interface UserDetails {
         accountStatus: string;
     };
     kycStatus: any | null;
+    roles?: string[];
     activityOverview: {
         vehiclesPlaced: number;
         totalListings: number;
@@ -190,12 +191,74 @@ export function useUpdateUserStatus() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async ({ id, status }: { id: string; status: string }) => {
-            const response = await api.post(`/admin/users/${id}/status`, { status });
+            const response = await api.patch(`/admin/users/${id}/status`, { status });
             return response.data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
             queryClient.invalidateQueries({ queryKey: ['user-details'] });
+        },
+    });
+}
+
+export function useExportUsers() {
+    return useMutation({
+        mutationFn: async () => {
+            const response = await api.get('/admin/users/export', {
+                responseType: 'blob',
+            });
+            return response.data;
+        },
+        onSuccess: (data) => {
+            const url = window.URL.createObjectURL(new Blob([data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `users-export-${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        },
+    });
+}
+
+export function useAssignUserRole() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+            const response = await api.post(`/admin/users/${userId}/roles`, { role });
+            return response.data;
+        },
+        onSuccess: (_, { userId }) => {
+            queryClient.invalidateQueries({ queryKey: ['user-details', userId] });
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+        },
+    });
+}
+
+export function useRemoveUserRole() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
+            const response = await api.delete(`/admin/users/${userId}/roles/${role}`);
+            return response.data;
+        },
+        onSuccess: (_, { userId }) => {
+            queryClient.invalidateQueries({ queryKey: ['user-details', userId] });
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+        },
+    });
+}
+
+export function useSyncUserRoles() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ userId, roles }: { userId: string; roles: string[] }) => {
+            const response = await api.put(`/admin/users/${userId}/roles`, { roles });
+            return response.data;
+        },
+        onSuccess: (_, { userId }) => {
+            queryClient.invalidateQueries({ queryKey: ['user-details', userId] });
+            queryClient.invalidateQueries({ queryKey: ['users'] });
         },
     });
 }

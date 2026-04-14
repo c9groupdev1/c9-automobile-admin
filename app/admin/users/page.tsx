@@ -47,7 +47,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { useUsers, useUserAnalysis, useResetPassword, useUpdateUserStatus, useRoles } from '@/hooks/useUsers';
+import { useUsers, useUserAnalysis, useResetPassword, useUpdateUserStatus, useRoles, useExportUsers } from '@/hooks/useUsers';
 import { useDebounce } from '@/hooks/use-debounce';
 import Link from 'next/link';
 import {
@@ -90,6 +90,7 @@ export default function UsersPage() {
 
     const resetPassword = useResetPassword();
     const updateStatus = useUpdateUserStatus();
+    const exportUsers = useExportUsers();
     const { data: roles } = useRoles();
 
     const { data: analysis, isLoading: loadingAnalysis } = useUserAnalysis();
@@ -120,6 +121,15 @@ export default function UsersPage() {
             toast.success(`User ${newStatus.toLowerCase()} successfully`);
         } catch (error) {
             toast.error(`Failed to ${newStatus.toLowerCase()} user`);
+        }
+    };
+
+    const handleExport = async () => {
+        try {
+            await exportUsers.mutateAsync();
+            toast.success('Users exported successfully');
+        } catch (error) {
+            toast.error('Failed to export users');
         }
     };
 
@@ -254,10 +264,14 @@ export default function UsersPage() {
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
-                    {/* <Button className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-11 font-bold text-xs shadow-lg shadow-blue-900/10">
-                        <Download size={16} className="mr-2" />
+                    <Button 
+                        onClick={handleExport}
+                        disabled={exportUsers.isPending}
+                        className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-11 font-bold text-xs shadow-lg shadow-blue-900/10"
+                    >
+                        {exportUsers.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download size={16} className="mr-2" />}
                         Export Users
-                    </Button> */}
+                    </Button>
                     <div className="flex items-center gap-2">
                         <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                             <SheetTrigger
