@@ -52,7 +52,10 @@ export function LoginForm() {
 
             setAuth(user, token);
             toast.success('Login successful!');
-            router.push(redirect || '/admin/dashboard');
+            
+            // Use window.location.href instead of router.push to force a full page reload 
+            // and ensure React Query cache is cleared and new headers are applied.
+            window.location.href = redirect || '/admin/dashboard';
         } catch (error: any) {
             const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
             toast.error(message);

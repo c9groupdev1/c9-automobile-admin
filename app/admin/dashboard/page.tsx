@@ -209,7 +209,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {stats?.totalUsers && (
+                {(stats?.totalUsers || stats?.verifiedVendors || stats?.activeListings || stats?.pendingKyc) && (
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <StatsCard
                             title="Total Users"
@@ -251,77 +251,89 @@ export default function DashboardPage() {
                 )}
 
                 {/* Section: Fiscal Intelligence */}
-                {stats?.totalRevenue && (
+                {(stats?.totalRevenue || stats?.monthlyRevenue || stats?.subscriptions || stats?.promotions) && (
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 px-1 pt-4">
                             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Fiscal Intelligence</h3>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
-                            <StatsCard
-                                title="Total Revenue"
-                                value={stats?.totalRevenue ? formatRevenue(stats.totalRevenue.current) : '...'}
-                                description="Cumulative platform earnings"
-                                icon={BadgeDollarSign}
-                                trend={stats?.totalRevenue ? { value: stats.totalRevenue.status, positive: true } : undefined}
-                                iconBg="bg-emerald-50"
-                                iconColor="text-emerald-600"
-                            />
-                            <StatsCard
-                                title="Monthly Subscriptions"
-                                value={stats?.subscriptions?.monthlyRevenueFormatted ?? '...'}
-                                description="Revenue from active recurring cycles"
-                                icon={TrendingUp}
-                                trend={stats?.subscriptions?.expiringThisWeek ? { value: `${stats.subscriptions.expiringThisWeek} Expiring`, positive: false } : { value: 'Stable', positive: true }}
-                                iconBg="bg-blue-50"
-                                iconColor="text-blue-600"
-                            />
-                            <StatsCard
-                                title="Promotion Revenue"
-                                value={stats?.promotions?.monthlyRevenueFormatted ?? '...'}
-                                description="Earnings from featured placements"
-                                icon={CreditCard}
-                                trend={stats?.promotions?.pendingReview ? { value: `${stats.promotions.pendingReview} Pending`, positive: false } : { value: 'Active', positive: true }}
-                                iconBg="bg-violet-50"
-                                iconColor="text-violet-600"
-                            />
+                            {(stats?.totalRevenue || stats?.monthlyRevenue) && (
+                                <StatsCard
+                                    title="Total Revenue"
+                                    value={stats?.totalRevenue ? formatRevenue(stats.totalRevenue.current) : '...'}
+                                    description="Cumulative platform earnings"
+                                    icon={BadgeDollarSign}
+                                    trend={stats?.totalRevenue ? { value: stats.totalRevenue.status, positive: true } : undefined}
+                                    iconBg="bg-emerald-50"
+                                    iconColor="text-emerald-600"
+                                />
+                            )}
+                            {stats?.subscriptions && (
+                                <StatsCard
+                                    title="Monthly Subscriptions"
+                                    value={stats?.subscriptions?.monthlyRevenueFormatted ?? '...'}
+                                    description="Revenue from active recurring cycles"
+                                    icon={TrendingUp}
+                                    trend={stats?.subscriptions?.expiringThisWeek ? { value: `${stats.subscriptions.expiringThisWeek} Expiring`, positive: false } : { value: 'Stable', positive: true }}
+                                    iconBg="bg-blue-50"
+                                    iconColor="text-blue-600"
+                                />
+                            )}
+                            {stats?.promotions && (
+                                <StatsCard
+                                    title="Promotion Revenue"
+                                    value={stats?.promotions?.monthlyRevenueFormatted ?? '...'}
+                                    description="Earnings from featured placements"
+                                    icon={CreditCard}
+                                    trend={stats?.promotions?.pendingReview ? { value: `${stats.promotions.pendingReview} Pending`, positive: false } : { value: 'Active', positive: true }}
+                                    iconBg="bg-violet-50"
+                                    iconColor="text-violet-600"
+                                />
+                            )}
                         </div>
                     </div>
                 )}
 
                 {/* Section: Operational & Support Intelligence */}
-                {stats?.support && (
+                {(stats?.support || stats?.promotions || stats?.subscriptions) && (
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 px-1 pt-4">
                             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Operational & Support Intelligence</h3>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
-                            <StatsCard
-                                title="Open Support Tickets"
-                                value={stats?.support?.openTickets ?? '0'}
-                                description="Active assistance requests"
-                                icon={Headphones}
-                                trend={stats?.support?.pendingResponse ? { value: `${stats.support.pendingResponse} Awaiting`, positive: false } : { value: 'All Responded', positive: true }}
-                                iconBg="bg-rose-50"
-                                iconColor="text-rose-600"
-                            />
-                            <StatsCard
-                                title="Active Promotions"
-                                value={stats?.promotions?.totalActive ?? '0'}
-                                description="Live marketplace campaigns"
-                                icon={Zap}
-                                trend={stats?.promotions ? { value: 'Live Now', positive: true } : undefined}
-                                iconBg="bg-amber-50"
-                                iconColor="text-amber-600"
-                            />
-                            <StatsCard
-                                title="Subscribed Assets"
-                                value={stats?.subscriptions?.totalActive ?? '0'}
-                                description="Premium network participants"
-                                icon={Ticket}
-                                trend={stats?.subscriptions ? { value: 'Recurring', positive: true } : undefined}
-                                iconBg="bg-indigo-50"
-                                iconColor="text-indigo-600"
-                            />
+                            {stats?.support && (
+                                <StatsCard
+                                    title="Open Support Tickets"
+                                    value={stats?.support?.openTickets ?? '0'}
+                                    description="Active assistance requests"
+                                    icon={Headphones}
+                                    trend={stats?.support?.pendingResponse ? { value: `${stats.support.pendingResponse} Awaiting`, positive: false } : { value: 'All Responded', positive: true }}
+                                    iconBg="bg-rose-50"
+                                    iconColor="text-rose-600"
+                                />
+                            )}
+                            {stats?.promotions && (
+                                <StatsCard
+                                    title="Active Promotions"
+                                    value={stats?.promotions?.totalActive ?? '0'}
+                                    description="Live marketplace campaigns"
+                                    icon={Zap}
+                                    trend={stats?.promotions ? { value: 'Live Now', positive: true } : undefined}
+                                    iconBg="bg-amber-50"
+                                    iconColor="text-amber-600"
+                                />
+                            )}
+                            {stats?.subscriptions && (
+                                <StatsCard
+                                    title="Subscribed Assets"
+                                    value={stats?.subscriptions?.totalActive ?? '0'}
+                                    description="Premium network participants"
+                                    icon={Ticket}
+                                    trend={stats?.subscriptions ? { value: 'Recurring', positive: true } : undefined}
+                                    iconBg="bg-indigo-50"
+                                    iconColor="text-indigo-600"
+                                />
+                            )}
                         </div>
                     </div>
                 )}
