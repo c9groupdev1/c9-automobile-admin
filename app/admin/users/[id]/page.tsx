@@ -13,14 +13,16 @@ import {
     XCircle,
     Info,
     User,
-    Clock
+    Clock,
+    Key
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { useUserDetails, useAssignUserRole, useRemoveUserRole, useRoles, useUpdateUserStatus } from '@/hooks/useUsers';
+import { ActionConfirmationModal } from '@/components/modals/ActionConfirmationModal';
+import { useUserDetails, useAssignUserRole, useRemoveUserRole, useRoles, useUpdateUserStatus, useResetPassword } from '@/hooks/useUsers';
 import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -48,10 +50,12 @@ export default function UserDetailPage() {
     const router = useRouter();
     const { data: user, isLoading } = useUserDetails(id as string);
     const [selectedRole, setSelectedRole] = useState<string>('');
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     const assignRole = useAssignUserRole();
     const removeRole = useRemoveUserRole();
     const updateStatus = useUpdateUserStatus();
+    const resetPassword = useResetPassword();
     const { data: allRoles } = useRoles();
 
     const handleAssignRole = async () => {
@@ -80,6 +84,15 @@ export default function UserDetailPage() {
             toast.success(`User status updated to ${status}`);
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Failed to update status');
+        }
+    };
+    const handleResetPassword = async () => {
+        try {
+            await resetPassword.mutateAsync(id as string);
+            toast.success('Password reset notification sent successfully');
+            setShowResetConfirm(false);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to send password reset');
         }
     };
 
@@ -293,30 +306,59 @@ export default function UserDetailPage() {
                         </div>
 
                         <div className="pt-8 border-t border-slate-50">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Account Status Protocol</p>
-                            <div className="flex flex-wrap gap-2">
-                                {[
-                                    { label: 'Activate Account', value: 'active', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: CheckCircle2 },
-                                    { label: 'Suspend Access', value: 'suspended', bg: 'bg-rose-50', text: 'text-rose-600', icon: UserX },
-                                    { label: 'Under Review', value: 'under_review', bg: 'bg-amber-50', text: 'text-amber-600', icon: Info }
-                                ].map((status) => (
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Status Protocol</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { label: 'Activate Account', value: 'active', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: CheckCircle2 },
+                                            { label: 'Suspend Access', value: 'suspended', bg: 'bg-rose-50', text: 'text-rose-600', icon: UserX },
+                                            { label: 'Under Review', value: 'under_review', bg: 'bg-amber-50', text: 'text-amber-600', icon: Info }
+                                        ].map((status) => (
+                                            <Button
+                                                key={status.value}
+                                                variant="ghost"
+                                                onClick={() => handleUpdateStatus(status.value)}
+                                                disabled={updateStatus.isPending || user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase()}
+                                                className={cn(
+                                                    "h-11 rounded-xl px-4 font-bold text-xs gap-2 transition-all",
+                                                    status.bg, status.text,
+                                                    user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase() && "ring-2 ring-offset-2 ring-slate-100 opacity-50"
+                                                )}
+                                            >
+                                                <status.icon size={14} />
+                                                {status.label}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Administrative Actions</p>
                                     <Button
-                                        key={status.value}
                                         variant="ghost"
-                                        onClick={() => handleUpdateStatus(status.value)}
-                                        disabled={updateStatus.isPending || user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase()}
-                                        className={cn(
-                                            "h-11 rounded-xl px-4 font-bold text-xs gap-2 transition-all",
-                                            status.bg, status.text,
-                                            user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase() && "ring-2 ring-offset-2 ring-slate-100 opacity-50"
-                                        )}
+                                        onClick={() => setShowResetConfirm(true)}
+                                        disabled={resetPassword.isPending}
+                                        className="h-11 rounded-xl px-6 font-bold text-xs gap-2 transition-all bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
                                     >
-                                        <status.icon size={14} />
-                                        {status.label}
+                                        {resetPassword.isPending ? <Loader2 size={14} className="animate-spin" /> : <Key size={14} />}
+                                        Force Password Reset
                                     </Button>
-                                ))}
+                                </div>
                             </div>
                         </div>
+
+                        {/* Password Reset Confirmation */}
+                        <ActionConfirmationModal
+                            isOpen={showResetConfirm}
+                            onClose={() => setShowResetConfirm(false)}
+                            onConfirm={handleResetPassword}
+                            title="Confirm Password Reset"
+                            description={`Are you sure you want to force a password reset for ${user.profile.fullName}? Data protocol will send a secure reset notification to ${user.profile.email}.`}
+                            confirmText="Force Reset"
+                            variant="default"
+                            isLoading={resetPassword.isPending}
+                        />
                     </CardContent>
                 </Card>
 
