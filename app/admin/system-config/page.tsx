@@ -21,11 +21,32 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { Shield, Key, Loader2, Settings2, Lock } from 'lucide-react';
+import { Shield, Key, Loader2, Settings2, Lock, Car, Layers, Plus, Trash2, Edit, CheckCircle2, XCircle, MoreVertical, Search } from 'lucide-react';
 import { Role, Permission, useRoles, usePermissions, useAssignPermissions, useCreateRole, useCreatePermission } from '@/hooks/useRoles';
+import {
+    VehicleMake,
+    VehicleModel,
+    useVehicleMakes,
+    useCreateMake,
+    useUpdateMake,
+    useDeleteMake,
+    useVehicleModels,
+    useCreateModel,
+    useUpdateModel,
+    useDeleteModel
+} from '@/hooks/useVehicles';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from '@/components/ui/switch';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 export default function SystemConfigPage() {
     const { data: roles, isLoading: rolesLoading } = useRoles();
@@ -34,13 +55,39 @@ export default function SystemConfigPage() {
     const createRole = useCreateRole();
     const createPermission = useCreatePermission();
 
+    const [makeSearch, setMakeSearch] = useState('');
+    const [modelSearch, setModelSearch] = useState('');
+
+    const { data: makes, isLoading: makesLoading } = useVehicleMakes(makeSearch);
+    const { data: models, isLoading: modelsLoading } = useVehicleModels(modelSearch);
+
+    const createMake = useCreateMake();
+    const updateMake = useUpdateMake();
+    const deleteMake = useDeleteMake();
+
+    const createModel = useCreateModel();
+    const updateModel = useUpdateModel();
+    const deleteModel = useDeleteModel();
+
     const [selectedRole, setSelectedRole] = useState<Role | null>(null);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
     const [isAssigning, setIsAssigning] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isCreateRoleOpen, setIsCreateRoleOpen] = useState(false);
     const [isCreatePermissionOpen, setIsCreatePermissionOpen] = useState(false);
+
+    const [isMakeDialogOpen, setIsMakeDialogOpen] = useState(false);
+    const [isModelDialogOpen, setIsModelDialogOpen] = useState(false);
+    const [editingMake, setEditingMake] = useState<VehicleMake | null>(null);
+    const [editingModel, setEditingModel] = useState<VehicleModel | null>(null);
+
     const [newName, setNewName] = useState('');
+    const [formState, setFormState] = useState({
+        name: '',
+        logo: '',
+        status: 1,
+        vehicle_make_id: ''
+    });
 
     const handleTogglePermission = (permissionId: string) => {
         setSelectedPermissions((prev) =>
@@ -99,6 +146,92 @@ export default function SystemConfigPage() {
         }
     };
 
+    const handleOpenMakeDialog = (make?: VehicleMake) => {
+        if (make) {
+            setEditingMake(make);
+            setFormState({
+                name: make.name,
+                logo: make.logo || '',
+                status: make.status,
+                vehicle_make_id: ''
+            });
+        } else {
+            setEditingMake(null);
+            setFormState({ name: '', logo: '', status: 1, vehicle_make_id: '' });
+        }
+        setIsMakeDialogOpen(true);
+    };
+
+    const handleSaveMake = async () => {
+        try {
+            if (editingMake) {
+                await updateMake.mutateAsync({ id: editingMake.id, ...formState });
+                toast.success('Vehicle make updated');
+            } else {
+                await createMake.mutateAsync({ name: formState.name, logo: formState.logo, status: formState.status });
+                toast.success('Vehicle make created');
+            }
+            setIsMakeDialogOpen(false);
+        } catch (error) {
+            toast.error('Operation failed');
+        }
+    };
+
+    const handleDeleteMake = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this make? All associated models will be affected.')) return;
+        try {
+            await deleteMake.mutateAsync(id);
+            toast.success('Vehicle make deleted');
+        } catch (error) {
+            toast.error('Failed to delete make');
+        }
+    };
+
+    const handleOpenModelDialog = (model?: VehicleModel) => {
+        if (model) {
+            setEditingModel(model);
+            setFormState({
+                name: model.name,
+                logo: '',
+                status: model.status,
+                vehicle_make_id: model.vehicle_make_id
+            });
+        } else {
+            setEditingModel(null);
+            setFormState({ name: '', logo: '', status: 1, vehicle_make_id: '' });
+        }
+        setIsModelDialogOpen(true);
+    };
+
+    const handleSaveModel = async () => {
+        try {
+            if (editingModel) {
+                await updateModel.mutateAsync({ id: editingModel.id, ...formState });
+                toast.success('Vehicle model updated');
+            } else {
+                await createModel.mutateAsync({
+                    name: formState.name,
+                    vehicle_make_id: formState.vehicle_make_id,
+                    status: formState.status
+                });
+                toast.success('Vehicle model created');
+            }
+            setIsModelDialogOpen(false);
+        } catch (error) {
+            toast.error('Operation failed');
+        }
+    };
+
+    const handleDeleteModel = async (id: string) => {
+        if (!confirm('Delete this model?')) return;
+        try {
+            await deleteModel.mutateAsync(id);
+            toast.success('Vehicle model deleted');
+        } catch (error) {
+            toast.error('Failed to delete model');
+        }
+    };
+
     const roleList = Array.isArray(roles?.data?.data) ? roles.data.data : (Array.isArray(roles?.data) ? roles.data : (Array.isArray(roles) ? roles : []));
     const permissionList = Array.isArray(permissions?.data?.data) ? permissions.data.data : (Array.isArray(permissions?.data) ? permissions.data : (Array.isArray(permissions) ? permissions : []));
 
@@ -126,6 +259,14 @@ export default function SystemConfigPage() {
                     <TabsTrigger value="permissions" className="rounded-lg px-8 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold transition-all">
                         <Lock className="w-4 h-4 mr-2" />
                         Permissions
+                    </TabsTrigger>
+                    <TabsTrigger value="makes" className="rounded-lg px-8 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold transition-all">
+                        <Car className="w-4 h-4 mr-2" />
+                        Vehicle Makes
+                    </TabsTrigger>
+                    <TabsTrigger value="models" className="rounded-lg px-8 py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold transition-all">
+                        <Layers className="w-4 h-4 mr-2" />
+                        Vehicle Models
                     </TabsTrigger>
                 </TabsList>
 
@@ -325,6 +466,281 @@ export default function SystemConfigPage() {
                         </div>
                     </DialogContent>
                 </Dialog>
+
+                {/* Vehicle Make Dialog */}
+                <Dialog open={isMakeDialogOpen} onOpenChange={setIsMakeDialogOpen}>
+                    <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] border-none shadow-3xl p-0">
+                        <div className="bg-[#003399] px-8 py-6 text-white rounded-t-[2.5rem]">
+                            <h2 className="text-2xl font-bold tracking-tight">{editingMake ? 'Modify Make' : 'New Vehicle Make'}</h2>
+                            <p className="text-white/60 text-sm mt-1">Configure vehicle manufacturer profile.</p>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Make Name</Label>
+                                    <Input
+                                        value={formState.name}
+                                        onChange={(e) => setFormState(prev => ({ ...prev, name: e.target.value }))}
+                                        placeholder="e.g. Toyota"
+                                        className="h-12 rounded-xl bg-slate-50 border-slate-100 px-4 font-bold focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
+                                    />
+                                </div>
+                                {/* <div className="space-y-2">
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Logo URL / Path</Label>
+                                    <Input
+                                        value={formState.logo}
+                                        onChange={(e) => setFormState(prev => ({ ...prev, logo: e.target.value }))}
+                                        placeholder="Enter logo identifier"
+                                        className="h-12 rounded-xl bg-slate-50 border-slate-100 px-4 font-bold focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
+                                    />
+                                </div> */}
+                                <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-sm font-bold text-slate-900">Active Status</Label>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase">Visible in marketplace</p>
+                                    </div>
+                                    <Switch
+                                        checked={formState.status === 1}
+                                        onCheckedChange={(v) => setFormState(prev => ({ ...prev, status: v ? 1 : 0 }))}
+                                    />
+                                </div>
+                            </div>
+                            <Button
+                                onClick={handleSaveMake}
+                                disabled={createMake.isPending || updateMake.isPending || !formState.name}
+                                className="w-full h-14 rounded-2xl bg-[#003399] hover:bg-blue-800 font-bold shadow-lg shadow-blue-500/10"
+                            >
+                                {(createMake.isPending || updateMake.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {editingMake ? 'Save Changes' : 'Add Make'}
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Vehicle Model Dialog */}
+                <Dialog open={isModelDialogOpen} onOpenChange={setIsModelDialogOpen}>
+                    <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] border-none shadow-3xl p-0">
+                        <div className="bg-slate-900 px-8 py-6 text-white rounded-t-[2.5rem]">
+                            <h2 className="text-2xl font-bold tracking-tight">{editingModel ? 'Modify Model' : 'New Vehicle Model'}</h2>
+                            <p className="text-white/60 text-sm mt-1">Register a specific vehicle model sequence.</p>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Parent Manufacturer</Label>
+                                    <select
+                                        value={formState.vehicle_make_id}
+                                        onChange={(e) => setFormState(prev => ({ ...prev, vehicle_make_id: e.target.value }))}
+                                        className="w-full h-12 rounded-xl bg-slate-50 border border-slate-100 px-4 text-sm font-bold focus:ring-4 focus:ring-slate-500/5 transition-all outline-none"
+                                    >
+                                        <option value="">Select Make</option>
+                                        {makes?.map((make: VehicleMake) => (
+                                            <option key={make.id} value={make.id}>{make.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Model Name</Label>
+                                    <Input
+                                        value={formState.name}
+                                        onChange={(e) => setFormState(prev => ({ ...prev, name: e.target.value }))}
+                                        placeholder="e.g. Camry"
+                                        className="h-12 rounded-xl bg-slate-50 border-slate-100 px-4 font-bold focus:ring-4 focus:ring-slate-500/5 transition-all outline-none"
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-sm font-bold text-slate-900">Active Status</Label>
+                                        <p className="text-[10px] text-slate-400 font-bold uppercase">Enable for selections</p>
+                                    </div>
+                                    <Switch
+                                        checked={formState.status === 1}
+                                        onCheckedChange={(v) => setFormState(prev => ({ ...prev, status: v ? 1 : 0 }))}
+                                    />
+                                </div>
+                            </div>
+                            <Button
+                                onClick={handleSaveModel}
+                                disabled={createModel.isPending || updateModel.isPending || !formState.name || !formState.vehicle_make_id}
+                                className="w-full h-14 rounded-2xl bg-slate-900 hover:bg-black font-bold shadow-lg shadow-slate-900/10"
+                            >
+                                {(createModel.isPending || updateModel.isPending) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {editingModel ? 'Save Changes' : 'Add Model'}
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Vehicle Makes Tab Content */}
+                <TabsContent value="makes" className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Global Manufacturers</h4>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Active in the C9x ecosystem</p>
+                        </div>
+                        <div className="flex items-center gap-3 w-full md:w-auto">
+                            <div className="relative flex-1 md:w-64">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Input
+                                    placeholder="Search manufacturers..."
+                                    value={makeSearch}
+                                    onChange={(e) => setMakeSearch(e.target.value)}
+                                    className="pl-10 h-10 rounded-xl bg-white border-slate-100 font-bold text-xs shadow-sm"
+                                />
+                            </div>
+                            <Button
+                                onClick={() => handleOpenMakeDialog()}
+                                className="bg-[#003399] hover:bg-blue-700 text-white rounded-xl px-6 font-bold h-10 transition-all shadow-lg shadow-blue-500/10 whitespace-nowrap"
+                            >
+                                Add Make
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {makesLoading ? (
+                            [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-48 rounded-[2rem]" />)
+                        ) : (
+                            makes?.map((make: VehicleMake) => (
+                                <div key={make.id} className="group relative bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm hover:border-[#003399]/20 transition-all transition-duration-500">
+                                    <div className="absolute top-6 right-6">
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger
+                                                render={
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-slate-600" />
+                                                }
+                                            >
+                                                <MoreVertical size={16} />
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="rounded-xl border-slate-100 p-2">
+                                                <DropdownMenuItem onClick={() => handleOpenMakeDialog(make)} className="rounded-lg font-bold text-xs py-2 cursor-pointer">
+                                                    <Edit size={12} className="mr-2" /> Modify Profile
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleDeleteMake(make.id)} className="rounded-lg font-bold text-xs py-2 text-rose-500 hover:text-rose-600 cursor-pointer">
+                                                    <Trash2 size={12} className="mr-2" /> Delete Make
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+
+                                    <div className="flex flex-col items-center text-center space-y-4">
+                                        <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-50 overflow-hidden">
+                                            {make.logo ? (
+                                                <img src={make.logo} alt={make.name} className="w-10 h-10 object-contain grayscale group-hover:grayscale-0 transition-all" />
+                                            ) : (
+                                                <Car size={24} className="text-slate-200" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h5 className="font-black text-slate-900 uppercase tracking-tight">{make.name}</h5>
+                                            <div className="flex items-center justify-center gap-2 mt-2">
+                                                <span className="bg-blue-50 text-[#003399] px-2 py-0.5 rounded-md text-[9px] font-black uppercase">{make.models_count || 0} Models</span>
+                                                {make.status === 1 ? (
+                                                    <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">Active</span>
+                                                ) : (
+                                                    <span className="bg-slate-100 text-slate-400 px-2 py-0.5 rounded-md text-[9px] font-black uppercase">Inactive</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </TabsContent>
+
+                {/* Vehicle Models Tab Content */}
+                <TabsContent value="models" className="space-y-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Model Sequences</h4>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase"> Vehicle classification</p>
+                        </div>
+                        <div className="flex items-center gap-3 w-full md:w-auto">
+                            <div className="relative flex-1 md:w-64">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Input
+                                    placeholder="Search models..."
+                                    value={modelSearch}
+                                    onChange={(e) => setModelSearch(e.target.value)}
+                                    className="pl-10 h-10 rounded-xl bg-white border-slate-100 font-bold text-xs shadow-sm"
+                                />
+                            </div>
+                            <Button
+                                onClick={() => handleOpenModelDialog()}
+                                className="bg-slate-900 hover:bg-black text-white rounded-xl px-6 font-bold h-10 transition-all shadow-lg shadow-black/10 whitespace-nowrap"
+                            >
+                                Add Model
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="rounded-[2.5rem] border border-slate-100 bg-white overflow-hidden shadow-sm">
+                        {modelsLoading ? (
+                            <div className="p-12 space-y-4">
+                                <Skeleton className="h-10 w-full rounded-xl" />
+                                <Skeleton className="h-48 w-full rounded-xl" />
+                            </div>
+                        ) : (
+                            <Table>
+                                <TableHeader className="bg-slate-50/50">
+                                    <TableRow className="border-none hover:bg-transparent">
+                                        <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-widest text-[#003399]">Manufacturer</TableHead>
+                                        <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-widest text-[#003399]">Model Name</TableHead>
+                                        {/* <TableHead className="py-6 px-10 text-[10px] font-black uppercase tracking-widest text-[#003399]">Integrity</TableHead> */}
+                                        <TableHead className="py-6 px-10 text-right text-[10px] font-black uppercase tracking-widest text-[#003399]">Action</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {models?.map((model: VehicleModel) => (
+                                        <TableRow key={model.id} className="group border-slate-50 last:border-none hover:bg-slate-50/50 transition-colors">
+                                            <TableCell className="py-6 px-10">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 font-black text-[10px] uppercase">
+                                                        {model.make?.name?.charAt(0)}
+                                                    </div>
+                                                    <span className="font-bold text-slate-500 uppercase text-xs">{model.make?.name}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-6 px-10 font-black text-slate-900 uppercase text-sm tracking-tight">{model.name}</TableCell>
+                                            {/* <TableCell className="py-6 px-10">
+                                                {model.is_active ? (
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100/50">
+                                                        <CheckCircle2 size={10} /> Active
+                                                    </div>
+                                                ) : (
+                                                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest border border-slate-100/50">
+                                                        <XCircle size={10} /> Suspended
+                                                    </div>
+                                                )}
+                                            </TableCell> */}
+                                            <TableCell className="py-6 px-10 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleOpenModelDialog(model)}
+                                                        className="h-9 w-9 rounded-xl hover:bg-white hover:text-blue-600 hover:shadow-sm transition-all"
+                                                    >
+                                                        <Edit size={14} />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleDeleteModel(model.id)}
+                                                        className="h-9 w-9 rounded-xl hover:bg-white hover:text-rose-600 hover:shadow-sm transition-all"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </div>
+                </TabsContent>
             </Tabs>
         </div>
     );
