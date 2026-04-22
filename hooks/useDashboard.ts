@@ -8,7 +8,24 @@ export interface DashboardStats {
     activeSubscriptions: { current: number; status: string };
     totalRevenue: { current: number; status: string };
     monthlyRevenue: { current: number; change: number };
+    subscriptions: {
+        totalActive: number;
+        expiringThisWeek: number;
+        monthlyRevenue: number;
+        monthlyRevenueFormatted: string;
+    };
+    promotions: {
+        totalActive: number;
+        pendingReview: number;
+        monthlyRevenue: number;
+        monthlyRevenueFormatted: string;
+    };
     pendingKyc: { current: number; status: string };
+    support: {
+        openTickets: number;
+        pendingResponse: number;
+        resolved24h: number;
+    };
 }
 
 export interface LatestListing {

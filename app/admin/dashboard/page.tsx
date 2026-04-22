@@ -20,7 +20,11 @@ import {
     CreditCard,
     HandCoins,
     BadgeDollarSign,
-    TrendingUp
+    TrendingUp,
+    Headphones,
+    Zap,
+    Ticket,
+    Clock
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -259,22 +263,56 @@ export default function DashboardPage() {
                         iconColor="text-emerald-600"
                     />
                     <StatsCard
-                        title="Monthly Revenue"
-                        value={stats ? formatRevenue(stats.monthlyRevenue.current) : '...'}
-                        description="Current cycle fiscal growth"
+                        title="Monthly Subscriptions"
+                        value={stats?.subscriptions.monthlyRevenueFormatted ?? '...'}
+                        description="Revenue from active recurring cycles"
                         icon={TrendingUp}
-                        trend={stats ? formatTrend(stats.monthlyRevenue.change) : undefined}
+                        trend={stats?.subscriptions.expiringThisWeek ? { value: `${stats.subscriptions.expiringThisWeek} Expiring`, positive: false } : { value: 'Stable', positive: true }}
                         iconBg="bg-blue-50"
                         iconColor="text-blue-600"
                     />
                     <StatsCard
-                        title="Active Subscriptions"
-                        value={stats?.activeSubscriptions.current ?? '...'}
-                        description="Direct monetization participants"
+                        title="Promotion Revenue"
+                        value={stats?.promotions.monthlyRevenueFormatted ?? '...'}
+                        description="Earnings from featured placements"
                         icon={CreditCard}
-                        trend={stats ? { value: stats.activeSubscriptions.status, positive: true } : undefined}
+                        trend={stats?.promotions.pendingReview ? { value: `${stats.promotions.pendingReview} Pending`, positive: false } : { value: 'Active', positive: true }}
                         iconBg="bg-violet-50"
                         iconColor="text-violet-600"
+                    />
+                </div>
+
+                {/* Section: Operational & Support Intelligence */}
+                <div className="flex items-center gap-2 px-1 pt-4">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Operational & Support Intelligence</h3>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
+                    <StatsCard
+                        title="Open Support Tickets"
+                        value={stats?.support.openTickets ?? '0'}
+                        description="Active assistance requests"
+                        icon={Headphones}
+                        trend={stats?.support.pendingResponse ? { value: `${stats.support.pendingResponse} Awaiting`, positive: false } : { value: 'All Responded', positive: true }}
+                        iconBg="bg-rose-50"
+                        iconColor="text-rose-600"
+                    />
+                    <StatsCard
+                        title="Active Promotions"
+                        value={stats?.promotions.totalActive ?? '0'}
+                        description="Live marketplace campaigns"
+                        icon={Zap}
+                        trend={stats ? { value: 'Live Now', positive: true } : undefined}
+                        iconBg="bg-amber-50"
+                        iconColor="text-amber-600"
+                    />
+                    <StatsCard
+                        title="Subscribed Assets"
+                        value={stats?.subscriptions.totalActive ?? '0'}
+                        description="Premium network participants"
+                        icon={Ticket}
+                        trend={stats ? { value: 'Recurring', positive: true } : undefined}
+                        iconBg="bg-indigo-50"
+                        iconColor="text-indigo-600"
                     />
                 </div>
             </div>
