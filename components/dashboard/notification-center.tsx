@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { Bell, Check, Trash2, X, Loader2, Info, AlertCircle, CheckCircle } from 'lucide-react';
+import { Bell, Check, Trash2, Loader2, Info, AlertCircle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -86,13 +85,11 @@ export function NotificationCenter() {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-slate-500 hover:text-[#003399] hover:bg-white">
-                    <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
-                        <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-rose-500 border-2 border-slate-50 animate-pulse"></span>
-                    )}
-                </Button>
+            <DropdownMenuTrigger className="relative h-9 w-9 rounded-lg text-slate-500 hover:text-[#003399] hover:bg-white flex items-center justify-center cursor-pointer">
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                    <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-rose-500 border-2 border-slate-50 animate-pulse"></span>
+                )}
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-80 sm:w-96 mt-4 p-0 rounded-2xl border-slate-100 shadow-xl overflow-hidden bg-white/90 backdrop-blur-xl" align="end">
                 <DropdownMenuLabel className="p-4 bg-slate-50/50 flex items-center justify-between">
