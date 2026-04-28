@@ -14,7 +14,9 @@ import {
     Info,
     User,
     Clock,
-    Key
+    Key,
+    Camera,
+    CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -440,8 +442,104 @@ export default function UserDetailPage() {
                                 <p className="text-xs">This user has not submitted any KYC documents for verification yet.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Map kycStatus fields if available */}
+                            <div className="space-y-8">
+                                {/* Metadata Grid */}
+                                {(() => {
+                                    const kycData = user.kycStatus;
+                                    const verificationDetails = kycData?.verificationDetails || kycData;
+                                    
+                                    const selfie = verificationDetails?.selfiePicture || kycData?.selfiePicture;
+                                    const idImage = verificationDetails?.individualInfo?.idImage || verificationDetails?.businessInfo?.rcCertificate || kycData?.idImage || kycData?.rcCertificate;
+                                    const idType = verificationDetails?.individualInfo?.idType || (verificationDetails?.businessInfo ? 'Business RC' : null) || kycData?.idType;
+                                    const idNumber = verificationDetails?.individualInfo?.idNumber || verificationDetails?.businessInfo?.rcNumber || kycData?.idNumber;
+                                    const address = verificationDetails?.individualInfo?.address || verificationDetails?.businessInfo?.businessAddress || kycData?.address;
+                                    const phone = verificationDetails?.phoneNumber || kycData?.phoneNumber;
+                                    
+                                    const getImageUrl = (url: string | null) => {
+                                        if (!url) return '';
+                                        if (url.startsWith('http') || url.startsWith('data:')) return url;
+                                        return `${STORAGE_URL}${url}`;
+                                    };
+
+                                    return (
+                                        <>
+                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Verified Phone</p>
+                                                    <p className="text-sm font-bold text-slate-900">{phone || 'N/A'}</p>
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Residential Address</p>
+                                                    <p className="text-sm font-bold text-slate-900">{address || 'N/A'}</p>
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Identification Type</p>
+                                                    {idType ? (
+                                                        <Badge variant="outline" className="rounded-md border-emerald-100 bg-emerald-50/30 text-emerald-700 font-bold text-[10px] uppercase">
+                                                            {idType}
+                                                        </Badge>
+                                                    ) : (
+                                                        <p className="text-sm font-bold text-slate-900">N/A</p>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">ID Document Number</p>
+                                                    <p className="text-sm font-bold text-slate-900 font-mono">{idNumber || 'N/A'}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Media Assets */}
+                                            <div className="space-y-6">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digital Evidence</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                    {/* Selfie Artifact */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                                            <Camera size={14} className="text-[#003399]" />
+                                                            Live Portrait Match
+                                                        </div>
+                                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm">
+                                                            {selfie ? (
+                                                                <img 
+                                                                    src={getImageUrl(selfie)} 
+                                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                                                    alt="Identity Selfie" 
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
+                                                                    <Camera size={24} />
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Portrait Artifact</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* ID Artifact */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                                            <CreditCard size={14} className="text-emerald-600" />
+                                                            Primary Identity Document
+                                                        </div>
+                                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm">
+                                                            {idImage ? (
+                                                                <img 
+                                                                    src={getImageUrl(idImage)} 
+                                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                                                    alt="Identification Document" 
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
+                                                                    <FileText size={24} />
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No ID Artifact</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
                             </div>
                         )}
                     </CardContent>
