@@ -52,7 +52,10 @@ export function LoginForm() {
 
             setAuth(user, token);
             toast.success('Login successful!');
-            router.push(redirect || '/admin/dashboard');
+            
+            // Use window.location.href instead of router.push to force a full page reload 
+            // and ensure React Query cache is cleared and new headers are applied.
+            window.location.href = redirect || '/admin/dashboard';
         } catch (error: any) {
             const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
             toast.error(message);
@@ -64,8 +67,8 @@ export function LoginForm() {
     return (
         <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 w-full">
             <div className="flex flex-col items-center mb-10 text-center">
-                <div className="w-16 h-16 bg-[#003399] rounded-2xl flex items-center justify-center mb-6 shadow-xl">
-                    <Logo className="w-10 h-10 text-white" />
+                <div className="w-24 h-24 flex items-center justify-center mb-6 drop-shadow-2xl">
+                    <Logo className="w-24 h-24" />
                 </div>
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900 mb-2">Admin Sign In</h2>
                 <p className="text-slate-500 font-medium text-sm">

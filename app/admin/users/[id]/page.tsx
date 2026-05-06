@@ -13,14 +13,18 @@ import {
     XCircle,
     Info,
     User,
-    Clock
+    Clock,
+    Key,
+    Camera,
+    CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
-import { useUserDetails, useAssignUserRole, useRemoveUserRole, useRoles, useUpdateUserStatus } from '@/hooks/useUsers';
+import { ActionConfirmationModal } from '@/components/modals/ActionConfirmationModal';
+import { useUserDetails, useAssignUserRole, useRemoveUserRole, useRoles, useUpdateUserStatus, useResetPassword } from '@/hooks/useUsers';
 import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -48,10 +52,12 @@ export default function UserDetailPage() {
     const router = useRouter();
     const { data: user, isLoading } = useUserDetails(id as string);
     const [selectedRole, setSelectedRole] = useState<string>('');
+    const [showResetConfirm, setShowResetConfirm] = useState(false);
 
     const assignRole = useAssignUserRole();
     const removeRole = useRemoveUserRole();
     const updateStatus = useUpdateUserStatus();
+    const resetPassword = useResetPassword();
     const { data: allRoles } = useRoles();
 
     const handleAssignRole = async () => {
@@ -80,6 +86,15 @@ export default function UserDetailPage() {
             toast.success(`User status updated to ${status}`);
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Failed to update status');
+        }
+    };
+    const handleResetPassword = async () => {
+        try {
+            await resetPassword.mutateAsync(id as string);
+            toast.success('Password reset notification sent successfully');
+            setShowResetConfirm(false);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to send password reset');
         }
     };
 
@@ -293,30 +308,59 @@ export default function UserDetailPage() {
                         </div>
 
                         <div className="pt-8 border-t border-slate-50">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Account Status Protocol</p>
-                            <div className="flex flex-wrap gap-2">
-                                {[
-                                    { label: 'Activate Account', value: 'active', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: CheckCircle2 },
-                                    { label: 'Suspend Access', value: 'suspended', bg: 'bg-rose-50', text: 'text-rose-600', icon: UserX },
-                                    { label: 'Under Review', value: 'under_review', bg: 'bg-amber-50', text: 'text-amber-600', icon: Info }
-                                ].map((status) => (
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Status Protocol</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {[
+                                            { label: 'Activate Account', value: 'active', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: CheckCircle2 },
+                                            { label: 'Suspend Access', value: 'suspended', bg: 'bg-rose-50', text: 'text-rose-600', icon: UserX },
+                                            { label: 'Under Review', value: 'under_review', bg: 'bg-amber-50', text: 'text-amber-600', icon: Info }
+                                        ].map((status) => (
+                                            <Button
+                                                key={status.value}
+                                                variant="ghost"
+                                                onClick={() => handleUpdateStatus(status.value)}
+                                                disabled={updateStatus.isPending || user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase()}
+                                                className={cn(
+                                                    "h-11 rounded-xl px-4 font-bold text-xs gap-2 transition-all",
+                                                    status.bg, status.text,
+                                                    user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase() && "ring-2 ring-offset-2 ring-slate-100 opacity-50"
+                                                )}
+                                            >
+                                                <status.icon size={14} />
+                                                {status.label}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Administrative Actions</p>
                                     <Button
-                                        key={status.value}
                                         variant="ghost"
-                                        onClick={() => handleUpdateStatus(status.value)}
-                                        disabled={updateStatus.isPending || user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase()}
-                                        className={cn(
-                                            "h-11 rounded-xl px-4 font-bold text-xs gap-2 transition-all",
-                                            status.bg, status.text,
-                                            user.accountInformation.accountStatus.toLowerCase() === status.value.toLowerCase() && "ring-2 ring-offset-2 ring-slate-100 opacity-50"
-                                        )}
+                                        onClick={() => setShowResetConfirm(true)}
+                                        disabled={resetPassword.isPending}
+                                        className="h-11 rounded-xl px-6 font-bold text-xs gap-2 transition-all bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
                                     >
-                                        <status.icon size={14} />
-                                        {status.label}
+                                        {resetPassword.isPending ? <Loader2 size={14} className="animate-spin" /> : <Key size={14} />}
+                                        Force Password Reset
                                     </Button>
-                                ))}
+                                </div>
                             </div>
                         </div>
+
+                        {/* Password Reset Confirmation */}
+                        <ActionConfirmationModal
+                            isOpen={showResetConfirm}
+                            onClose={() => setShowResetConfirm(false)}
+                            onConfirm={handleResetPassword}
+                            title="Confirm Password Reset"
+                            description={`Are you sure you want to force a password reset for ${user.profile.fullName}? Data protocol will send a secure reset notification to ${user.profile.email}.`}
+                            confirmText="Force Reset"
+                            variant="default"
+                            isLoading={resetPassword.isPending}
+                        />
                     </CardContent>
                 </Card>
 
@@ -398,8 +442,104 @@ export default function UserDetailPage() {
                                 <p className="text-xs">This user has not submitted any KYC documents for verification yet.</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Map kycStatus fields if available */}
+                            <div className="space-y-8">
+                                {/* Metadata Grid */}
+                                {(() => {
+                                    const kycData = user.kycStatus;
+                                    const verificationDetails = kycData?.verificationDetails || kycData;
+                                    
+                                    const selfie = verificationDetails?.selfiePicture || kycData?.selfiePicture;
+                                    const idImage = verificationDetails?.individualInfo?.idImage || verificationDetails?.businessInfo?.rcCertificate || kycData?.idImage || kycData?.rcCertificate;
+                                    const idType = verificationDetails?.individualInfo?.idType || (verificationDetails?.businessInfo ? 'Business RC' : null) || kycData?.idType;
+                                    const idNumber = verificationDetails?.individualInfo?.idNumber || verificationDetails?.businessInfo?.rcNumber || kycData?.idNumber;
+                                    const address = verificationDetails?.individualInfo?.address || verificationDetails?.businessInfo?.businessAddress || kycData?.address;
+                                    const phone = verificationDetails?.phoneNumber || kycData?.phoneNumber;
+                                    
+                                    const getImageUrl = (url: string | null) => {
+                                        if (!url) return '';
+                                        if (url.startsWith('http') || url.startsWith('data:')) return url;
+                                        return `${STORAGE_URL}${url}`;
+                                    };
+
+                                    return (
+                                        <>
+                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Verified Phone</p>
+                                                    <p className="text-sm font-bold text-slate-900">{phone || 'N/A'}</p>
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Residential Address</p>
+                                                    <p className="text-sm font-bold text-slate-900">{address || 'N/A'}</p>
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Identification Type</p>
+                                                    {idType ? (
+                                                        <Badge variant="outline" className="rounded-md border-emerald-100 bg-emerald-50/30 text-emerald-700 font-bold text-[10px] uppercase">
+                                                            {idType}
+                                                        </Badge>
+                                                    ) : (
+                                                        <p className="text-sm font-bold text-slate-900">N/A</p>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">ID Document Number</p>
+                                                    <p className="text-sm font-bold text-slate-900 font-mono">{idNumber || 'N/A'}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Media Assets */}
+                                            <div className="space-y-6">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Digital Evidence</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                    {/* Selfie Artifact */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                                            <Camera size={14} className="text-[#003399]" />
+                                                            Live Portrait Match
+                                                        </div>
+                                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm">
+                                                            {selfie ? (
+                                                                <img 
+                                                                    src={getImageUrl(selfie)} 
+                                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                                                    alt="Identity Selfie" 
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
+                                                                    <Camera size={24} />
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Portrait Artifact</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* ID Artifact */}
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                                                            <CreditCard size={14} className="text-emerald-600" />
+                                                            Primary Identity Document
+                                                        </div>
+                                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm">
+                                                            {idImage ? (
+                                                                <img 
+                                                                    src={getImageUrl(idImage)} 
+                                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
+                                                                    alt="Identification Document" 
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
+                                                                    <FileText size={24} />
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No ID Artifact</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    );
+                                })()}
                             </div>
                         )}
                     </CardContent>

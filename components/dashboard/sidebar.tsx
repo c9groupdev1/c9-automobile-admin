@@ -82,8 +82,8 @@ export function Sidebar({ className }: { className?: string }) {
             {/* Header / Logo */}
             <div className="flex h-20 items-center justify-between px-6 border-b border-slate-50 overflow-hidden">
                 <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-10 h-10 bg-[#003399] rounded-xl flex items-center justify-center shadow-lg">
-                        <Logo className="w-6 h-6 text-white" />
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
+                        <Logo className="w-12 h-12" />
                     </div>
                     {!isCollapsed && (
                         <div className="flex flex-col">

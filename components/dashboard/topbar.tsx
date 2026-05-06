@@ -23,6 +23,7 @@ import { ThemeToggle } from './theme-toggle';
 import { useAuthStore } from '@/store/authStore';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { NotificationCenter } from './notification-center';
 
 export function Topbar() {
     const { user, logout } = useAuthStore();
@@ -56,10 +57,7 @@ export function Topbar() {
             <div className="flex items-center gap-3 md:gap-6">
                 <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-100 gap-1">
                     <ThemeToggle />
-                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-lg text-slate-500 hover:text-[#003399] hover:bg-white">
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-rose-500 border-2 border-slate-50"></span>
-                    </Button>
+                    <NotificationCenter />
                 </div>
 
                 <div className="h-6 w-[1px] bg-slate-200 mx-2 hidden sm:block" />
