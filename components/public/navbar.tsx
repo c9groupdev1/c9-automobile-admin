@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export function PublicNavbar() {
+    const { isAuthenticated, user } = useAuthStore();
     const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -40,19 +41,44 @@ export function PublicNavbar() {
                             <div className="logo-glow">
                                 <Logo className="w-10 h-10 shadow-lg" />
                             </div>
-                            <span className={`text-2xl font-bold tracking-tighter font-display ${scrolled ? 'text-[#0066CC]' : 'text-white'}`}>C9x</span>
+                            {/* <span className={`text-2xl font-bold tracking-tighter font-display ${scrolled ? 'text-[#0066CC]' : 'text-white'}`}>C9x</span> */}
                         </Link>
 
-                        <div className="hidden md:flex items-center space-x-12">
-                            <Link href="/about" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>About Us</Link>
-                            <Link href="/contact" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Contact Us</Link>
-                            <Link href="/faq" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>FAQ</Link>
+                        <div className="hidden md:flex items-center space-x-8">
+                            <div className="flex items-center space-x-12 mr-8">
+                                <Link href="/about" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>About Us</Link>
+                                <Link href="/contact" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Contact Us</Link>
+                                <Link href="/faq" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>FAQ</Link>
+                            </div>
+                            
+                            {isAuthenticated ? (
+                                <Link href={user?.roles.some(r => ['admin', 'staff', 'super-admin'].includes(r.toLowerCase())) ? '/admin/dashboard' : '/account'}>
+                                    <Button className={`rounded-xl px-6 font-bold h-11 transition-all ${scrolled ? 'bg-[#003399] text-white' : 'bg-white text-[#003399] hover:bg-slate-100'}`}>
+                                        My Account
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <Link href="/secured-admin/login">
+                                    <Button className={`rounded-xl px-6 font-bold h-11 transition-all ${scrolled ? 'bg-[#003399] text-white' : 'bg-white text-[#003399] hover:bg-slate-100'}`}>
+                                        Sign In
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
 
                         {/* Mobile toggle */}
-                        <button className={`md:hidden ${scrolled ? 'text-slate-600' : 'text-white'}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
-                        </button>
+                        <div className="flex items-center space-x-4 md:hidden">
+                             {isAuthenticated && (
+                                <Link href={user?.roles.some(r => ['admin', 'staff', 'super-admin'].includes(r.toLowerCase())) ? '/admin/dashboard' : '/account'}>
+                                    <Button size="sm" className={`rounded-lg px-4 font-bold text-[10px] h-8 ${scrolled ? 'bg-[#003399] text-white' : 'bg-white text-[#003399]'}`}>
+                                        Account
+                                    </Button>
+                                </Link>
+                            )}
+                            <button className={scrolled ? 'text-slate-600' : 'text-white'} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                                {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </nav>

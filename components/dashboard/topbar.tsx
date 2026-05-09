@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Search, Bell, LogOut, User, Settings, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -91,10 +92,12 @@ export function Topbar() {
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
-                                <User className="mr-3 h-4 w-4" />
-                                <span>Profile Settings</span>
-                            </DropdownMenuItem>
+                            <Link href="/admin/profile">
+                                <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
+                                    <User className="mr-3 h-4 w-4" />
+                                    <span>Profile Settings</span>
+                                </DropdownMenuItem>
+                            </Link>
                             <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
                                 <Settings className="mr-3 h-4 w-4" />
                                 <span>Preferences</span>

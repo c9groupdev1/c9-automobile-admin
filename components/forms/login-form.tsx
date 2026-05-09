@@ -53,9 +53,13 @@ export function LoginForm() {
             setAuth(user, token);
             toast.success('Login successful!');
             
+            const isAdmin = user.roles?.some((role: string) => 
+                ['admin', 'staff', 'super-admin', 'editor'].includes(role.toLowerCase())
+            );
+            
             // Use window.location.href instead of router.push to force a full page reload 
             // and ensure React Query cache is cleared and new headers are applied.
-            window.location.href = redirect || '/admin/dashboard';
+            window.location.href = redirect || (isAdmin ? '/admin/dashboard' : '/account');
         } catch (error: any) {
             const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
             toast.error(message);

@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { isAuthenticated, _hasHydrated, token: storeToken } = useAuthStore();
+    const { isAuthenticated, _hasHydrated, token: storeToken, user } = useAuthStore();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
@@ -22,16 +22,28 @@ export default function DashboardLayout({
     }, []);
 
     useEffect(() => {
-        // Only redirect if hydration is complete and user is not authenticated
-        // Also check if there's no token in localStorage as a secondary check
+        // Only redirect if hydration is complete
         if (_hasHydrated) {
             const hasLocalToken = localStorage.getItem('token');
             if (!isAuthenticated && !hasLocalToken) {
                 console.log('Redirecting to login: Not authenticated and no local token');
                 router.push('/secured-admin/login');
+                return;
+            }
+
+            // RBAC: Check if user has administrative roles
+            if (user) {
+                const isAdmin = user.roles.some(role => 
+                    ['admin', 'staff', 'super-admin', 'editor'].includes(role.toLowerCase())
+                );
+                
+                if (!isAdmin) {
+                    console.log('Redirecting to member space: Unauthorized role', user.roles);
+                    router.push('/account');
+                }
             }
         }
-    }, [_hasHydrated, isAuthenticated, router]);
+    }, [_hasHydrated, isAuthenticated, user, router]);
 
     // Show a high-fidelity loading screen
     if (!mounted || !_hasHydrated) {
