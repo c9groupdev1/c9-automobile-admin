@@ -144,12 +144,12 @@ export function SecuritySettings() {
                         </div>
                         
                         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                            <DialogTrigger asChild>
+                            <DialogTrigger render={
                                 <Button variant="ghost" className="bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl px-6 font-bold text-xs h-10 border border-rose-200">
                                     <Trash2 size={14} className="mr-2" />
                                     Purge Record
                                 </Button>
-                            </DialogTrigger>
+                            } />
                             <DialogContent className="rounded-[2rem] border-slate-100">
                                 <DialogHeader>
                                     <DialogTitle className="text-xl font-bold text-slate-900">Terminate Account?</DialogTitle>
