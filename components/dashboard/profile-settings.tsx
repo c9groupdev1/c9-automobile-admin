@@ -32,8 +32,8 @@ export function ProfileSettings() {
             setFormData({
                 name: profile.name || '',
                 email: profile.email || '',
-                phoneNumber: profile.phoneNumber || profile.kyc?.phoneNumber || '',
-                address: profile.address || profile.kyc?.address || ''
+                phoneNumber: profile.kyc?.phoneNumber || '',
+                address: profile.kyc?.address || ''
             });
 
             if (profile.kyc) {
@@ -75,7 +75,7 @@ export function ProfileSettings() {
                         <div className="flex items-center gap-6">
                             <div className="relative">
                                 <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm">
-                                    <AvatarImage src={profile?.avatar} />
+                                    <AvatarImage src={profile?.kyc?.selfiePicture || ''} />
                                     <AvatarFallback className="bg-[#003399] text-white text-2xl font-bold uppercase">
                                         {profile?.name?.[0]}
                                     </AvatarFallback>
@@ -92,7 +92,7 @@ export function ProfileSettings() {
                                 <CardTitle className="text-2xl font-black text-slate-900">{profile?.name}</CardTitle>
                                 <div className="flex flex-wrap items-center gap-2 mt-2">
                                     <Badge className="bg-blue-50 text-[#003399] border-0 text-[10px] font-black uppercase tracking-widest px-2">
-                                        {profile?.accountType}
+                                        {profile?.roles?.[0] || 'Member'}
                                     </Badge>
                                     <Badge className={cn(
                                         "border-0 text-[10px] font-black uppercase tracking-widest px-2",
