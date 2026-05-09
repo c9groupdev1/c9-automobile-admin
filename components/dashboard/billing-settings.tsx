@@ -67,8 +67,8 @@ export function BillingSettings() {
                     </CardHeader>
                     <CardContent>
                         {!profile?.hasVerifiedBadge ? (
-                            <Button 
-                                onClick={() => purchaseBadge.mutate()} 
+                            <Button
+                                onClick={() => purchaseBadge.mutate()}
                                 disabled={purchaseBadge.isPending}
                                 className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs h-11 transition-all shadow-md shadow-emerald-900/10"
                             >
@@ -105,7 +105,7 @@ export function BillingSettings() {
             <div>
                 <div className="flex items-center gap-3 mb-8 px-4">
                     <Wallet className="text-[#003399] h-5 w-5" />
-                    <h3 className="text-xl font-bold text-slate-900">Subscription Protocol Matrix</h3>
+                    <h3 className="text-xl font-bold text-slate-900">Subscription</h3>
                 </div>
                 <div className="grid gap-6 lg:grid-cols-3">
                     {plans?.map((plan) => (
@@ -144,23 +144,29 @@ export function BillingSettings() {
                                         </li>
                                     )}
                                 </ul>
-                                <Button 
+                                <Button
                                     onClick={() => subscribe.mutate(plan.id)}
-                                    disabled={subscribe.isPending || Number(plan.monthly_price) === 0}
+                                    disabled={
+                                        subscribe.isPending || 
+                                        profile?.activeSubscription?.plan?.id === plan.id ||
+                                        (!profile?.activeSubscription && Number(plan.monthly_price) === 0)
+                                    }
                                     className={cn(
                                         "w-full rounded-2xl h-12 font-bold transition-all",
-                                        plan.level > 0 
-                                            ? "bg-[#003399] hover:bg-blue-800 text-white shadow-lg shadow-blue-900/20" 
-                                            : "bg-slate-100 border-0 text-slate-400 cursor-not-allowed"
+                                        (profile?.activeSubscription?.plan?.id === plan.id || (!profile?.activeSubscription && Number(plan.monthly_price) === 0))
+                                            ? "bg-slate-100 border-0 text-slate-400 cursor-not-allowed"
+                                            : "bg-[#003399] hover:bg-blue-800 text-white shadow-lg shadow-blue-900/20"
                                     )}
                                 >
                                     {subscribe.isPending ? <Loader2 className="animate-spin" /> : (
-                                        Number(plan.monthly_price) === 0 ? "Current Protocol" : (
-                                            <>
-                                                Initiate Upgrade
-                                                <ArrowRight size={16} className="ml-2" />
-                                            </>
-                                        )
+                                        (profile?.activeSubscription?.plan?.id === plan.id || (!profile?.activeSubscription && Number(plan.monthly_price) === 0))
+                                            ? "Current Protocol" 
+                                            : (
+                                                <>
+                                                    Initiate Upgrade
+                                                    <ArrowRight size={16} className="ml-2" />
+                                                </>
+                                            )
                                     )}
                                 </Button>
                             </CardContent>
