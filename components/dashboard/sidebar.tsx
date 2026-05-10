@@ -24,6 +24,7 @@ import {
     CreditCard,
     Zap,
     Shield,
+    User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useMemo } from 'react';
@@ -55,7 +56,8 @@ const menuItems: MenuItem[] = [
     { icon: Zap, label: 'Promotions', href: '/admin/promotions', permission: 'promotion.manage' },
     { icon: FileText, label: 'News & Updates', href: '/admin/news', permission: 'news.manage' },
     { icon: BarChart3, label: 'Referral Management', href: '/admin/referrals', permission: 'referral.view' },
-    { icon: Settings, label: 'Settings', href: '/admin/system-config', permission: 'system.manage' },
+    { icon: User, label: 'Account Settings', href: '/admin/profile' },
+    { icon: Settings, label: 'System Config', href: '/admin/system-config', permission: 'system.manage' },
 ];
 
 export function Sidebar({ className }: { className?: string }) {
