@@ -33,12 +33,14 @@ export default function DashboardLayout({
 
             // RBAC: Check if user has administrative roles
             if (user) {
-                const isAdmin = user.roles.some(role => 
-                    ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(role.toLowerCase())
+                const hasStaffRole = user.roles.some(role => 
+                    !['user', 'verified_user'].includes(role.toLowerCase())
                 );
                 
-                if (!isAdmin) {
-                    console.log('Redirecting to member space: Unauthorized role', user.roles);
+                if (hasStaffRole) {
+                    // Admin/Staff stay here
+                } else {
+                    console.log('Redirecting basic user to member space', user.roles);
                     router.push('/account');
                 }
             }

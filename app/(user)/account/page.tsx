@@ -5,15 +5,21 @@ import { ProfileSettings } from '@/components/dashboard/profile-settings';
 import { SecuritySettings } from '@/components/dashboard/security-settings';
 import { BillingSettings } from '@/components/dashboard/billing-settings';
 import { User, ShieldCheck, CreditCard } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 export default function AccountPage() {
+    const { user } = useAuthStore();
+    const isVerified = user?.roles?.some(role => role.toLowerCase() === 'verified_user');
+
     return (
         <div className="space-y-10 pb-20">
             {/* Header Area */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase">My Account</h2>
-                    <p className="text-slate-500 font-medium">Manage your membership credentials, security, and subscription plans.</p>
+                    <p className="text-slate-500 font-medium">
+                        Manage your membership credentials, security{isVerified ? ', and subscription plans' : ''}.
+                    </p>
                 </div>
             </div>
 
@@ -33,13 +39,15 @@ export default function AccountPage() {
                         <ShieldCheck size={16} className="mr-2" />
                         Security
                     </TabsTrigger>
-                    <TabsTrigger 
-                        value="billing" 
-                        className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
-                    >
-                        <CreditCard size={16} className="mr-2" />
-                        Billing
-                    </TabsTrigger>
+                    {isVerified && (
+                        <TabsTrigger 
+                            value="billing" 
+                            className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
+                        >
+                            <CreditCard size={16} className="mr-2" />
+                            Billing
+                        </TabsTrigger>
+                    )}
                 </TabsList>
 
                 <TabsContent value="profile" className="focus-visible:outline-none">
@@ -50,9 +58,11 @@ export default function AccountPage() {
                     <SecuritySettings />
                 </TabsContent>
                 
-                <TabsContent value="billing" className="focus-visible:outline-none">
-                    <BillingSettings />
-                </TabsContent>
+                {isVerified && (
+                    <TabsContent value="billing" className="focus-visible:outline-none">
+                        <BillingSettings />
+                    </TabsContent>
+                )}
             </Tabs>
         </div>
     );

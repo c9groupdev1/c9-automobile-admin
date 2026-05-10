@@ -8,12 +8,12 @@ import { useAuthStore } from '@/store/authStore';
 export function PublicFooter() {
     const { isAuthenticated, user } = useAuthStore();
     
-    const isAdmin = user?.roles?.some((role: string) => 
-        ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(role.toLowerCase())
+    const hasStaffRole = user?.roles?.some((role: string) => 
+        !['user', 'verified_user'].includes(role.toLowerCase())
     );
 
     const accountHref = isAuthenticated 
-        ? (isAdmin ? '/admin/dashboard' : '/account') 
+        ? (hasStaffRole ? '/admin/dashboard' : '/account') 
         : '/secured-admin/login';
 
     return (

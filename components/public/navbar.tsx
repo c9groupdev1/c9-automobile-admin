@@ -52,7 +52,7 @@ export function PublicNavbar() {
                             </div>
                             
                             {isAuthenticated ? (
-                                <Link href={user?.roles.some(r => ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(r.toLowerCase())) ? '/admin/dashboard' : '/account'}>
+                                <Link href={user?.roles.some(r => !['user', 'verified_user'].includes(r.toLowerCase())) ? '/admin/dashboard' : '/account'}>
                                     <Button className={`rounded-xl px-6 font-bold h-11 transition-all ${scrolled ? 'bg-[#003399] text-white' : 'bg-white text-[#003399] hover:bg-slate-100'}`}>
                                         My Account
                                     </Button>
@@ -69,7 +69,7 @@ export function PublicNavbar() {
                         {/* Mobile toggle */}
                         <div className="flex items-center space-x-4 md:hidden">
                              {isAuthenticated && (
-                                <Link href={user?.roles.some(r => ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(r.toLowerCase())) ? '/admin/dashboard' : '/account'}>
+                                <Link href={user?.roles.some(r => !['user', 'verified_user'].includes(r.toLowerCase())) ? '/admin/dashboard' : '/account'}>
                                     <Button size="sm" className={`rounded-lg px-4 font-bold text-[10px] h-8 ${scrolled ? 'bg-[#003399] text-white' : 'bg-white text-[#003399]'}`}>
                                         Account
                                     </Button>
