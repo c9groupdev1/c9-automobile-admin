@@ -54,7 +54,7 @@ export function LoginForm() {
             toast.success('Login successful!');
             
             const isAdmin = user.roles?.some((role: string) => 
-                ['admin', 'staff', 'super-admin', 'editor'].includes(role.toLowerCase())
+                ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(role.toLowerCase())
             );
             
             // Use window.location.href instead of router.push to force a full page reload 

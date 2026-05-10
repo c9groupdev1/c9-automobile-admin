@@ -34,7 +34,7 @@ export default function DashboardLayout({
             // RBAC: Check if user has administrative roles
             if (user) {
                 const isAdmin = user.roles.some(role => 
-                    ['admin', 'staff', 'super-admin', 'editor'].includes(role.toLowerCase())
+                    ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(role.toLowerCase())
                 );
                 
                 if (!isAdmin) {

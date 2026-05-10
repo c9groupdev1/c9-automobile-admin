@@ -3,8 +3,19 @@
 import React from 'react';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
 
 export function PublicFooter() {
+    const { isAuthenticated, user } = useAuthStore();
+    
+    const isAdmin = user?.roles?.some((role: string) => 
+        ['admin', 'staff', 'super-admin', 'editor', 'support', 'moderator', 'manager'].includes(role.toLowerCase())
+    );
+
+    const accountHref = isAuthenticated 
+        ? (isAdmin ? '/admin/dashboard' : '/account') 
+        : '/secured-admin/login';
+
     return (
         <footer className="bg-slate-900 text-white py-40 border-t border-slate-800 relative z-10 rounded-t-[4rem]">
             <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -29,6 +40,7 @@ export function PublicFooter() {
                     <div>
                         <h4 className="font-bold text-xs uppercase tracking-[0.3em] text-slate-600 mb-10">Platform</h4>
                         <ul className="space-y-6 text-lg font-bold">
+                            <li><Link href={accountHref} className="hover:text-[#0066CC] transition-colors">My Account</Link></li>
                             <li><Link href="/#features" className="hover:text-[#0066CC] transition-colors">Auctions</Link></li>
                             <li><Link href="/#features" className="hover:text-[#0066CC] transition-colors">Marketplace</Link></li>
                             <li><Link href="/services" className="hover:text-[#0066CC] transition-colors">Services</Link></li>
