@@ -25,21 +25,21 @@ export default function AccountPage() {
 
             <Tabs defaultValue="profile" className="w-full">
                 <TabsList className="bg-slate-100/50 rounded-2xl p-1 gap-1 h-14 w-full md:w-fit flex mb-8">
-                    <TabsTrigger 
-                        value="profile" 
+                    <TabsTrigger
+                        value="profile"
                         className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
                     >
                         <User size={16} className="mr-2" />
                         Profile
                     </TabsTrigger>
-                    <TabsTrigger 
-                        value="security" 
+                    <TabsTrigger
+                        value="security"
                         className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
                     >
                         <ShieldCheck size={16} className="mr-2" />
                         Security
                     </TabsTrigger>
-                    {isVerified && (
+                    {/* {isVerified && (
                         <TabsTrigger 
                             value="billing" 
                             className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
@@ -47,17 +47,17 @@ export default function AccountPage() {
                             <CreditCard size={16} className="mr-2" />
                             Billing
                         </TabsTrigger>
-                    )}
+                    )} */}
                 </TabsList>
 
                 <TabsContent value="profile" className="focus-visible:outline-none">
                     <ProfileSettings />
                 </TabsContent>
-                
+
                 <TabsContent value="security" className="focus-visible:outline-none">
                     <SecuritySettings />
                 </TabsContent>
-                
+
                 {isVerified && (
                     <TabsContent value="billing" className="focus-visible:outline-none">
                         <BillingSettings />
