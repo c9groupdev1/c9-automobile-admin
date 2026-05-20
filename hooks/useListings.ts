@@ -176,6 +176,8 @@ export interface ListingDetail {
             url: string;
             isPrimary: boolean;
         }>;
+        // API may return paginated shape; normalized by useListing
+        rawImages?: unknown;
     };
     sellerInformation: {
         name: string;
@@ -194,8 +196,51 @@ export function useListing(id: string) {
     return useQuery({
         queryKey: ['listing', id],
         queryFn: async () => {
-            const response = await api.get<{ success: boolean; data: ListingDetail; message: string }>(`/admin/listings/vehicles/${id}/show`);
-            return response.data.data;
+            const response = await api.get<{ success: boolean; data: any; message: string }>(`/admin/listings/vehicles/${id}/show`);
+            const raw = response.data.data;
+
+            // Normalize mediaReview.images — backend may return a paginated object
+            // { data: [...], meta: {...} } or a plain array
+            const rawImages = raw?.mediaReview?.images;
+            let normalizedImages: Array<{ id: string; url: string; isPrimary: boolean }> = [];
+
+            if (Array.isArray(rawImages)) {
+                normalizedImages = rawImages;
+            } else if (rawImages && Array.isArray(rawImages?.data)) {
+                // Paginated response — only first page returned; fetch all below
+                normalizedImages = rawImages.data;
+            }
+
+            return {
+                ...raw,
+                mediaReview: {
+                    ...raw?.mediaReview,
+                    images: normalizedImages,
+                },
+            } as ListingDetail;
+        },
+        enabled: !!id,
+    });
+}
+
+/**
+ * Dedicated hook to fetch ALL images for a listing.
+ * Use this if the main show endpoint paginates/limits images.
+ */
+export function useListingImages(id: string) {
+    return useQuery({
+        queryKey: ['listing-images', id],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: any; message: string }>(
+                `/admin/listings/vehicles/${id}/show`,
+                { params: { per_page: 100, include_all_media: true } }
+            );
+            const raw = response.data.data;
+            const rawImages = raw?.mediaReview?.images;
+
+            if (Array.isArray(rawImages)) return rawImages;
+            if (rawImages && Array.isArray(rawImages?.data)) return rawImages.data;
+            return [] as Array<{ id: string; url: string; isPrimary: boolean }>;
         },
         enabled: !!id,
     });
