@@ -2,6 +2,7 @@
 
 import {
     ChevronLeft,
+    ChevronRight,
     CheckCircle2,
     XCircle,
     ShieldCheck,
@@ -29,9 +30,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useParams, useRouter } from 'next/navigation';
-import { useListing, useUpdateListingStatus, useVerifyVin } from '@/hooks/useListings';
+import { useListing, useListingImages, useUpdateListingStatus, useVerifyVin } from '@/hooks/useListings';
 import { format, parseISO } from 'date-fns';
-import { useState, use } from 'react';
+import { useState, useRef, use } from 'react';
 import { toast } from 'sonner';
 import { PermissionGuard } from '@/components/auth/permission-guard';
 import {
@@ -45,11 +46,21 @@ import {
 } from "@/components/ui/dialog";
 import { ImagePreviewDialog } from '@/components/ui/image-preview-dialog';
 
+const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? '';
+
+const getImageUrl = (url: string | null | undefined): string => {
+    if (!url) return '';
+    if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('//')) return url;
+    return `${STORAGE_URL}${url}`;
+};
+
 export default function ListingDetailPage() {
     const params = useParams();
     const id = params.id as string;
     const router = useRouter();
     const { data: listing, isLoading } = useListing(id);
+    // Fetch all images separately in case the show endpoint paginates/limits media
+    const { data: allImages } = useListingImages(id);
     const updateStatusMutation = useUpdateListingStatus();
     const verifyVinMutation = useVerifyVin();
     const [activeImage, setActiveImage] = useState(0);
@@ -58,6 +69,18 @@ export default function ListingDetailPage() {
     const [isVinModalOpen, setIsVinModalOpen] = useState(false);
     const [vinData, setVinData] = useState<any>(null);
     const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
+    const thumbnailScrollRef = useRef<HTMLDivElement>(null);
+
+    const scrollThumbnails = (dir: 'left' | 'right') => {
+        thumbnailScrollRef.current?.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' });
+    };
+
+    // Merge images: prefer allImages if it has more entries (handles server-side pagination)
+    const images: Array<{ id: string; url: string; isPrimary: boolean }> = (() => {
+        const base = listing?.mediaReview?.images ?? [];
+        if (!allImages || allImages.length === 0) return base;
+        return allImages.length >= base.length ? allImages : base;
+    })();
 
     if (isLoading) {
         return (
@@ -242,12 +265,12 @@ export default function ListingDetailPage() {
                             <div className="md:col-span-8 space-y-4">
                                 <div 
                                     className="relative aspect-video rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner group cursor-pointer"
-                                    onClick={() => listing.mediaReview.images.length > 0 && setPreviewImage({ url: listing.mediaReview.images[activeImage]?.url, title: `${listing.header.title} - Image ${activeImage + 1}` })}
+                                    onClick={() => images.length > 0 && setPreviewImage({ url: getImageUrl(images[activeImage]?.url), title: `${listing.header.title} - Image ${activeImage + 1}` })}
                                 >
-                                    {listing.mediaReview.images.length > 0 ? (
+                                    {images.length > 0 ? (
                                         <>
                                             <img
-                                                src={listing.mediaReview.images[activeImage]?.url}
+                                                src={getImageUrl(images[activeImage]?.url)}
                                                 alt={listing.header.title}
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                             />
@@ -264,7 +287,7 @@ export default function ListingDetailPage() {
                                             <span className="text-sm font-bold uppercase tracking-[0.2em]">No official images available</span>
                                         </div>
                                     )}
-                                    {listing.mediaReview.images[activeImage]?.isPrimary && (
+                                    {images[activeImage]?.isPrimary && (
                                         <div className="absolute top-6 left-6">
                                             <Badge className="bg-[#003399] text-white border-0 py-1.5 px-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-blue-900/20">
                                                 Primary Display Image
@@ -272,26 +295,77 @@ export default function ListingDetailPage() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none">
-                                    {listing.mediaReview.images.map((img, idx) => (
-                                        <button
-                                            key={img.id}
-                                            onClick={() => setActiveImage(idx)}
-                                            className={cn(
-                                                "h-20 w-32 rounded-2xl overflow-hidden shrink-0 border-2 transition-all relative group shadow-sm",
-                                                activeImage === idx ? "border-[#003399] p-0.5" : "border-slate-100 opacity-60 hover:opacity-100"
-                                            )}
+                                <div className="space-y-3">
+                                    {/* Image count + scroll hint */}
+                                    <div className="flex items-center justify-between px-1">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            {images.length} {images.length === 1 ? 'Image' : 'Images'}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <button
+                                                onClick={() => scrollThumbnails('left')}
+                                                className="h-7 w-7 rounded-lg bg-slate-100 hover:bg-[#003399] hover:text-white text-slate-500 flex items-center justify-center transition-all"
+                                            >
+                                                <ChevronLeft size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => scrollThumbnails('right')}
+                                                className="h-7 w-7 rounded-lg bg-slate-100 hover:bg-[#003399] hover:text-white text-slate-500 flex items-center justify-center transition-all"
+                                            >
+                                                <ChevronRight size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Scrollable strip with fade masks */}
+                                    <div className="relative">
+                                        {/* Left fade */}
+                                        <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10" />
+                                        {/* Right fade */}
+                                        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent z-10" />
+
+                                        <div
+                                            ref={thumbnailScrollRef}
+                                            className="flex gap-3 overflow-x-auto pb-2 px-1 scroll-smooth"
+                                            style={{ scrollbarWidth: 'thin', scrollbarColor: '#CBD5E1 transparent' }}
                                         >
-                                            <img src={img.url} className="w-full h-full object-cover rounded-[0.8rem]" />
-                                            {img.isPrimary && (
-                                                <div className="absolute top-1 right-1">
-                                                    <div className="w-4 h-4 rounded-full bg-[#003399] text-white flex items-center justify-center ring-2 ring-white">
-                                                        <Check size={8} strokeWidth={4} />
+                                            {images.map((img, idx) => (
+                                                <button
+                                                    key={img.id}
+                                                    onClick={() => setActiveImage(idx)}
+                                                    className={cn(
+                                                        "relative shrink-0 rounded-2xl overflow-hidden transition-all duration-200 group",
+                                                        activeImage === idx
+                                                            ? "h-24 w-36 ring-[3px] ring-[#003399] ring-offset-2 shadow-lg shadow-blue-900/20 opacity-100"
+                                                            : "h-24 w-36 ring-1 ring-slate-200 opacity-50 hover:opacity-90 hover:ring-slate-400 hover:scale-[1.03]"
+                                                    )}
+                                                >
+                                                    <img
+                                                        src={getImageUrl(img.url)}
+                                                        className="w-full h-full object-cover"
+                                                        alt={`Image ${idx + 1}`}
+                                                    />
+                                                    {/* Index badge */}
+                                                    <div className={cn(
+                                                        "absolute bottom-1.5 left-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider",
+                                                        activeImage === idx
+                                                            ? "bg-[#003399] text-white"
+                                                            : "bg-black/40 text-white/80"
+                                                    )}>
+                                                        {idx + 1}
                                                     </div>
-                                                </div>
-                                            )}
-                                        </button>
-                                    ))}
+                                                    {/* Primary badge */}
+                                                    {img.isPrimary && (
+                                                        <div className="absolute top-1.5 right-1.5">
+                                                            <div className="w-4 h-4 rounded-full bg-[#003399] text-white flex items-center justify-center ring-2 ring-white shadow">
+                                                                <Check size={8} strokeWidth={4} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="md:col-span-4 flex flex-col justify-center gap-8">
