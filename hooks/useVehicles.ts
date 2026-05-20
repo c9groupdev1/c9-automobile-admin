@@ -122,3 +122,301 @@ export const useDeleteModel = () => {
         },
     });
 };
+
+export interface VehicleTrim {
+    id: string;
+    name: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface VehicleEngineType {
+    id: string;
+    name: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export const useVehicleTrims = (search?: string) => {
+    return useQuery({
+        queryKey: ['vehicle-trims', search],
+        queryFn: async () => {
+            const { data } = await api.get('/admin/vehicle/trims', {
+                params: { search }
+            });
+            // Try to extract array gracefully
+            return data?.data?.data || data?.data || [];
+        },
+    });
+};
+
+export const useCreateTrim = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<VehicleTrim>) => {
+            const { data: response } = await api.post('/admin/vehicle/trims', data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-trims'] });
+        },
+    });
+};
+
+export const useUpdateTrim = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, ...data }: Partial<VehicleTrim> & { id: string }) => {
+            const { data: response } = await api.put(`/admin/vehicle/trims/${id}`, data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-trims'] });
+        },
+    });
+};
+
+export const useDeleteTrim = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data } = await api.delete(`/admin/vehicle/trims/${id}`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-trims'] });
+        },
+    });
+};
+
+export const useVehicleEngineTypes = (search?: string) => {
+    return useQuery({
+        queryKey: ['vehicle-engine-types', search],
+        queryFn: async () => {
+            const { data } = await api.get('/admin/vehicle/engine-types', {
+                params: { search }
+            });
+            // Try to extract array gracefully
+            return data?.data?.data || data?.data || [];
+        },
+    });
+};
+
+export const useCreateEngineType = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<VehicleEngineType>) => {
+            const { data: response } = await api.post('/admin/vehicle/engine-types', data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-engine-types'] });
+        },
+    });
+};
+
+export const useUpdateEngineType = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, ...data }: Partial<VehicleEngineType> & { id: string }) => {
+            const { data: response } = await api.put(`/admin/vehicle/engine-types/${id}`, data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-engine-types'] });
+        },
+    });
+};
+
+export const useDeleteEngineType = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data } = await api.delete(`/admin/vehicle/engine-types/${id}`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-engine-types'] });
+        },
+    });
+};
+
+export interface VehicleFeature {
+    id: string;
+    name: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface VehicleFuelType {
+    id: string;
+    name: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export const useVehicleFeatures = (search?: string) => {
+    return useQuery({
+        queryKey: ['vehicle-features', search],
+        queryFn: async () => {
+            const { data } = await api.get('/admin/vehicle/features', {
+                params: { search }
+            });
+            return data?.data?.data || data?.data || [];
+        },
+    });
+};
+
+export const useCreateFeature = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<VehicleFeature>) => {
+            const { data: response } = await api.post('/admin/vehicle/features', data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-features'] });
+        },
+    });
+};
+
+export const useUpdateFeature = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, ...data }: Partial<VehicleFeature> & { id: string }) => {
+            const { data: response } = await api.put(`/admin/vehicle/features/${id}`, data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-features'] });
+        },
+    });
+};
+
+export const useDeleteFeature = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data } = await api.delete(`/admin/vehicle/features/${id}`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-features'] });
+        },
+    });
+};
+
+export const useVehicleFuelTypes = (search?: string) => {
+    return useQuery({
+        queryKey: ['vehicle-fuel-types', search],
+        queryFn: async () => {
+            const { data } = await api.get('/admin/vehicle/fuel-types', {
+                params: { search }
+            });
+            return data?.data?.data || data?.data || [];
+        },
+    });
+};
+
+export const useCreateFuelType = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<VehicleFuelType>) => {
+            const { data: response } = await api.post('/admin/vehicle/fuel-types', data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-fuel-types'] });
+        },
+    });
+};
+
+export const useUpdateFuelType = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, ...data }: Partial<VehicleFuelType> & { id: string }) => {
+            const { data: response } = await api.put(`/admin/vehicle/fuel-types/${id}`, data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-fuel-types'] });
+        },
+    });
+};
+
+export const useDeleteFuelType = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data } = await api.delete(`/admin/vehicle/fuel-types/${id}`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-fuel-types'] });
+        },
+    });
+};
+
+export interface VehicleTransmission {
+    id: string;
+    name: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export const useVehicleTransmissions = (search?: string) => {
+    return useQuery({
+        queryKey: ['vehicle-transmissions', search],
+        queryFn: async () => {
+            const { data } = await api.get('/admin/vehicle/transmissions', {
+                params: { search }
+            });
+            return data?.data?.data || data?.data || [];
+        },
+    });
+};
+
+export const useCreateTransmission = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (data: Partial<VehicleTransmission>) => {
+            const { data: response } = await api.post('/admin/vehicle/transmissions', data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-transmissions'] });
+        },
+    });
+};
+
+export const useUpdateTransmission = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ id, ...data }: Partial<VehicleTransmission> & { id: string }) => {
+            const { data: response } = await api.put(`/admin/vehicle/transmissions/${id}`, data);
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-transmissions'] });
+        },
+    });
+};
+
+export const useDeleteTransmission = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: string) => {
+            const { data } = await api.delete(`/admin/vehicle/transmissions/${id}`);
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicle-transmissions'] });
+        },
+    });
+};
+
