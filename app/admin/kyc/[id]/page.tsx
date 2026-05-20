@@ -37,6 +37,7 @@ import { format, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { PermissionGuard } from '@/components/auth/permission-guard';
+import { ImagePreviewDialog } from '@/components/ui/image-preview-dialog';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -48,6 +49,7 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
     const { id } = use(params);
     const router = useRouter();
     const [reviewComment, setReviewComment] = useState('');
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
     
     const { data: kycResponse, isLoading } = useKycRequest(id);
     const reviewMutation = useReviewKyc();
@@ -242,13 +244,24 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                                             <Camera size={14} className="text-[#003399]" />
                                             Live Portrait Match
                                         </div>
-                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative">
+                                        <div 
+                                            className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative cursor-pointer"
+                                            onClick={() => kyc.verificationDetails.selfiePicture && setPreviewImage({ url: kyc.verificationDetails.selfiePicture, title: `${applicantName} - Portrait Selfie` })}
+                                        >
                                             {kyc.verificationDetails.selfiePicture ? (
-                                                <img 
-                                                    src={kyc.verificationDetails.selfiePicture} 
-                                                    className="w-full h-full object-cover" 
-                                                    alt="Identity Selfie" 
-                                                />
+                                                <>
+                                                    <img 
+                                                        src={kyc.verificationDetails.selfiePicture} 
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                                        alt="Identity Selfie" 
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                        <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white ring-1 ring-white/30 transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                                            <Eye size={18} />
+                                                        </div>
+                                                        <span className="text-white text-[10px] font-black uppercase tracking-widest bg-slate-900/60 py-1.5 px-3 rounded-lg backdrop-blur-sm">Click to Preview</span>
+                                                    </div>
+                                                </>
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                     <Camera size={24} />
@@ -257,20 +270,36 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                                             )}
                                         </div>
                                     </div>
-
+ 
                                     {/* ID Artifact */}
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
                                             <CreditCard size={14} className="text-emerald-600" />
                                             Primary Identity Document
                                         </div>
-                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative">
+                                        <div 
+                                            className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative cursor-pointer"
+                                            onClick={() => {
+                                                const url = kyc.verificationDetails.individualInfo?.idImage || kyc.verificationDetails.businessInfo?.rcCertificate;
+                                                if (url) {
+                                                    setPreviewImage({ url, title: `${applicantName} - Identification Document` });
+                                                }
+                                            }}
+                                        >
                                             {kyc.verificationDetails.individualInfo?.idImage || kyc.verificationDetails.businessInfo?.rcCertificate ? (
-                                                <img 
-                                                    src={kyc.verificationDetails.individualInfo?.idImage || kyc.verificationDetails.businessInfo?.rcCertificate} 
-                                                    className="w-full h-full object-cover" 
-                                                    alt="Identification Document" 
-                                                />
+                                                <>
+                                                    <img 
+                                                        src={kyc.verificationDetails.individualInfo?.idImage || kyc.verificationDetails.businessInfo?.rcCertificate} 
+                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                                        alt="Identification Document" 
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                        <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white ring-1 ring-white/30 transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                                            <Eye size={18} />
+                                                        </div>
+                                                        <span className="text-white text-[10px] font-black uppercase tracking-widest bg-slate-900/60 py-1.5 px-3 rounded-lg backdrop-blur-sm">Click to Preview</span>
+                                                    </div>
+                                                </>
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                     <FileText size={24} />
@@ -333,6 +362,14 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                         </CardContent>
                     </Card>
                 </div>
+                {previewImage && (
+                    <ImagePreviewDialog
+                        isOpen={!!previewImage}
+                        onClose={() => setPreviewImage(null)}
+                        imageUrl={previewImage.url}
+                        title={previewImage.title}
+                    />
+                )}
             </div>
         </div>
     );

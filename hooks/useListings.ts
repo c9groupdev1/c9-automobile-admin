@@ -93,8 +93,11 @@ export function useListings(params?: {
 
 export interface ListingAnalysisData {
     totalVehicleListings: number;
+    draftListings: number;
+    pendingReview: number;
     approvedListings: number;
     rejectedListings: number;
+    featuredListings: number;
     flaggedListings: number;
 }
 

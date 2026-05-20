@@ -41,9 +41,11 @@ import {
     Trash2, 
     Shield, 
     Loader2,
-    Settings
+    Settings,
+    Eye
 } from 'lucide-react';
 import { useState } from 'react';
+import { ImagePreviewDialog } from '@/components/ui/image-preview-dialog';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -53,6 +55,7 @@ export default function UserDetailPage() {
     const { data: user, isLoading } = useUserDetails(id as string);
     const [selectedRole, setSelectedRole] = useState<string>('');
     const [showResetConfirm, setShowResetConfirm] = useState(false);
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
     const assignRole = useAssignUserRole();
     const removeRole = useRemoveUserRole();
@@ -498,13 +501,24 @@ export default function UserDetailPage() {
                                                             <Camera size={14} className="text-[#003399]" />
                                                             Live Portrait Match
                                                         </div>
-                                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm">
+                                                        <div 
+                                                            className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm cursor-pointer"
+                                                            onClick={() => selfie && setPreviewImage({ url: getImageUrl(selfie), title: `${user.profile.fullName} - Portrait Selfie` })}
+                                                        >
                                                             {selfie ? (
-                                                                <img 
-                                                                    src={getImageUrl(selfie)} 
-                                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                                                                    alt="Identity Selfie" 
-                                                                />
+                                                                <>
+                                                                    <img 
+                                                                        src={getImageUrl(selfie)} 
+                                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                                                        alt="Identity Selfie" 
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                                        <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white ring-1 ring-white/30 transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                                                            <Eye size={18} />
+                                                                        </div>
+                                                                        <span className="text-white text-[10px] font-black uppercase tracking-widest bg-slate-900/60 py-1.5 px-3 rounded-lg backdrop-blur-sm">Click to Preview</span>
+                                                                    </div>
+                                                                </>
                                                             ) : (
                                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                                     <Camera size={24} />
@@ -520,13 +534,24 @@ export default function UserDetailPage() {
                                                             <CreditCard size={14} className="text-emerald-600" />
                                                             Primary Identity Document
                                                         </div>
-                                                        <div className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm">
+                                                        <div 
+                                                            className="aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-100 ring-1 ring-slate-200 group relative shadow-sm cursor-pointer"
+                                                            onClick={() => idImage && setPreviewImage({ url: getImageUrl(idImage), title: `${user.profile.fullName} - Identification Document` })}
+                                                        >
                                                             {idImage ? (
-                                                                <img 
-                                                                    src={getImageUrl(idImage)} 
-                                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                                                                    alt="Identification Document" 
-                                                                />
+                                                                <>
+                                                                    <img 
+                                                                        src={getImageUrl(idImage)} 
+                                                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                                                                        alt="Identification Document" 
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                                        <div className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white ring-1 ring-white/30 transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                                                            <Eye size={18} />
+                                                                        </div>
+                                                                        <span className="text-white text-[10px] font-black uppercase tracking-widest bg-slate-900/60 py-1.5 px-3 rounded-lg backdrop-blur-sm">Click to Preview</span>
+                                                                    </div>
+                                                                </>
                                                             ) : (
                                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                                     <FileText size={24} />
@@ -609,6 +634,14 @@ export default function UserDetailPage() {
                         )}
                     </CardContent>
                 </Card>
+                {previewImage && (
+                    <ImagePreviewDialog
+                        isOpen={!!previewImage}
+                        onClose={() => setPreviewImage(null)}
+                        imageUrl={previewImage.url}
+                        title={previewImage.title}
+                    />
+                )}
             </div>
         </div>
     );
