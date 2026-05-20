@@ -159,7 +159,7 @@ export default function ListingsPage() {
                 />
                 <StatsCard
                     title="Pending Review"
-                    value={loadingAnalysis || !analysis ? '...' : "0"}
+                    value={loadingAnalysis || !analysis ? '...' : (analysis.pendingReview?.toLocaleString() ?? "0")}
                     description="Awaiting approval"
                     icon={Clock}
                     iconBg="bg-orange-50"
@@ -183,7 +183,7 @@ export default function ListingsPage() {
                 />
                 <StatsCard
                     title="Featured"
-                    value={loadingAnalysis || !analysis ? '...' : "0"}
+                    value={loadingAnalysis || !analysis ? '...' : (analysis.featuredListings?.toLocaleString() ?? "0")}
                     description="Premium placements"
                     icon={Star}
                     iconBg="bg-violet-50"

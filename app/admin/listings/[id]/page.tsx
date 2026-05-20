@@ -43,6 +43,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { ImagePreviewDialog } from '@/components/ui/image-preview-dialog';
 
 export default function ListingDetailPage() {
     const params = useParams();
@@ -56,6 +57,7 @@ export default function ListingDetailPage() {
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [isVinModalOpen, setIsVinModalOpen] = useState(false);
     const [vinData, setVinData] = useState<any>(null);
+    const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
     if (isLoading) {
         return (
@@ -238,13 +240,24 @@ export default function ListingDetailPage() {
                     <CardContent className="px-10 py-10">
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
                             <div className="md:col-span-8 space-y-4">
-                                <div className="relative aspect-video rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner group">
+                                <div 
+                                    className="relative aspect-video rounded-[2rem] overflow-hidden bg-slate-50 border border-slate-100 shadow-inner group cursor-pointer"
+                                    onClick={() => listing.mediaReview.images.length > 0 && setPreviewImage({ url: listing.mediaReview.images[activeImage]?.url, title: `${listing.header.title} - Image ${activeImage + 1}` })}
+                                >
                                     {listing.mediaReview.images.length > 0 ? (
-                                        <img
-                                            src={listing.mediaReview.images[activeImage]?.url}
-                                            alt={listing.header.title}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                        />
+                                        <>
+                                            <img
+                                                src={listing.mediaReview.images[activeImage]?.url}
+                                                alt={listing.header.title}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                <div className="bg-white/20 backdrop-blur-md p-4 rounded-full text-white ring-1 ring-white/30 transform scale-90 group-hover:scale-100 transition-all duration-300">
+                                                    <Eye size={24} />
+                                                </div>
+                                                <span className="text-white text-xs font-black uppercase tracking-widest bg-slate-900/60 py-2 px-4 rounded-xl backdrop-blur-sm">Click to Fully Preview</span>
+                                            </div>
+                                        </>
                                     ) : (
                                         <div className="w-full h-full flex flex-col items-center justify-center text-slate-300 gap-4">
                                             <ImageIcon size={64} />
@@ -525,6 +538,14 @@ export default function ListingDetailPage() {
                         </div>
                     </DialogContent>
                 </Dialog>
+                {previewImage && (
+                    <ImagePreviewDialog
+                        isOpen={!!previewImage}
+                        onClose={() => setPreviewImage(null)}
+                        imageUrl={previewImage.url}
+                        title={previewImage.title}
+                    />
+                )}
             </div>
         </div>
     );
