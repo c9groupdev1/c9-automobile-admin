@@ -313,7 +313,7 @@ export default function UserDetailPage() {
                         <div className="pt-8 border-t border-slate-50">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="space-y-4">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Status Protocol</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Account Status</p>
                                     <div className="flex flex-wrap gap-2">
                                         {[
                                             { label: 'Activate Account', value: 'active', bg: 'bg-emerald-50', text: 'text-emerald-600', icon: CheckCircle2 },
@@ -359,7 +359,7 @@ export default function UserDetailPage() {
                             onClose={() => setShowResetConfirm(false)}
                             onConfirm={handleResetPassword}
                             title="Confirm Password Reset"
-                            description={`Are you sure you want to force a password reset for ${user.profile.fullName}? Data protocol will send a secure reset notification to ${user.profile.email}.`}
+                            description={`Are you sure you want to force a password reset for ${user.profile.fullName}? The system will send a secure reset notification to ${user.profile.email}.`}
                             confirmText="Force Reset"
                             variant="default"
                             isLoading={resetPassword.isPending}
@@ -393,7 +393,7 @@ export default function UserDetailPage() {
                                     </Badge>
                                 ))
                             ) : (
-                                <p className="text-xs text-slate-400 font-medium italic">No custom roles assigned. Default protocol applies.</p>
+                                <p className="text-xs text-slate-400 font-medium italic">No custom roles assigned. Default rules apply.</p>
                             )}
                         </div>
 
@@ -522,7 +522,7 @@ export default function UserDetailPage() {
                                                             ) : (
                                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                                     <Camera size={24} />
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Portrait Artifact</span>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Selfie Photo</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -555,7 +555,7 @@ export default function UserDetailPage() {
                                                             ) : (
                                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                                     <FileText size={24} />
-                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No ID Artifact</span>
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest">No ID Document</span>
                                                                 </div>
                                                             )}
                                                         </div>

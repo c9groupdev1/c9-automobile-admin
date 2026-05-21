@@ -542,11 +542,11 @@ export default function SystemConfigPage() {
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <Settings2 className="text-[#0066CC] w-5 h-5" />
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Protocol Settings</h3>
+                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Global Settings</h3>
                     </div>
                     <h2 className="text-3xl font-bold tracking-tight">System Configuration</h2>
                     <p className="text-muted-foreground mt-1">
-                        Manage global platform configurations, security protocols, and access control.
+                        Manage global platform configurations, security settings, and access control.
                     </p>
                 </div>
             </div>
@@ -596,7 +596,7 @@ export default function SystemConfigPage() {
                             onClick={() => setIsCreateRoleOpen(true)}
                             className="bg-[#0066CC] hover:bg-blue-700 text-white rounded-xl px-6 font-bold h-10 transition-all active:scale-95"
                         >
-                            New Protocol Role
+                            New System Role
                         </Button>
                     </div>
                     <div className="rounded-[2rem] border border-slate-100 bg-white overflow-hidden shadow-sm">
@@ -647,7 +647,7 @@ export default function SystemConfigPage() {
                             <div className="bg-slate-900 px-8 py-6 text-white rounded-t-[2.5rem]">
                                 <h2 className="text-2xl font-bold tracking-tight">Assign Permissions</h2>
                                 <p className="text-slate-400 text-sm mt-1">
-                                    Configuring protocol access for <span className="text-white font-bold capitalize">{selectedRole?.name}</span>
+                                    Configuring access for <span className="text-white font-bold capitalize">{selectedRole?.name}</span>
                                 </p>
                             </div>
                             <div className="p-8 space-y-6">
@@ -709,7 +709,7 @@ export default function SystemConfigPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow className="border-none hover:bg-transparent">
-                                        <TableHead className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-[#0066CC]">Protocol Identifier</TableHead>
+                                        <TableHead className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-[#0066CC]">Scope Identifier</TableHead>
                                         <TableHead className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-[#0066CC]">Functional Description</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -732,7 +732,7 @@ export default function SystemConfigPage() {
                 <Dialog open={isCreateRoleOpen} onOpenChange={setIsCreateRoleOpen}>
                     <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] border-none shadow-3xl p-0">
                         <div className="bg-[#0066CC] px-8 py-6 text-white rounded-t-[2.5rem]">
-                            <h2 className="text-2xl font-bold tracking-tight">Create Protocol Role</h2>
+                            <h2 className="text-2xl font-bold tracking-tight">Create System Role</h2>
                             <p className="text-white/60 text-sm mt-1">Define a new administrative group for the network.</p>
                         </div>
                         <div className="p-8 space-y-6">
@@ -741,7 +741,7 @@ export default function SystemConfigPage() {
                                 <input
                                     value={newName}
                                     onChange={(e) => setNewName(e.target.value)}
-                                    placeholder="e.g. Protocol Auditor"
+                                    placeholder="e.g. System Auditor"
                                     className="w-full h-12 rounded-xl bg-slate-50 border border-slate-100 px-4 text-sm font-bold focus:ring-4 focus:ring-blue-500/5 focus:border-[#0066CC] transition-all outline-none"
                                 />
                             </div>
@@ -751,7 +751,7 @@ export default function SystemConfigPage() {
                                 className="w-full h-14 rounded-2xl bg-[#0066CC] hover:bg-blue-700 font-bold shadow-lg shadow-blue-500/10"
                             >
                                 {createRole.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Initialize Role
+                                Create Role
                             </Button>
                         </div>
                     </DialogContent>
@@ -762,7 +762,7 @@ export default function SystemConfigPage() {
                     <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] border-none shadow-3xl p-0">
                         <div className="bg-slate-900 px-8 py-6 text-white rounded-t-[2.5rem]">
                             <h2 className="text-2xl font-bold tracking-tight">Define Access Scope</h2>
-                            <p className="text-white/60 text-sm mt-1">Add a new functional permission to the protocol.</p>
+                            <p className="text-white/60 text-sm mt-1">Add a new functional permission to the system.</p>
                         </div>
                         <div className="p-8 space-y-6">
                             <div className="space-y-2">
@@ -841,7 +841,7 @@ export default function SystemConfigPage() {
                     <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] border-none shadow-3xl p-0">
                         <div className="bg-slate-900 px-8 py-6 text-white rounded-t-[2.5rem]">
                             <h2 className="text-2xl font-bold tracking-tight">{editingModel ? 'Modify Model' : 'New Vehicle Model'}</h2>
-                            <p className="text-white/60 text-sm mt-1">Register a specific vehicle model sequence.</p>
+                            <p className="text-white/60 text-sm mt-1">Register a specific vehicle model.</p>
                         </div>
                         <div className="p-8 space-y-6">
                             <div className="space-y-4">
@@ -972,7 +972,7 @@ export default function SystemConfigPage() {
                 <TabsContent value="models" className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Model Sequences</h4>
+                            <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Vehicle Models</h4>
                             <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase"> Vehicle classification</p>
                         </div>
                         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -1065,7 +1065,7 @@ export default function SystemConfigPage() {
                 <TabsContent value="trims" className="space-y-6">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Trim Sequences</h4>
+                            <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest">Trim Levels</h4>
                             <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Vehicle Trims Classification</p>
                         </div>
                         <div className="flex items-center gap-3 w-full md:w-auto">

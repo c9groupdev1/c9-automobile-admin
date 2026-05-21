@@ -106,7 +106,7 @@ export default function ReferralsPage() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <BarChart3 className="text-[#003399] w-5 h-5" />
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Growth Analysis</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Referral Program</h3>
           </div>
           <h2 className="text-4xl font-black tracking-tight text-slate-900">Referral Analytics</h2>
           <p className="text-slate-500 font-medium mt-2 max-w-2xl">
@@ -219,11 +219,11 @@ export default function ReferralsPage() {
             <Table>
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="border-none hover:bg-transparent">
-                  <TableHead className="py-8 px-10 text-[11px] font-black uppercase tracking-widest text-slate-400 w-[30%]">Ambassador Profile</TableHead>
+                  <TableHead className="py-8 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400 w-[30%]">Ambassador Profile</TableHead>
                   <TableHead className="py-8 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Lifetime Traffic</TableHead>
                   <TableHead className="py-8 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Current Cycle</TableHead>
                   <TableHead className="py-8 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Filtered Target</TableHead>
-                  <TableHead className="py-8 px-10 text-[11px] font-black uppercase tracking-widest text-slate-400 text-right">Integrity Status</TableHead>
+                  <TableHead className="py-8 px-10 text-[11px] font-black uppercase tracking-widest text-slate-400 text-right">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -235,8 +235,8 @@ export default function ReferralsPage() {
                           <Users size={40} />
                         </div>
                         <div className="space-y-1">
-                          <p className="text-slate-900 font-black text-lg uppercase tracking-tight">No Ambassador Intelligence</p>
-                          <p className="text-slate-500 font-medium text-sm">Synchronize filters or check production logs for connectivity.</p>
+                          <p className="text-slate-900 font-black text-lg uppercase tracking-tight">No Ambassadors Found</p>
+                          <p className="text-slate-500 font-medium text-sm">Try modifying your search filters or clear values.</p>
                         </div>
                       </div>
                     </TableCell>
@@ -289,7 +289,7 @@ export default function ReferralsPage() {
           {/* Pagination */}
           <div className="p-10 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              Reviewing <span className="text-slate-900">{meta?.from || 0} - {meta?.to || 0}</span> of <span className="text-slate-900 font-black">{meta?.total || 0}</span> intelligence nodes
+              Reviewing <span className="text-slate-900">{meta?.from || 0} - {meta?.to || 0}</span> of <span className="text-slate-900 font-black">{meta?.total || 0}</span> referral records
             </p>
             <div className="flex gap-3">
               <Button
@@ -298,7 +298,7 @@ export default function ReferralsPage() {
                 onClick={() => handlePaginationChange(filters.page! - 1)}
                 className="h-12 rounded-2xl border-slate-100 font-black text-xs uppercase tracking-widest px-6"
               >
-                Previous Sequence
+                Previous
               </Button>
               <Button
                 variant="outline"
@@ -306,7 +306,7 @@ export default function ReferralsPage() {
                 onClick={() => handlePaginationChange(filters.page! + 1)}
                 className="h-12 rounded-2xl border-slate-100 font-black text-xs uppercase tracking-widest px-6"
               >
-                Next Node
+                Next
               </Button>
             </div>
           </div>

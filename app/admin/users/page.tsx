@@ -252,10 +252,10 @@ export default function UsersPage() {
 
                     <Select value={userType} onValueChange={(v) => setUserType(v || 'all-types')}>
                         <SelectTrigger className="w-[180px] h-12 rounded-xl bg-slate-50 border-transparent font-bold text-xs text-slate-600">
-                            <SelectValue placeholder="User Protocol" />
+                            <SelectValue placeholder="Account Role" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl border-slate-100">
-                            <SelectItem value="all-types">All Protocol Types</SelectItem>
+                            <SelectItem value="all-types">All Account Types</SelectItem>
                             {roles?.map((role: any) => (
                                 <SelectItem key={role.id} value={role.name} className="capitalize">{role.name.replace('_', ' ')}</SelectItem>
                             ))}
@@ -485,7 +485,7 @@ export default function UsersPage() {
                                                             {user.accountStatus === 'Active' ? (
                                                                 <>
                                                                     <UserX size={14} />
-                                                                    Suspend Protocol Access
+                                                                    Suspend Account Access
                                                                 </>
                                                             ) : (
                                                                 <>
@@ -576,8 +576,8 @@ export default function UsersPage() {
                         <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#003399] mb-4">
                             {editingUser ? <Save size={24} /> : <UserPlus size={24} />}
                         </div>
-                        <SheetTitle className="text-2xl font-black text-slate-900">{editingUser ? 'Modify User Profile' : 'Initialize New User'}</SheetTitle>
-                        <SheetDescription className="text-slate-500 font-medium">{editingUser ? `Updating access and credentials for User ID: ${editingUser.id}` : 'Configure access clearance and identities for a new protocol member'}</SheetDescription>
+                        <SheetTitle className="text-2xl font-black text-slate-900">{editingUser ? 'Modify User Profile' : 'Add New User'}</SheetTitle>
+                        <SheetDescription className="text-slate-500 font-medium">{editingUser ? `Updating access and credentials for User ID: ${editingUser.id}` : 'Configure access clearance and identities for a new account member'}</SheetDescription>
                     </SheetHeader>
 
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4">

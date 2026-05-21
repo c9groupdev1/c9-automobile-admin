@@ -95,7 +95,7 @@ export default function KYCManagementPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-slate-900">KYC Management Hub</h2>
-                    <p className="text-slate-500 font-medium text-sm">Review and verify user & vendor identity documentation across the protocol.</p>
+                    <p className="text-slate-500 font-medium text-sm">Review and verify user & vendor identity documentation across the platform.</p>
                 </div>
             </div>
 
@@ -233,7 +233,7 @@ export default function KYCManagementPage() {
                                 <TableHead className="px-4 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User / Business Identity</TableHead>
                                 <TableHead className="px-4 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Type</TableHead>
                                 <TableHead className="px-4 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Contact Hub</TableHead>
-                                <TableHead className="px-4 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Verif. Artifacts</TableHead>
+                                <TableHead className="px-4 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Documents</TableHead>
                                 <TableHead className="px-4 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Submitted At</TableHead>
                                 <TableHead className="px-10 py-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Progress</TableHead>
                             </TableRow>

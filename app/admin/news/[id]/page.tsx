@@ -50,7 +50,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
   const handleUpdate = (formData: FormData) => {
     updateNews({ id: params.id, formData }, {
       onSuccess: () => {
-        toast.success('Update broadcasted successfully');
+        toast.success('Announcement updated successfully');
         setIsEditOpen(false);
       },
       onError: (error: any) => {
@@ -61,8 +61,8 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
 
   const handlePublish = () => {
     publishNews(params.id, {
-      onSuccess: () => toast.success('Broadcast is now LIVE'),
-      onError: () => toast.error('Failed to publish update')
+      onSuccess: () => toast.success('Announcement is now live'),
+      onError: () => toast.error('Failed to publish announcement')
     });
   };
 
@@ -74,10 +74,10 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
   };
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to terminate this record?')) {
+    if (confirm('Are you sure you want to delete this announcement?')) {
       deleteNews(params.id, {
         onSuccess: () => {
-          toast.success('Update terminated');
+          toast.success('Announcement deleted');
           router.push('/admin/news');
         }
       });
@@ -98,8 +98,8 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
         <div className="w-20 h-20 rounded-[2rem] bg-slate-50 flex items-center justify-center text-slate-200">
           <Newspaper size={40} />
         </div>
-        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Record Invalid</h3>
-        <p className="text-slate-500 font-medium max-w-xs">The requested announcement artifact could not be localized on our clusters.</p>
+        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Not Found</h3>
+        <p className="text-slate-500 font-medium max-w-xs">The requested announcement could not be found.</p>
         <Link 
           href="/admin/news"
           className={cn(
@@ -107,7 +107,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
             "bg-[#003399] rounded-2xl px-8 h-12 font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-900/10 flex items-center justify-center transition-all"
           )}
         >
-          Return to Hub
+          Return to News
         </Link>
       </div>
     );
@@ -124,7 +124,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
             "text-slate-500 font-black text-xs uppercase tracking-widest hover:text-[#003399] transition-colors p-0 hover:bg-transparent flex items-center gap-2"
           )}
         >
-          <ArrowLeft size={16} /> Back to Communication Hub
+          <ArrowLeft size={16} /> Back to News & Updates
         </Link>
         <div className="flex items-center gap-4">
           <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -137,7 +137,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
             <DialogContent className="sm:max-w-2xl rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
               <div className="p-10 border-b border-slate-50 bg-white">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-slate-900">Modify Broadcast</DialogTitle>
+                  <DialogTitle className="text-2xl font-black text-slate-900">Modify Announcement</DialogTitle>
                 </DialogHeader>
               </div>
               <div className="p-10 bg-white max-h-[70vh] overflow-y-auto custom-scrollbar">
@@ -172,7 +172,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
                     news.is_published ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
                   )}>
                     {news.is_published ? <Zap size={12} className="mr-1.5 inline" /> : <Clock size={12} className="mr-1.5 inline" />}
-                    {news.is_published ? 'Live Broadcast' : 'Draft Protocol'}
+                    {news.is_published ? 'Published' : 'Draft'}
                   </Badge>
                   <div className="flex gap-2">
                     {news.send_email && <div className="w-9 h-9 rounded-xl bg-blue-50 text-[#003399] flex items-center justify-center" title="Email Integrated"><Mail size={16} /></div>}
@@ -207,7 +207,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
           {/* Action Panel */}
           <Card className="rounded-[2.5rem] border-slate-100 shadow-2xl overflow-hidden bg-white">
              <CardHeader className="p-8 border-b border-slate-50">
-                <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400">Broadcast Control</CardTitle>
+                <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400">Publish Control</CardTitle>
              </CardHeader>
              <CardContent className="p-8 space-y-4">
                 {!news.is_published ? (
@@ -217,7 +217,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
                       className="w-full h-16 rounded-2xl bg-[#003399] hover:bg-blue-800 text-sm font-black uppercase tracking-widest gap-3 shadow-xl shadow-blue-900/10"
                     >
                       {isPublishing ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={20} />}
-                      Authorize Broadcast
+                      Publish Announcement
                     </Button>
                 ) : (
                     <Button 
@@ -231,7 +231,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
                     </Button>
                 )}
                 <p className="text-[10px] font-bold text-slate-400 text-center px-4 uppercase tracking-widest leading-relaxed">
-                   Authorized actions require multi-factor verification on the production cluster.
+                   Publishing will immediately notify platform users.
                 </p>
              </CardContent>
           </Card>
@@ -239,7 +239,7 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
           {/* Author info */}
           <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
             <CardHeader className="p-8 border-b border-slate-50 bg-slate-50/50">
-               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Governance & Traceability</h3>
+               <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Publisher Information</h3>
             </CardHeader>
             <CardContent className="p-8 space-y-6">
                <div className="flex items-center gap-4 p-4 rounded-3xl bg-slate-50 border border-slate-100">
@@ -248,22 +248,22 @@ export default function NewsDetailPage({ params: paramsPromise }: { params: Prom
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="text-sm font-black text-slate-900 truncate">{news.admin?.name || 'Unknown Officer'}</span>
-                    <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Registrar / Admin</span>
+                    <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest">Administrator</span>
                   </div>
                </div>
 
                <div className="space-y-4">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-slate-400 uppercase tracking-widest">ID Hash</span>
+                    <span className="font-bold text-slate-400 uppercase tracking-widest">Reference Code</span>
                     <code className="bg-slate-50 px-3 py-1 rounded-lg text-[10px] text-slate-500 font-black">{news.id.substring(0, 8).toUpperCase()}</code>
                   </div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-slate-400 uppercase tracking-widest">Initialized</span>
+                    <span className="font-bold text-slate-400 uppercase tracking-widest">Created On</span>
                     <span className="font-black text-slate-600 tabular-nums">{format(new Date(news.created_at), 'MMM dd, HH:mm')}</span>
                   </div>
                   {news.published_at && (
                     <div className="flex justify-between items-center text-xs">
-                      <span className="font-bold text-slate-400 uppercase tracking-widest">Broadcasting Since</span>
+                      <span className="font-bold text-slate-400 uppercase tracking-widest">Published Since</span>
                       <span className="font-black text-slate-600 tabular-nums">{format(new Date(news.published_at), 'MMM dd, HH:mm')}</span>
                     </div>
                   )}

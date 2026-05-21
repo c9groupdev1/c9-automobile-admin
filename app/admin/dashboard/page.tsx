@@ -50,7 +50,7 @@ import {
 import { useListingTypes } from '@/hooks/useListings';
 
 export default function DashboardPage() {
-    // Dynamic Protocol Definitions
+    // Dynamic Category Definitions
     const { data: listingTypes, isLoading: isLoadingTypes } = useListingTypes();
 
     // Section 1: Stats Filters
@@ -158,14 +158,14 @@ export default function DashboardPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-slate-900">Admin Dashboard</h2>
-                    <p className="text-slate-500 font-medium">Real-time ecosystem intelligence and administrative controls.</p>
+                    <p className="text-slate-500 font-medium">Real-time platform metrics and administrative controls.</p>
                 </div>
                 {/* <div className="flex items-center gap-3">
                     <Button variant="outline" className="border-slate-200 rounded-xl px-6 font-bold text-slate-600">
                         Export Analytics
                     </Button>
                     <Button className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 font-bold shadow-lg shadow-blue-900/10 transition-all">
-                        Refresh Node
+                        Refresh Dashboard
                     </Button>
                 </div> */}
             </div>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                         <StatsCard
                             title="Total Users"
                             value={stats?.totalUsers?.current ?? '...'}
-                            description="Registered protocol participants"
+                            description="Registered platform users"
                             icon={Users}
                             trend={stats?.totalUsers ? formatTrend(stats.totalUsers.change) : undefined}
                             iconBg="bg-blue-50"
@@ -250,11 +250,11 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* Section: Fiscal Intelligence */}
+                {/* Section: Revenue Overview */}
                 {(stats?.totalRevenue || stats?.monthlyRevenue || stats?.subscriptions || stats?.promotions) && (
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 px-1 pt-4">
-                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Fiscal Intelligence</h3>
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Revenue Overview</h3>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
                             {(stats?.totalRevenue || stats?.monthlyRevenue) && (
@@ -298,7 +298,7 @@ export default function DashboardPage() {
                 {(stats?.support || stats?.promotions || stats?.subscriptions) && (
                     <div className="space-y-6">
                         <div className="flex items-center gap-2 px-1 pt-4">
-                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Operational & Support Intelligence</h3>
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Operational & Support Overview</h3>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-3">
                             {stats?.support && (
@@ -372,7 +372,7 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* Section: Intelligence Hub */}
+            {/* Section: Updates & Queue */}
             {(filteredActivity.length > 0 || 
               (queueKycs?.length ?? 0) > 0 || 
               activityListings?.some(l => l.status === 'pending') ||
@@ -559,9 +559,9 @@ export default function DashboardPage() {
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50/50">
                                     <tr>
-                                        <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vehicle / Asset</th>
+                                        <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vehicle / Listing</th>
                                         <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Merchant / Owner</th>
-                                        <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Protocol Status</th>
+                                        <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Listing Status</th>
                                         <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Administrative</th>
                                     </tr>
                                 </thead>

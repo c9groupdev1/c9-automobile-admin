@@ -71,7 +71,7 @@ import {
 const promotionSchema = z.object({
     type: z.string().min(1, "Service designation is required"),
     duration_days: z.coerce.number().min(1, "Duration must be at least 1 day"),
-    price: z.string().min(1, "Fiscal value is required"),
+    price: z.string().min(1, "Price is required"),
     priority_weight: z.coerce.number().min(1, "Priority weight must be at least 1"),
     is_available: z.boolean().default(true),
 });
@@ -158,7 +158,7 @@ export default function PromotionsPage() {
                 <div>
                     <div className="flex items-center gap-2 mb-3">
                         <Zap className="text-amber-500 w-5 h-5" />
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Marketing Intelligence</h3>
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Marketing & Promotions</h3>
                     </div>
                     <h2 className="text-4xl font-black tracking-tight text-slate-900">Promotional Packages</h2>
                     <p className="text-slate-500 font-medium mt-2 max-w-2xl">
@@ -215,11 +215,11 @@ export default function PromotionsPage() {
                     <Table>
                         <TableHeader className="bg-slate-50/80">
                             <TableRow className="border-none hover:bg-transparent">
-                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Promotion Identity</TableHead>
+                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Promotion Package</TableHead>
                                 <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Priority Weight</TableHead>
-                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Duration Range</TableHead>
-                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Fiscal Value</TableHead>
-                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Integrity Status</TableHead>
+                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Duration</TableHead>
+                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Price</TableHead>
+                                <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-[#0066CC]">Status</TableHead>
                                 <TableHead className="py-7 px-8 text-right text-[11px] font-black uppercase tracking-widest text-[#0066CC]"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -233,7 +233,7 @@ export default function PromotionsPage() {
                                             </div>
                                             <div>
                                                 <div className="font-black text-slate-900 text-sm uppercase tracking-tight">{(promo.type || 'Boost').replace('_', ' ')}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Artifact ID: #{promo.id}</div>
+                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Promotion ID: #{promo.id}</div>
                                             </div>
                                         </div>
                                     </TableCell>
@@ -299,7 +299,7 @@ export default function PromotionsPage() {
             <div className="flex items-center justify-between px-10 py-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                 <div className="flex items-center gap-3">
                     <ShieldCheck size={18} className="text-emerald-500" />
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Global Marketing Registry • Synchronization Success</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Global Marketing Registry • Synchronized Successfully</span>
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
                     <Calendar size={14} />
