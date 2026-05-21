@@ -325,12 +325,7 @@ export default function PaymentsPage() {
             doc.setTextColor(71, 85, 105); // Slate 600
             doc.text(payment.user?.email || 'N/A', 20, 66);
 
-            if (payment.user?.displayId || payment.user?.id) {
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(8);
-                doc.setTextColor(100, 116, 139);
-                doc.text(`Account ID: ${payment.user.displayId || payment.user.id.substring(0, 8).toUpperCase()}`, 20, 72);
-            }
+
 
             // Right - Receipt Info
             doc.setFont('helvetica', 'bold');
