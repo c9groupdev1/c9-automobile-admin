@@ -75,7 +75,7 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
             <div className="flex h-[80vh] items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003399]"></div>
-                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Retrieving identity artifacts...</span>
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Retrieving identity documents...</span>
                 </div>
             </div>
         );
@@ -190,21 +190,21 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                                     <p className="text-sm font-bold text-slate-900">{kyc.user.memberSince}</p>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Protocol ID</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Account ID</p>
                                     <p className="text-[11px] font-mono font-bold text-slate-500 uppercase">#{kyc.user.id.split('-')[0]}</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Verification Artifacts */}
+                    {/* Verification Documents */}
                     <Card className="rounded-[2rem] border-slate-100 shadow-sm overflow-hidden bg-white">
                         <CardHeader className="p-8 pb-6 border-b border-slate-50">
                             <CardTitle className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
                                 <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
                                     <ShieldCheck size={16} />
                                 </div>
-                                Identity Verification Artifacts
+                                Identity Verification Documents
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-8 space-y-10">
@@ -265,7 +265,7 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                     <Camera size={24} />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Portrait Artifact</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">No Selfie Photo</span>
                                                 </div>
                                             )}
                                         </div>
@@ -303,7 +303,7 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                                             ) : (
                                                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-slate-400">
                                                     <FileText size={24} />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">No ID Artifact</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">No ID Document</span>
                                                 </div>
                                             )}
                                         </div>

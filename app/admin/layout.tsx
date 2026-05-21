@@ -58,7 +58,7 @@ export default function DashboardLayout({
                     <div className="absolute inset-0 bg-[#0066CC]/20 rounded-[2rem] blur-2xl animate-ping scale-75"></div>
                 </div>
                 <div className="mt-8 flex flex-col items-center space-y-2">
-                    <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Initializing Protocol</p>
+                    <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-400">Loading System</p>
                     <div className="flex gap-1">
                         <div className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
                         <div className="w-1.5 h-1.5 bg-[#0066CC] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>

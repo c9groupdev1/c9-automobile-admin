@@ -154,7 +154,7 @@ export default function PlansPage() {
                 <div>
                     <div className="flex items-center gap-2 mb-3">
                         <Crown className="text-[#CC9933] w-5 h-5" />
-                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Membership Protocol</h3>
+                        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Membership Tiers</h3>
                     </div>
                     <h2 className="text-4xl font-black tracking-tight text-slate-900">Subscription Plans</h2>
                     <p className="text-slate-500 font-medium mt-2 max-w-2xl">
@@ -198,7 +198,7 @@ export default function PlansPage() {
                                             className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 cursor-pointer"
                                         >
                                             <Edit3 size={14} className="mr-2 text-blue-600" />
-                                            Modify Protocol
+                                            Modify Plan
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
@@ -220,7 +220,7 @@ export default function PlansPage() {
                                         </div>
                                         <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Listing Capacity</span>
                                     </div>
-                                    <span className="text-sm font-black text-slate-900">{plan.listing_limit} Assets</span>
+                                    <span className="text-sm font-black text-slate-900">{plan.listing_limit} Listings</span>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">

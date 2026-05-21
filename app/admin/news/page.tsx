@@ -116,7 +116,7 @@ export default function NewsPage() {
           </div>
           <h2 className="text-4xl font-black tracking-tight text-slate-900">News & Updates</h2>
           <p className="text-slate-500 font-medium mt-2 max-w-2xl">
-            Broadcast platform updates, promotional events, and essential announcements to the C9x community.
+            Publish platform updates, promotional events, and essential announcements to the C9x community.
           </p>
         </div>
 
@@ -186,10 +186,10 @@ export default function NewsPage() {
             <Table>
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="border-none hover:bg-transparent">
-                  <TableHead className="py-7 px-10 text-[11px] font-black uppercase tracking-widest text-slate-400 w-[40%]">Broadcasting Content</TableHead>
-                  <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Governance</TableHead>
+                  <TableHead className="py-7 px-10 text-[11px] font-black uppercase tracking-widest text-slate-400 w-[40%]">Announcement Title</TableHead>
+                  <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Author</TableHead>
                   <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Channels</TableHead>
-                  <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Integrity</TableHead>
+                  <TableHead className="py-7 px-8 text-[11px] font-black uppercase tracking-widest text-slate-400">Status</TableHead>
                   <TableHead className="py-7 px-10 text-[11px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -254,7 +254,7 @@ export default function NewsPage() {
                           "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border-0",
                           item.is_published ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
                         )}>
-                          {item.is_published ? 'Live Broadcast' : 'Draft Protocol'}
+                          {item.is_published ? 'Published' : 'Draft'}
                         </Badge>
                       </TableCell>
                       <TableCell className="py-6 px-10 text-right">
@@ -282,7 +282,7 @@ export default function NewsPage() {
                                   onClick={() => handleDelete(item.id)}
                                   className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 cursor-pointer text-rose-600 hover:bg-rose-50"
                                 >
-                                  Terminate Record
+                                  Delete Announcement
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                            </DropdownMenu>
@@ -297,7 +297,7 @@ export default function NewsPage() {
           
           <div className="p-8 border-t border-slate-50 flex items-center justify-between">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              Showing <span className="text-slate-900">{newsItems.length}</span> updates recorded globally
+              Showing <span className="text-slate-900">{newsItems.length}</span> announcements
             </p>
             <div className="flex gap-2">
               <Button 
@@ -314,7 +314,7 @@ export default function NewsPage() {
                 onClick={() => setPage(page + 1)}
                 className="h-11 rounded-xl border-slate-100 font-bold text-xs"
               >
-                Next Sequence
+                Next
               </Button>
             </div>
           </div>

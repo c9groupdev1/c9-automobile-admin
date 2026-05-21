@@ -249,7 +249,7 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
                                 </div>
                                 <div className="flex flex-col min-w-0">
                                     <span className="text-base font-black text-slate-900 truncate">{enquiry.name || 'Guest User'}</span>
-                                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{enquiry.user ? 'Protocol Member' : 'Public Guest'}</span>
+                                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{enquiry.user ? 'Registered User' : 'Public Guest'}</span>
                                 </div>
                             </div>
 
@@ -264,7 +264,7 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
 
                                 {enquiry.user && (
                                     <div className="pt-6 border-t border-slate-50 space-y-4">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400">Associated Protocol Account</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-blue-400">Associated Account</label>
                                         <Link 
                                             href={`/admin/users/${enquiry.user.id}`}
                                             className={cn(

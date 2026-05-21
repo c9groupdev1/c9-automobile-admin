@@ -86,7 +86,7 @@ export default function ListingDetailPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003399]"></div>
-                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest text-[#003399]">Synchronizing Listing Intelligence...</p>
+                <p className="text-slate-500 font-bold text-xs uppercase tracking-widest text-[#003399]">Loading Vehicle Details...</p>
             </div>
         );
     }
@@ -244,7 +244,7 @@ export default function ListingDetailPage() {
                                     </div>
                                 </div>
                                 <div className="bg-slate-50 p-4 text-center border-t border-slate-100">
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Digital Registry Protocol • C9X Admin v4.2</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Listing Registry Details • C9X Admin v4.2</p>
                                 </div>
                             </DialogContent>
                         </Dialog>
@@ -255,7 +255,7 @@ export default function ListingDetailPage() {
 
             <div className="space-y-8">
 
-                {/* Section 1: Interior & Exterior Digital Artifacts */}
+                {/* Section 1: Interior & Exterior Photos */}
                 <Card className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white">
                     <CardHeader className="px-10 pt-10 pb-6 border-b border-slate-50">
                         <CardTitle className="text-xl font-black text-slate-900 uppercase tracking-tight">Digital Media Review</CardTitle>
@@ -608,7 +608,7 @@ export default function ListingDetailPage() {
                             </div>
                         </div>
                         <div className="bg-[#003399] p-4 text-center">
-                            <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest">Digital Registry Protocol • Authentication Success</p>
+                            <p className="text-[9px] font-bold text-white/60 uppercase tracking-widest">Listing Registry Details • Authentication Success</p>
                         </div>
                     </DialogContent>
                 </Dialog>

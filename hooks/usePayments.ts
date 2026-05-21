@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 
 export interface PaymentHistory {
@@ -15,10 +15,12 @@ export interface PaymentHistory {
     gateway: string;
     date: string;
     description: string;
+    paidAt?: string | null;
     user?: {
         id: string;
         name: string;
         email: string;
+        displayId?: string;
     };
 }
 
@@ -42,11 +44,29 @@ export interface ActivePromotion {
     };
 }
 
-export function usePaymentHistory(page: number = 1) {
+export interface PaymentHistoryFilters {
+    search?: string;
+    status?: string;
+    expireFromDate?: string;
+    expireToDate?: string;
+    expiringInDays?: number | '';
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+}
+
+export function usePaymentHistory(page: number = 1, filters: PaymentHistoryFilters = {}) {
     return useQuery({
-        queryKey: ['payments-history', page],
+        queryKey: ['payments-history', page, filters],
         queryFn: async () => {
-            const response = await api.get('/admin/payments/history', { params: { page } });
+            const params: Record<string, any> = { page };
+            if (filters.search) params.search = filters.search;
+            if (filters.status) params.status = filters.status;
+            if (filters.expireFromDate) params.expireFromDate = filters.expireFromDate;
+            if (filters.expireToDate) params.expireToDate = filters.expireToDate;
+            if (filters.expiringInDays !== '' && filters.expiringInDays !== undefined) params.expiringInDays = filters.expiringInDays;
+            if (filters.sortBy) params.sortBy = filters.sortBy;
+            if (filters.sortOrder) params.sortOrder = filters.sortOrder;
+            const response = await api.get('/admin/payments/history', { params });
             return response.data;
         },
     });
@@ -71,5 +91,30 @@ export function usePaymentDetail(id: number | null) {
             return response.data;
         },
         enabled: !!id,
+    });
+}
+
+export function useDownloadReceipt() {
+    return useMutation({
+        mutationFn: async (id: number) => {
+            const response = await api.get(`/admin/payments/${id}/receipt`, {
+                responseType: 'blob',
+            });
+            return response.data;
+        },
+    });
+}
+
+export function useRequeryPayment() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async (id: number) => {
+            const response = await api.post(`/admin/payments/${id}/requery`);
+            return response.data;
+        },
+        onSuccess: (data, id) => {
+            queryClient.invalidateQueries({ queryKey: ['payments-history'] });
+            queryClient.invalidateQueries({ queryKey: ['payment-detail', id] });
+        },
     });
 }

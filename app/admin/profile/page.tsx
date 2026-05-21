@@ -13,7 +13,7 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight text-slate-900">Account Settings</h2>
-                    <p className="text-slate-500 font-medium">Manage your personal record and security protocols.</p>
+                    <p className="text-slate-500 font-medium">Manage your personal information and security settings.</p>
                 </div>
             </div>
 
