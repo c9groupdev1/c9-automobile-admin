@@ -152,13 +152,13 @@ export function useUpdateVendorProfile() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user-profile'] });
-            toast.success('Vendor Info Updated', {
-                description: 'Your business credentials have been successfully updated.'
+            toast.success('Professional Info Updated', {
+                description: 'Your professional credentials have been successfully updated.'
             });
         },
         onError: (error: any) => {
             toast.error('Update Failed', {
-                description: error.response?.data?.message || 'Verification logic rejected the business details.'
+                description: error.response?.data?.message || 'Verification logic rejected the profile details.'
             });
         }
     });

@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User, Mail, Phone, MapPin, Save, Building2, ShieldCheck, ShieldAlert, FileText } from 'lucide-react';
+import { Loader2, User, Mail, Phone, MapPin, Save, Building2, ShieldCheck, ShieldAlert, FileText, Facebook, Instagram, Twitter, Clock, Briefcase, Globe } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -14,9 +15,9 @@ export function ProfileSettings() {
     const { data: profile, isLoading } = useUserProfile();
     const updateProfile = useUpdateProfile();
     const updateVendor = useUpdateVendorProfile();
-    
+
     const isVerified = profile?.roles?.some(role => role.toLowerCase() === 'verified_user');
-    
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -25,9 +26,13 @@ export function ProfileSettings() {
     });
 
     const [vendorData, setVendorData] = useState({
-        businessName: '',
-        businessAddress: '',
-        rcNumber: ''
+        years_in_business: '',
+        business_description: '',
+        opening_hours: '',
+        facebook_url: '',
+        instagram_url: '',
+        x_url: '',
+        tiktok_url: ''
     });
 
     useEffect(() => {
@@ -39,11 +44,15 @@ export function ProfileSettings() {
                 address: profile.kyc?.address || ''
             });
 
-            if (profile.kyc) {
+            if (profile.vendorProfile) {
                 setVendorData({
-                    businessName: profile.kyc.businessName || '',
-                    businessAddress: profile.kyc.businessAddress || '',
-                    rcNumber: profile.kyc.rcNumber || ''
+                    years_in_business: profile.vendorProfile.years_in_business ?? profile.vendorProfile.yearsInBusiness ?? '',
+                    business_description: profile.vendorProfile.business_description ?? profile.vendorProfile.businessDescription ?? '',
+                    opening_hours: profile.vendorProfile.opening_hours ?? profile.vendorProfile.openingHours ?? '',
+                    facebook_url: profile.vendorProfile.facebook_url ?? profile.vendorProfile.facebookUrl ?? '',
+                    instagram_url: profile.vendorProfile.instagram_url ?? profile.vendorProfile.instagramUrl ?? '',
+                    x_url: profile.vendorProfile.x_url ?? profile.vendorProfile.xUrl ?? '',
+                    tiktok_url: profile.vendorProfile.tiktok_url ?? profile.vendorProfile.tiktokUrl ?? ''
                 });
             }
         }
@@ -58,11 +67,17 @@ export function ProfileSettings() {
         e.preventDefault();
         if (!isVerified) {
             toast.error('Action Restricted', {
-                description: 'You must be a verified user to update business credentials.'
+                description: 'You must be a verified user to update professional details.'
             });
             return;
         }
-        await updateVendor.mutateAsync(vendorData);
+
+        const payload = {
+            ...vendorData,
+            years_in_business: vendorData.years_in_business ? parseInt(String(vendorData.years_in_business), 10) : null
+        };
+
+        await updateVendor.mutateAsync(payload);
     };
 
     if (isLoading) {
@@ -73,7 +88,9 @@ export function ProfileSettings() {
         );
     }
 
-    const isVendor = profile?.kyc?.type !== 'individual' && profile?.kyc?.type !== null;
+    const isVendor = isVerified || 
+                     profile?.roles?.some(role => ['vendor', 'dealer'].includes(role.toLowerCase())) ||
+                     (profile?.kyc?.type !== 'individual' && profile?.kyc?.type !== null);
 
     return (
         <div className="space-y-10">
@@ -174,8 +191,8 @@ export function ProfileSettings() {
                             </div>
                         </div>
                         <div className="md:col-span-2 flex justify-end pt-4">
-                            <Button 
-                                type="submit" 
+                            <Button
+                                type="submit"
                                 disabled={updateProfile.isPending}
                                 className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
                             >
@@ -196,16 +213,16 @@ export function ProfileSettings() {
                 </CardContent>
             </Card>
 
-            {/* Vendor / Business Info Card (Conditional) */}
+            {/* Professional / Account Info Card (Conditional) */}
             {isVendor && (
                 <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
                     <CardHeader className="p-8 pb-4">
                         <div className="flex items-center gap-3 mb-2">
                             <Building2 className="text-[#003399] h-5 w-5" />
-                            <CardTitle className="text-xl font-bold text-slate-900">Business Credentials</CardTitle>
+                            <CardTitle className="text-xl font-bold text-slate-900">Professional Credentials</CardTitle>
                         </div>
                         <CardDescription className="text-slate-500 font-medium pl-8">
-                            Management of organizational parameters and verified business entities.
+                            Management of organizational parameters and verified partner entities.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="p-8">
@@ -218,67 +235,133 @@ export function ProfileSettings() {
                                     <div className="space-y-1">
                                         <h4 className="text-sm font-bold text-amber-900 tracking-tight">Verification Required</h4>
                                         <p className="text-xs text-amber-700 font-medium leading-relaxed">
-                                            Your vendor account is not yet fully verified. Business profile updates are restricted until your account is upgraded to verified_user.
+                                            Your partner account is not yet fully verified. Professional profile updates are restricted until your account is upgraded to verified_user.
                                         </p>
                                     </div>
                                 </div>
                             )}
 
                             <div className="space-y-2">
-                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Registered Business Name</Label>
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Years of Experience</Label>
                                 <div className="relative">
-                                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input
-                                        value={vendorData.businessName}
-                                        onChange={(e) => setVendorData({ ...vendorData, businessName: e.target.value })}
+                                        type="number"
+                                        value={vendorData.years_in_business}
+                                        onChange={(e) => setVendorData({ ...vendorData, years_in_business: e.target.value })}
                                         disabled={!isVerified}
                                         className={cn(
                                             "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
                                             !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
                                         )}
-                                        placeholder="Enter business name"
+                                        placeholder="e.g. 5"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">RC Number / Registration</Label>
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Opening Hours</Label>
                                 <div className="relative">
-                                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input
-                                        value={vendorData.rcNumber}
-                                        onChange={(e) => setVendorData({ ...vendorData, rcNumber: e.target.value })}
+                                        value={vendorData.opening_hours}
+                                        onChange={(e) => setVendorData({ ...vendorData, opening_hours: e.target.value })}
                                         disabled={!isVerified}
                                         className={cn(
                                             "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
                                             !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
                                         )}
-                                        placeholder="e.g. RC1234567"
+                                        placeholder="e.g. Mon-Fri: 9am-5pm"
                                     />
                                 </div>
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Official Business Address</Label>
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Professional Overview</Label>
+                                <Textarea
+                                    value={vendorData.business_description}
+                                    onChange={(e) => setVendorData({ ...vendorData, business_description: e.target.value })}
+                                    disabled={!isVerified}
+                                    className={cn(
+                                        "h-32 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                        !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                    )}
+                                    placeholder="Provide a detailed description of your professional profile, services, and specialization..."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Facebook URL</Label>
                                 <div className="relative">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Facebook className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input
-                                        value={vendorData.businessAddress}
-                                        onChange={(e) => setVendorData({ ...vendorData, businessAddress: e.target.value })}
+                                        type="url"
+                                        value={vendorData.facebook_url}
+                                        onChange={(e) => setVendorData({ ...vendorData, facebook_url: e.target.value })}
                                         disabled={!isVerified}
                                         className={cn(
                                             "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
                                             !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
                                         )}
-                                        placeholder="Full business address"
+                                        placeholder="https://facebook.com/your-brand"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Instagram URL</Label>
+                                <div className="relative">
+                                    <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        type="url"
+                                        value={vendorData.instagram_url}
+                                        onChange={(e) => setVendorData({ ...vendorData, instagram_url: e.target.value })}
+                                        disabled={!isVerified}
+                                        className={cn(
+                                            "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                            !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                        )}
+                                        placeholder="https://instagram.com/your-brand"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">X (Twitter) URL</Label>
+                                <div className="relative">
+                                    <Twitter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        type="url"
+                                        value={vendorData.x_url}
+                                        onChange={(e) => setVendorData({ ...vendorData, x_url: e.target.value })}
+                                        disabled={!isVerified}
+                                        className={cn(
+                                            "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                            !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                        )}
+                                        placeholder="https://x.com/your-brand"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">TikTok URL</Label>
+                                <div className="relative">
+                                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        type="url"
+                                        value={vendorData.tiktok_url}
+                                        onChange={(e) => setVendorData({ ...vendorData, tiktok_url: e.target.value })}
+                                        disabled={!isVerified}
+                                        className={cn(
+                                            "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                            !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                        )}
+                                        placeholder="https://tiktok.com/@your-brand"
                                     />
                                 </div>
                             </div>
                             <div className="md:col-span-2 flex justify-end pt-4">
-                                <Button 
-                                    type="submit" 
+                                <Button
+                                    type="submit"
                                     disabled={updateVendor.isPending || !isVerified}
                                     className="bg-slate-900 hover:bg-slate-800 rounded-xl px-8 font-bold shadow-lg shadow-slate-900/10 h-11 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {updateVendor.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update Business Profile"}
+                                    {updateVendor.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update Professional Profile"}
                                 </Button>
                             </div>
                         </form>
