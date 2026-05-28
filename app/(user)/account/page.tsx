@@ -23,7 +23,7 @@ import {
     Globe
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { useUserProfile, useUpdateVendorProfile } from '@/hooks/useUserProfile';
+import { useUserProfile, useUpdateVendorProfile, useUpdateProfile } from '@/hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,6 +38,7 @@ export default function AccountPage() {
     const isVerified = user?.roles?.some(role => role.toLowerCase() === 'verified_user');
 
     const { data: profile, isLoading } = useUserProfile();
+    const updateProfile = useUpdateProfile();
     const updateRegisteredProfile = useUpdateVendorProfile();
 
     const [activeTab, setActiveTab] = useState('profile');
@@ -74,23 +75,32 @@ export default function AccountPage() {
             setRegisteredData(prev => ({
                 ...prev,
                 name: profile.name || '',
-                contact_number: (profile as any).kyc?.phoneNumber || '',
-                address: (profile as any).kyc?.address || '',
+                contact_number: (profile as any).kyc?.phoneNumber || (profile as any).phoneNumber || (profile as any).phone_number || '',
+                address: (profile as any).kyc?.address || (profile as any).address || '',
                 ...((profile as any).vendorProfile ? {
                     years_in_business: (profile as any).vendorProfile.years_in_business ?? (profile as any).vendorProfile.yearsInBusiness ?? '',
                     business_description: (profile as any).vendorProfile.business_description ?? (profile as any).vendorProfile.businessDescription ?? '',
                     opening_hours: (profile as any).vendorProfile.opening_hours ?? (profile as any).vendorProfile.openingHours ?? '',
-                    facebook_url: (profile as any).vendorProfile.facebook_url ?? (profile as any).vendorProfile.facebookUrl ?? '',
-                    instagram_url: (profile as any).vendorProfile.instagram_url ?? (profile as any).vendorProfile.instagramUrl ?? '',
-                    x_url: (profile as any).vendorProfile.x_url ?? (profile as any).vendorProfile.xUrl ?? '',
-                    tiktok_url: (profile as any).vendorProfile.tiktok_url ?? (profile as any).vendorProfile.tiktokUrl ?? ''
+                    facebook_url: (profile as any).vendorProfile.facebook_url ?? 
+                                  (profile as any).vendorProfile.facebook ?? 
+                                  (profile as any).vendorProfile.socialMedia?.facebook ?? '',
+                    instagram_url: (profile as any).vendorProfile.instagram_url ?? 
+                                   (profile as any).vendorProfile.instagram ?? 
+                                   (profile as any).vendorProfile.socialMedia?.instagram ?? '',
+                    x_url: (profile as any).vendorProfile.x_url ?? 
+                           (profile as any).vendorProfile.x ?? 
+                           (profile as any).vendorProfile.socialMedia?.x ?? 
+                           (profile as any).vendorProfile.socialMedia?.twitter ?? '',
+                    tiktok_url: (profile as any).vendorProfile.tiktok_url ?? 
+                                (profile as any).vendorProfile.tiktok ?? 
+                                (profile as any).vendorProfile.socialMedia?.tiktok ?? ''
                 } : {})
             }));
 
-            const isUserVendor = 
+            const isUserVendor =
                 ((profile as any)?.kyc?.type !== 'individual' && (profile as any)?.kyc?.type !== null) ||
                 profile?.roles?.some(role => role.toLowerCase() === 'verified_user');
-            
+
             if (!isUserVendor) {
                 setActiveTab('security');
             }
@@ -99,16 +109,33 @@ export default function AccountPage() {
 
     const handleRegisteredSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = {
-            ...registeredData,
+        
+        const basePayload = {
+            name: registeredData.name || profile?.name,
+            phoneNumber: registeredData.contact_number,
+            phone_number: registeredData.contact_number,
+            address: registeredData.address
+        };
+
+        const vendorPayload = {
             years_in_business: registeredData.years_in_business
                 ? parseInt(String(registeredData.years_in_business), 10)
-                : ""
+                : "",
+            business_description: registeredData.business_description,
+            opening_hours: registeredData.opening_hours,
+            facebook_url: registeredData.facebook_url,
+            instagram_url: registeredData.instagram_url,
+            x_url: registeredData.x_url,
+            tiktok_url: registeredData.tiktok_url
         };
-        await updateRegisteredProfile.mutateAsync(payload);
+
+        await Promise.all([
+            updateProfile.mutateAsync(basePayload),
+            updateRegisteredProfile.mutateAsync(vendorPayload)
+        ]);
     };
 
-    const isVendor = 
+    const isVendor =
         ((profile as any)?.kyc?.type !== 'individual' && (profile as any)?.kyc?.type !== null) ||
         profile?.roles?.some(role => role.toLowerCase() === 'verified_user');
 
@@ -146,224 +173,224 @@ export default function AccountPage() {
 
                 {isVendor && (
                     <TabsContent value="profile" className="focus-visible:outline-none">
-                    {isLoading ? (
-                        <div className="flex items-center justify-center p-20">
-                            <Loader2 className="h-8 w-8 animate-spin text-[#003399]" />
-                        </div>
-                    ) : (
-                        <div className="space-y-10">
-                            <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
-                                <CardHeader className="p-8 pb-4">
-                                    <div className="flex items-center gap-6">
-                                        <div className="relative">
-                                            <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm">
-                                                <AvatarImage src={(profile as any)?.kyc?.selfiePicture || ''} />
-                                                <AvatarFallback className="bg-[#003399] text-white text-2xl font-bold uppercase">
-                                                    {profile?.name?.[0]}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="absolute -bottom-2 -right-2 bg-white p-1 rounded-lg shadow-sm border border-slate-100">
-                                                {(profile as any)?.kycStatus === 'verified' ? (
-                                                    <ShieldCheck className="text-emerald-500 h-5 w-5" />
-                                                ) : (
-                                                    <ShieldAlert className="text-amber-500 h-5 w-5" />
-                                                )}
+                        {isLoading ? (
+                            <div className="flex items-center justify-center p-20">
+                                <Loader2 className="h-8 w-8 animate-spin text-[#003399]" />
+                            </div>
+                        ) : (
+                            <div className="space-y-10">
+                                <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
+                                    <CardHeader className="p-8 pb-4">
+                                        <div className="flex items-center gap-6">
+                                            <div className="relative">
+                                                <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm">
+                                                    <AvatarImage src={(profile as any)?.kyc?.selfiePicture || ''} />
+                                                    <AvatarFallback className="bg-[#003399] text-white text-2xl font-bold uppercase">
+                                                        {profile?.name?.[0]}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute -bottom-2 -right-2 bg-white p-1 rounded-lg shadow-sm border border-slate-100">
+                                                    {(profile as any)?.kycStatus === 'verified' ? (
+                                                        <ShieldCheck className="text-emerald-500 h-5 w-5" />
+                                                    ) : (
+                                                        <ShieldAlert className="text-amber-500 h-5 w-5" />
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-black text-slate-900">{profile?.name}</h3>
-                                            <div className="flex flex-wrap items-center gap-2 mt-2">
-                                                <Badge className="bg-blue-50 text-[#003399] border-0 text-[10px] font-black uppercase tracking-widest px-2">
-                                                    {getFriendlyRoleName(profile?.roles?.[0])}
-                                                </Badge>
-                                                <Badge className={cn(
-                                                    "border-0 text-[10px] font-black uppercase tracking-widest px-2",
-                                                    (profile as any)?.kycStatus === 'verified' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                                                )}>
-                                                    KYC {(profile as any)?.kycStatus}
-                                                </Badge>
-                                                {(profile as any)?.kyc?.type && (
-                                                    <Badge className="bg-slate-100 text-slate-600 border-0 text-[10px] font-black uppercase tracking-widest px-2">
-                                                        Type: {getFriendlyKycType((profile as any).kyc.type)}
+                                            <div>
+                                                <h3 className="text-2xl font-black text-slate-900">{profile?.name}</h3>
+                                                <div className="flex flex-wrap items-center gap-2 mt-2">
+                                                    <Badge className="bg-blue-50 text-[#003399] border-0 text-[10px] font-black uppercase tracking-widest px-2">
+                                                        {getFriendlyRoleName(profile?.roles?.[0])}
                                                     </Badge>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-
-                                <CardContent className="p-8 pt-2">
-                                    <form onSubmit={handleRegisteredSubmit} className="grid gap-6 md:grid-cols-2">
-
-                                        {/* Name */}
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Full Name</Label>
-                                            <div className="relative">
-                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                <Input
-                                                    value={registeredData.name}
-                                                    disabled
-                                                    className="pl-11 h-12 rounded-xl bg-slate-100 border-transparent font-semibold cursor-not-allowed text-slate-500"
-                                                    placeholder="Enter your full name"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Email (read-only) */}
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Email Identifier</Label>
-                                            <div className="relative">
-                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                <Input
-                                                    type="email"
-                                                    value={profile?.email || ''}
-                                                    disabled
-                                                    className="pl-11 h-12 rounded-xl bg-slate-100 border-transparent font-semibold cursor-not-allowed text-slate-500"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Contact Number */}
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Contact Number</Label>
-                                            <div className="relative">
-                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                <Input
-                                                    value={registeredData.contact_number}
-                                                    onChange={(e) => setRegisteredData({ ...registeredData, contact_number: e.target.value })}
-                                                    className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                    placeholder="+234 ..."
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Address */}
-                                        <div className="space-y-2">
-                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Address</Label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                <Input
-                                                    value={registeredData.address}
-                                                    onChange={(e) => setRegisteredData({ ...registeredData, address: e.target.value })}
-                                                    className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                    placeholder="City, State, Country"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Registered-only fields */}
-                                        {isVendor && (
-                                            <>
-                                                <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-2">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <Building2 className="text-[#003399] h-4 w-4" />
-                                                        <span className="text-sm font-bold text-slate-700">Registered Details</span>
-                                                    </div>
+                                                    <Badge className={cn(
+                                                        "border-0 text-[10px] font-black uppercase tracking-widest px-2",
+                                                        (profile as any)?.kycStatus === 'verified' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                                                    )}>
+                                                        KYC {(profile as any)?.kycStatus}
+                                                    </Badge>
+                                                    {(profile as any)?.kyc?.type && (
+                                                        <Badge className="bg-slate-100 text-slate-600 border-0 text-[10px] font-black uppercase tracking-widest px-2">
+                                                            Type: {getFriendlyKycType((profile as any).kyc.type)}
+                                                        </Badge>
+                                                    )}
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
 
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Years of Experience</Label>
-                                                    <div className="relative">
-                                                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                        <Input
-                                                            type="number"
-                                                            value={registeredData.years_in_business}
-                                                            onChange={(e) => setRegisteredData({ ...registeredData, years_in_business: e.target.value })}
-                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                            placeholder="e.g. 5"
-                                                        />
-                                                    </div>
-                                                </div>
+                                    <CardContent className="p-8 pt-2">
+                                        <form onSubmit={handleRegisteredSubmit} className="grid gap-6 md:grid-cols-2">
 
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Opening Hours</Label>
-                                                    <div className="relative">
-                                                        <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                        <Input
-                                                            value={registeredData.opening_hours}
-                                                            onChange={(e) => setRegisteredData({ ...registeredData, opening_hours: e.target.value })}
-                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                            placeholder="e.g. Mon-Fri: 9am-5pm"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="md:col-span-2 space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Registered Overview</Label>
-                                                    <Textarea
-                                                        value={registeredData.business_description}
-                                                        onChange={(e) => setRegisteredData({ ...registeredData, business_description: e.target.value })}
-                                                        className="h-32 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                        placeholder="Describe your services and specialization..."
+                                            {/* Name */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Full Name</Label>
+                                                <div className="relative">
+                                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        value={registeredData.name}
+                                                        disabled
+                                                        className="pl-11 h-12 rounded-xl bg-slate-100 border-transparent font-semibold cursor-not-allowed text-slate-500"
+                                                        placeholder="Enter your full name"
                                                     />
                                                 </div>
+                                            </div>
 
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Facebook URL</Label>
-                                                    <div className="relative">
-                                                        <Facebook className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                        <Input type="url" value={registeredData.facebook_url}
-                                                            onChange={(e) => setRegisteredData({ ...registeredData, facebook_url: e.target.value })}
-                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                            placeholder="https://facebook.com/your-brand" />
-                                                    </div>
+                                            {/* Email (read-only) */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Email Identifier</Label>
+                                                <div className="relative">
+                                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        type="email"
+                                                        value={profile?.email || ''}
+                                                        disabled
+                                                        className="pl-11 h-12 rounded-xl bg-slate-100 border-transparent font-semibold cursor-not-allowed text-slate-500"
+                                                    />
                                                 </div>
+                                            </div>
 
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Instagram URL</Label>
-                                                    <div className="relative">
-                                                        <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                        <Input type="url" value={registeredData.instagram_url}
-                                                            onChange={(e) => setRegisteredData({ ...registeredData, instagram_url: e.target.value })}
-                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                            placeholder="https://instagram.com/your-brand" />
-                                                    </div>
+                                            {/* Contact Number */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Contact Number</Label>
+                                                <div className="relative">
+                                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        value={registeredData.contact_number}
+                                                        onChange={(e) => setRegisteredData({ ...registeredData, contact_number: e.target.value })}
+                                                        className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                        placeholder="+234 ..."
+                                                    />
                                                 </div>
+                                            </div>
 
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">X (Twitter) URL</Label>
-                                                    <div className="relative">
-                                                        <Twitter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                        <Input type="url" value={registeredData.x_url}
-                                                            onChange={(e) => setRegisteredData({ ...registeredData, x_url: e.target.value })}
-                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                            placeholder="https://x.com/your-brand" />
-                                                    </div>
+                                            {/* Address */}
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Address</Label>
+                                                <div className="relative">
+                                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                    <Input
+                                                        value={registeredData.address}
+                                                        onChange={(e) => setRegisteredData({ ...registeredData, address: e.target.value })}
+                                                        className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                        placeholder="City, State, Country"
+                                                    />
                                                 </div>
+                                            </div>
 
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">TikTok URL</Label>
-                                                    <div className="relative">
-                                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                        <Input type="url" value={registeredData.tiktok_url}
-                                                            onChange={(e) => setRegisteredData({ ...registeredData, tiktok_url: e.target.value })}
-                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
-                                                            placeholder="https://tiktok.com/@your-brand" />
+                                            {/* Registered-only fields */}
+                                            {isVendor && (
+                                                <>
+                                                    <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-2">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <Building2 className="text-[#003399] h-4 w-4" />
+                                                            <span className="text-sm font-bold text-slate-700">Registered Details</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </>
-                                        )}
 
-                                        {/* Submit */}
-                                        <div className="md:col-span-2 flex justify-end pt-4">
-                                            <Button
-                                                type="submit"
-                                                disabled={updateRegisteredProfile.isPending}
-                                                className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
-                                            >
-                                                {updateRegisteredProfile.isPending ? (
-                                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
-                                                ) : (
-                                                    <><Save className="mr-2 h-4 w-4" />Update Profile</>
-                                                )}
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    )}
-                </TabsContent>
+                                                    <div className="space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Years of Experience</Label>
+                                                        <div className="relative">
+                                                            <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input
+                                                                type="number"
+                                                                value={registeredData.years_in_business}
+                                                                onChange={(e) => setRegisteredData({ ...registeredData, years_in_business: e.target.value })}
+                                                                className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                                placeholder="e.g. 5"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Opening Hours</Label>
+                                                        <div className="relative">
+                                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input
+                                                                value={registeredData.opening_hours}
+                                                                onChange={(e) => setRegisteredData({ ...registeredData, opening_hours: e.target.value })}
+                                                                className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                                placeholder="e.g. Mon-Fri: 9am-5pm"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="md:col-span-2 space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Registered Overview</Label>
+                                                        <Textarea
+                                                            value={registeredData.business_description}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, business_description: e.target.value })}
+                                                            className="h-32 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="Describe your services and specialization..."
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Facebook URL</Label>
+                                                        <div className="relative">
+                                                            <Facebook className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input type="url" value={registeredData.facebook_url}
+                                                                onChange={(e) => setRegisteredData({ ...registeredData, facebook_url: e.target.value })}
+                                                                className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                                placeholder="https://facebook.com/your-brand" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Instagram URL</Label>
+                                                        <div className="relative">
+                                                            <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input type="url" value={registeredData.instagram_url}
+                                                                onChange={(e) => setRegisteredData({ ...registeredData, instagram_url: e.target.value })}
+                                                                className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                                placeholder="https://instagram.com/your-brand" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">X (Twitter) URL</Label>
+                                                        <div className="relative">
+                                                            <Twitter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input type="url" value={registeredData.x_url}
+                                                                onChange={(e) => setRegisteredData({ ...registeredData, x_url: e.target.value })}
+                                                                className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                                placeholder="https://x.com/your-brand" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label className="text-xs font-black uppercase tracking-widest text-slate-400">TikTok URL</Label>
+                                                        <div className="relative">
+                                                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                            <Input type="url" value={registeredData.tiktok_url}
+                                                                onChange={(e) => setRegisteredData({ ...registeredData, tiktok_url: e.target.value })}
+                                                                className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                                placeholder="https://tiktok.com/@your-brand" />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* Submit */}
+                                            <div className="md:col-span-2 flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    disabled={updateProfile.isPending || updateRegisteredProfile.isPending}
+                                                    className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
+                                                >
+                                                    {updateProfile.isPending || updateRegisteredProfile.isPending ? (
+                                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
+                                                    ) : (
+                                                        <><Save className="mr-2 h-4 w-4" />Update Profile</>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        )}
+                    </TabsContent>
                 )}
 
                 <TabsContent value="security" className="focus-visible:outline-none">
