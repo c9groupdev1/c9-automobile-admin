@@ -68,7 +68,7 @@ export function useUpdateProfile() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: Partial<UserProfile>) => {
-            const response = await api.post('/user/profile/update', data);
+            const response = await api.post('/user/profile', data);
             return response.data;
         },
         onSuccess: () => {
