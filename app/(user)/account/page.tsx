@@ -2,27 +2,115 @@
 
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ProfileSettings } from '@/components/dashboard/profile-settings';
 import { SecuritySettings } from '@/components/dashboard/security-settings';
 import { BillingSettings } from '@/components/dashboard/billing-settings';
-import { User, ShieldCheck, CreditCard, Smartphone } from 'lucide-react';
+import {
+    User,
+    ShieldCheck,
+    CreditCard,
+    Loader2,
+    Mail,
+    Phone,
+    MapPin,
+    Save,
+    Building2,
+    ShieldAlert,
+    Facebook,
+    Instagram,
+    Twitter,
+    Clock,
+    Briefcase,
+    Globe
+} from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useUserProfile, useUpdateVendorProfile } from '@/hooks/useUserProfile';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 export default function AccountPage() {
     const { user } = useAuthStore();
     const isVerified = user?.roles?.some(role => role.toLowerCase() === 'verified_user');
-    const [deviceOS, setDeviceOS] = useState<'ios' | 'android' | 'desktop'>('desktop');
+
+    const { data: profile, isLoading } = useUserProfile();
+    const updateRegisteredProfile = useUpdateVendorProfile();
+
+    const [activeTab, setActiveTab] = useState('profile');
+
+    const getFriendlyRoleName = (role?: string) => {
+        if (!role) return 'Member';
+        const normalized = role.toLowerCase();
+        if (normalized === 'vendor' || normalized === 'dealer') return 'Verified Registered';
+        if (normalized === 'verified_user') return 'Verified Member';
+        return role.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    };
+
+    const getFriendlyKycType = (type?: string) => {
+        if (!type) return '';
+        if (type.toLowerCase() === 'business') return 'Standard';
+        return type.charAt(0).toUpperCase() + type.slice(1);
+    };
+
+    const [registeredData, setRegisteredData] = useState({
+        name: '',
+        contact_number: '',
+        address: '',
+        years_in_business: '',
+        business_description: '',
+        opening_hours: '',
+        facebook_url: '',
+        instagram_url: '',
+        x_url: '',
+        tiktok_url: ''
+    });
 
     useEffect(() => {
-        const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
-        if (/android/i.test(userAgent)) {
-            setDeviceOS('android');
-        } else if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-            setDeviceOS('ios');
-        } else {
-            setDeviceOS('desktop');
+        if (profile) {
+            setRegisteredData(prev => ({
+                ...prev,
+                name: profile.name || '',
+                contact_number: (profile as any).kyc?.phoneNumber || '',
+                address: (profile as any).kyc?.address || '',
+                ...((profile as any).vendorProfile ? {
+                    years_in_business: (profile as any).vendorProfile.years_in_business ?? (profile as any).vendorProfile.yearsInBusiness ?? '',
+                    business_description: (profile as any).vendorProfile.business_description ?? (profile as any).vendorProfile.businessDescription ?? '',
+                    opening_hours: (profile as any).vendorProfile.opening_hours ?? (profile as any).vendorProfile.openingHours ?? '',
+                    facebook_url: (profile as any).vendorProfile.facebook_url ?? (profile as any).vendorProfile.facebookUrl ?? '',
+                    instagram_url: (profile as any).vendorProfile.instagram_url ?? (profile as any).vendorProfile.instagramUrl ?? '',
+                    x_url: (profile as any).vendorProfile.x_url ?? (profile as any).vendorProfile.xUrl ?? '',
+                    tiktok_url: (profile as any).vendorProfile.tiktok_url ?? (profile as any).vendorProfile.tiktokUrl ?? ''
+                } : {})
+            }));
+
+            const isUserVendor = 
+                ((profile as any)?.kyc?.type !== 'individual' && (profile as any)?.kyc?.type !== null) ||
+                profile?.roles?.some(role => role.toLowerCase() === 'verified_user');
+            
+            if (!isUserVendor) {
+                setActiveTab('security');
+            }
         }
-    }, []);
+    }, [profile]);
+
+    const handleRegisteredSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const payload = {
+            ...registeredData,
+            years_in_business: registeredData.years_in_business
+                ? parseInt(String(registeredData.years_in_business), 10)
+                : ""
+        };
+        await updateRegisteredProfile.mutateAsync(payload);
+    };
+
+    const isVendor = 
+        ((profile as any)?.kyc?.type !== 'individual' && (profile as any)?.kyc?.type !== null) ||
+        profile?.roles?.some(role => role.toLowerCase() === 'verified_user');
 
     return (
         <div className="space-y-10 pb-20">
@@ -36,72 +124,17 @@ export default function AccountPage() {
                 </div>
             </div>
 
-            {/* Mobile App Promotion Banner */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-[#001533] via-[#003399] to-[#001f54] rounded-[2rem] p-8 md:p-10 shadow-xl border border-[#003399]/20 flex flex-col md:flex-row items-center justify-between gap-8 group">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-[6rem] -z-10 group-hover:bg-blue-500/20 transition-all duration-700" />
-                <div className="absolute -bottom-10 -left-10 w-60 h-60 bg-indigo-500/10 rounded-full blur-[4rem] -z-10" />
-
-                <div className="space-y-4 text-center md:text-left">
-                    <div className="inline-flex items-center gap-2 bg-blue-500/20 text-blue-200 border border-blue-400/20 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest mx-auto md:mx-0">
-                        <Smartphone size={12} />
-                        C9X Mobile Experience
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-none uppercase">
-                        Take C9X on the Go
-                    </h3>
-                    <p className="text-blue-100/75 text-sm font-medium leading-relaxed max-w-xl">
-                        Access real-time automotive auctions, live bidding, instant push notifications, and verified vehicle transactions straight from your pocket.
-                    </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto justify-center md:justify-end shrink-0">
-                    {/* App Store Download Button */}
-                    {(deviceOS === 'ios' || deviceOS === 'desktop') && (
-                        <a
-                            href="https://apps.apple.com/ng/app/c9x/id6762285536"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-black/20 hover:shadow-black/30 border border-slate-800 w-full sm:w-auto justify-center group"
-                        >
-                            <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z"/>
-                            </svg>
-                            <div className="text-left leading-none">
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-400 leading-none">Download on the</p>
-                                <p className="text-base font-extrabold text-white leading-none mt-1">App Store</p>
-                            </div>
-                        </a>
-                    )}
-
-                    {/* Google Play Download Button */}
-                    {(deviceOS === 'android' || deviceOS === 'desktop') && (
-                        <a
-                            href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-black/20 hover:shadow-black/30 border border-slate-800 w-full sm:w-auto justify-center group"
-                        >
-                            <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                                <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
-                            </svg>
-                            <div className="text-left leading-none">
-                                <p className="text-[10px] uppercase font-bold tracking-widest text-slate-400 leading-none">Get it on</p>
-                                <p className="text-base font-extrabold text-white leading-none mt-1">Google Play</p>
-                            </div>
-                        </a>
-                    )}
-                </div>
-            </div>
-
-            <Tabs defaultValue="profile" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="bg-slate-100/50 rounded-2xl p-1 gap-1 h-14 w-full md:w-fit flex mb-8">
-                    <TabsTrigger
-                        value="profile"
-                        className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
-                    >
-                        <User size={16} className="mr-2" />
-                        Profile
-                    </TabsTrigger>
+                    {isVendor && (
+                        <TabsTrigger
+                            value="profile"
+                            className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
+                        >
+                            <User size={16} className="mr-2" />
+                            Profile
+                        </TabsTrigger>
+                    )}
                     <TabsTrigger
                         value="security"
                         className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
@@ -109,20 +142,229 @@ export default function AccountPage() {
                         <ShieldCheck size={16} className="mr-2" />
                         Security
                     </TabsTrigger>
-                    {/* {isVerified && (
-                        <TabsTrigger 
-                            value="billing" 
-                            className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
-                        >
-                            <CreditCard size={16} className="mr-2" />
-                            Billing
-                        </TabsTrigger>
-                    )} */}
                 </TabsList>
 
-                <TabsContent value="profile" className="focus-visible:outline-none">
-                    <ProfileSettings />
+                {isVendor && (
+                    <TabsContent value="profile" className="focus-visible:outline-none">
+                    {isLoading ? (
+                        <div className="flex items-center justify-center p-20">
+                            <Loader2 className="h-8 w-8 animate-spin text-[#003399]" />
+                        </div>
+                    ) : (
+                        <div className="space-y-10">
+                            <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
+                                <CardHeader className="p-8 pb-4">
+                                    <div className="flex items-center gap-6">
+                                        <div className="relative">
+                                            <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm">
+                                                <AvatarImage src={(profile as any)?.kyc?.selfiePicture || ''} />
+                                                <AvatarFallback className="bg-[#003399] text-white text-2xl font-bold uppercase">
+                                                    {profile?.name?.[0]}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="absolute -bottom-2 -right-2 bg-white p-1 rounded-lg shadow-sm border border-slate-100">
+                                                {(profile as any)?.kycStatus === 'verified' ? (
+                                                    <ShieldCheck className="text-emerald-500 h-5 w-5" />
+                                                ) : (
+                                                    <ShieldAlert className="text-amber-500 h-5 w-5" />
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl font-black text-slate-900">{profile?.name}</h3>
+                                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                                                <Badge className="bg-blue-50 text-[#003399] border-0 text-[10px] font-black uppercase tracking-widest px-2">
+                                                    {getFriendlyRoleName(profile?.roles?.[0])}
+                                                </Badge>
+                                                <Badge className={cn(
+                                                    "border-0 text-[10px] font-black uppercase tracking-widest px-2",
+                                                    (profile as any)?.kycStatus === 'verified' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                                                )}>
+                                                    KYC {(profile as any)?.kycStatus}
+                                                </Badge>
+                                                {(profile as any)?.kyc?.type && (
+                                                    <Badge className="bg-slate-100 text-slate-600 border-0 text-[10px] font-black uppercase tracking-widest px-2">
+                                                        Type: {getFriendlyKycType((profile as any).kyc.type)}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+
+                                <CardContent className="p-8 pt-2">
+                                    <form onSubmit={handleRegisteredSubmit} className="grid gap-6 md:grid-cols-2">
+
+                                        {/* Name */}
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Full Name</Label>
+                                            <div className="relative">
+                                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                <Input
+                                                    value={registeredData.name}
+                                                    onChange={(e) => setRegisteredData({ ...registeredData, name: e.target.value })}
+                                                    className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                    placeholder="Enter your full name"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Email (read-only) */}
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Email Identifier</Label>
+                                            <div className="relative">
+                                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                <Input
+                                                    type="email"
+                                                    value={profile?.email || ''}
+                                                    disabled
+                                                    className="pl-11 h-12 rounded-xl bg-slate-100 border-transparent font-semibold cursor-not-allowed text-slate-500"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Contact Number */}
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Contact Number</Label>
+                                            <div className="relative">
+                                                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                <Input
+                                                    value={registeredData.contact_number}
+                                                    onChange={(e) => setRegisteredData({ ...registeredData, contact_number: e.target.value })}
+                                                    className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                    placeholder="+234 ..."
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Address */}
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Address</Label>
+                                            <div className="relative">
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                <Input
+                                                    value={registeredData.address}
+                                                    onChange={(e) => setRegisteredData({ ...registeredData, address: e.target.value })}
+                                                    className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                    placeholder="City, State, Country"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Registered-only fields */}
+                                        {isVendor && (
+                                            <>
+                                                <div className="md:col-span-2 border-t border-slate-100 pt-6 mt-2">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <Building2 className="text-[#003399] h-4 w-4" />
+                                                        <span className="text-sm font-bold text-slate-700">Registered Details</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Years of Experience</Label>
+                                                    <div className="relative">
+                                                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                        <Input
+                                                            type="number"
+                                                            value={registeredData.years_in_business}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, years_in_business: e.target.value })}
+                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="e.g. 5"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Opening Hours</Label>
+                                                    <div className="relative">
+                                                        <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                        <Input
+                                                            value={registeredData.opening_hours}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, opening_hours: e.target.value })}
+                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="e.g. Mon-Fri: 9am-5pm"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="md:col-span-2 space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Registered Overview</Label>
+                                                    <Textarea
+                                                        value={registeredData.business_description}
+                                                        onChange={(e) => setRegisteredData({ ...registeredData, business_description: e.target.value })}
+                                                        className="h-32 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                        placeholder="Describe your services and specialization..."
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Facebook URL</Label>
+                                                    <div className="relative">
+                                                        <Facebook className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                        <Input type="url" value={registeredData.facebook_url}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, facebook_url: e.target.value })}
+                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="https://facebook.com/your-brand" />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Instagram URL</Label>
+                                                    <div className="relative">
+                                                        <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                        <Input type="url" value={registeredData.instagram_url}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, instagram_url: e.target.value })}
+                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="https://instagram.com/your-brand" />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">X (Twitter) URL</Label>
+                                                    <div className="relative">
+                                                        <Twitter className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                        <Input type="url" value={registeredData.x_url}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, x_url: e.target.value })}
+                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="https://x.com/your-brand" />
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-400">TikTok URL</Label>
+                                                    <div className="relative">
+                                                        <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                                        <Input type="url" value={registeredData.tiktok_url}
+                                                            onChange={(e) => setRegisteredData({ ...registeredData, tiktok_url: e.target.value })}
+                                                            className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                            placeholder="https://tiktok.com/@your-brand" />
+                                                    </div>
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Submit */}
+                                        <div className="md:col-span-2 flex justify-end pt-4">
+                                            <Button
+                                                type="submit"
+                                                disabled={updateRegisteredProfile.isPending}
+                                                className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
+                                            >
+                                                {updateRegisteredProfile.isPending ? (
+                                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
+                                                ) : (
+                                                    <><Save className="mr-2 h-4 w-4" />Update Profile</>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
                 </TabsContent>
+                )}
 
                 <TabsContent value="security" className="focus-visible:outline-none">
                     <SecuritySettings />
