@@ -8,11 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, User, Mail, Phone, MapPin, Save, Building2, ShieldCheck, ShieldAlert, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export function ProfileSettings() {
     const { data: profile, isLoading } = useUserProfile();
     const updateProfile = useUpdateProfile();
     const updateVendor = useUpdateVendorProfile();
+    
+    const isVerified = profile?.roles?.some(role => role.toLowerCase() === 'verified_user');
     
     const [formData, setFormData] = useState({
         name: '',
@@ -53,6 +56,12 @@ export function ProfileSettings() {
 
     const handleVendorSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!isVerified) {
+            toast.error('Action Restricted', {
+                description: 'You must be a verified user to update business credentials.'
+            });
+            return;
+        }
         await updateVendor.mutateAsync(vendorData);
     };
 
@@ -201,6 +210,20 @@ export function ProfileSettings() {
                     </CardHeader>
                     <CardContent className="p-8">
                         <form onSubmit={handleVendorSubmit} className="grid gap-6 md:grid-cols-2">
+                            {!isVerified && (
+                                <div className="md:col-span-2 bg-amber-50/60 border border-amber-200/60 rounded-2xl p-5 flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                                    <div className="bg-amber-100 p-2 rounded-xl text-amber-600 shrink-0">
+                                        <ShieldAlert className="h-5 w-5" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-bold text-amber-900 tracking-tight">Verification Required</h4>
+                                        <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                                            Your vendor account is not yet fully verified. Business profile updates are restricted until your account is upgraded to verified_user.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-2">
                                 <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Registered Business Name</Label>
                                 <div className="relative">
@@ -208,7 +231,11 @@ export function ProfileSettings() {
                                     <Input
                                         value={vendorData.businessName}
                                         onChange={(e) => setVendorData({ ...vendorData, businessName: e.target.value })}
-                                        className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                        disabled={!isVerified}
+                                        className={cn(
+                                            "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                            !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                        )}
                                         placeholder="Enter business name"
                                     />
                                 </div>
@@ -220,7 +247,11 @@ export function ProfileSettings() {
                                     <Input
                                         value={vendorData.rcNumber}
                                         onChange={(e) => setVendorData({ ...vendorData, rcNumber: e.target.value })}
-                                        className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                        disabled={!isVerified}
+                                        className={cn(
+                                            "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                            !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                        )}
                                         placeholder="e.g. RC1234567"
                                     />
                                 </div>
@@ -232,7 +263,11 @@ export function ProfileSettings() {
                                     <Input
                                         value={vendorData.businessAddress}
                                         onChange={(e) => setVendorData({ ...vendorData, businessAddress: e.target.value })}
-                                        className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                        disabled={!isVerified}
+                                        className={cn(
+                                            "pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold transition-all",
+                                            !isVerified && "opacity-60 cursor-not-allowed bg-slate-100"
+                                        )}
                                         placeholder="Full business address"
                                     />
                                 </div>
@@ -240,8 +275,8 @@ export function ProfileSettings() {
                             <div className="md:col-span-2 flex justify-end pt-4">
                                 <Button 
                                     type="submit" 
-                                    disabled={updateVendor.isPending}
-                                    className="bg-slate-900 hover:bg-slate-800 rounded-xl px-8 font-bold shadow-lg shadow-slate-900/10 h-11 transition-all"
+                                    disabled={updateVendor.isPending || !isVerified}
+                                    className="bg-slate-900 hover:bg-slate-800 rounded-xl px-8 font-bold shadow-lg shadow-slate-900/10 h-11 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {updateVendor.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Update Business Profile"}
                                 </Button>
