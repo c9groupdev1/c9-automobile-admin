@@ -146,7 +146,7 @@ export default function AccountPage() {
                 <div>
                     <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase">My Account</h2>
                     <p className="text-slate-500 font-medium">
-                        Manage your membership credentials, security{isVerified ? ', and subscription plans' : ''}.
+                        Manage your membership credentials and security.
                     </p>
                 </div>
             </div>
