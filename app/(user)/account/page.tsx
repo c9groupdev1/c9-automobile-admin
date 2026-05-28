@@ -202,8 +202,8 @@ export default function AccountPage() {
                                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                                 <Input
                                                     value={registeredData.name}
-                                                    onChange={(e) => setRegisteredData({ ...registeredData, name: e.target.value })}
-                                                    className="pl-11 h-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 font-semibold"
+                                                    disabled
+                                                    className="pl-11 h-12 rounded-xl bg-slate-100 border-transparent font-semibold cursor-not-allowed text-slate-500"
                                                     placeholder="Enter your full name"
                                                 />
                                             </div>
