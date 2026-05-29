@@ -23,7 +23,7 @@ import {
     Globe
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { useUserProfile, useUpdateVendorProfile, useUpdateProfile } from '@/hooks/useUserProfile';
+import { useUserProfile, useUpdateVendorProfile } from '@/hooks/useUserProfile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,7 +38,6 @@ export default function AccountPage() {
     const isVerified = user?.roles?.some(role => role.toLowerCase() === 'verified_user');
 
     const { data: profile, isLoading } = useUserProfile();
-    const updateProfile = useUpdateProfile();
     const updateRegisteredProfile = useUpdateVendorProfile();
 
     const [activeTab, setActiveTab] = useState('profile');
@@ -110,14 +109,11 @@ export default function AccountPage() {
     const handleRegisteredSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        const basePayload = {
+        const vendorPayload = {
             name: registeredData.name || profile?.name,
             phoneNumber: registeredData.contact_number,
             phone_number: registeredData.contact_number,
-            address: registeredData.address
-        };
-
-        const vendorPayload = {
+            address: registeredData.address,
             years_in_business: registeredData.years_in_business
                 ? parseInt(String(registeredData.years_in_business), 10)
                 : "",
@@ -129,10 +125,7 @@ export default function AccountPage() {
             tiktok_url: registeredData.tiktok_url
         };
 
-        await Promise.all([
-            updateProfile.mutateAsync(basePayload),
-            updateRegisteredProfile.mutateAsync(vendorPayload)
-        ]);
+        await updateRegisteredProfile.mutateAsync(vendorPayload);
     };
 
     const isVendor =
@@ -375,10 +368,10 @@ export default function AccountPage() {
                                             <div className="md:col-span-2 flex justify-end pt-4">
                                                 <Button
                                                     type="submit"
-                                                    disabled={updateProfile.isPending || updateRegisteredProfile.isPending}
+                                                    disabled={updateRegisteredProfile.isPending}
                                                     className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
                                                 >
-                                                    {updateProfile.isPending || updateRegisteredProfile.isPending ? (
+                                                    {updateRegisteredProfile.isPending ? (
                                                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
                                                     ) : (
                                                         <><Save className="mr-2 h-4 w-4" />Update Profile</>
