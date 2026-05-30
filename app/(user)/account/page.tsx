@@ -74,7 +74,7 @@ export default function AccountPage() {
             setRegisteredData(prev => ({
                 ...prev,
                 name: profile.name || '',
-                contact_number: (profile as any).kyc?.phoneNumber || (profile as any).phoneNumber || (profile as any).phone_number || '',
+                contact_number: (profile as any).kyc?.phoneNumber || (profile as any).phoneNumber || (profile as any).phone_number || (profile as any).contact_number || '',
                 address: (profile as any).kyc?.address || (profile as any).address || '',
                 ...((profile as any).vendorProfile ? {
                     years_in_business: (profile as any).vendorProfile.years_in_business ?? (profile as any).vendorProfile.yearsInBusiness ?? '',
@@ -111,8 +111,7 @@ export default function AccountPage() {
         
         const vendorPayload = {
             name: registeredData.name || profile?.name,
-            phoneNumber: registeredData.contact_number,
-            phone_number: registeredData.contact_number,
+            contact_number: registeredData.contact_number,
             address: registeredData.address,
             years_in_business: registeredData.years_in_business
                 ? parseInt(String(registeredData.years_in_business), 10)
@@ -162,6 +161,15 @@ export default function AccountPage() {
                         <ShieldCheck size={16} className="mr-2" />
                         Security
                     </TabsTrigger>
+                    {isVerified && (
+                        <TabsTrigger
+                            value="billing"
+                            className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
+                        >
+                            <CreditCard size={16} className="mr-2" />
+                            Billing
+                        </TabsTrigger>
+                    )}
                 </TabsList>
 
                 {isVendor && (
