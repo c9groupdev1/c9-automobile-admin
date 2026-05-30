@@ -148,7 +148,7 @@ export default function AccountPage() {
                     {isVendor && (
                         <TabsTrigger
                             value="profile"
-                            className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
+                            className="flex-1 md:flex-none rounded-xl px-3 sm:px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
                         >
                             <User size={16} className="mr-2" />
                             Profile
@@ -156,7 +156,7 @@ export default function AccountPage() {
                     )}
                     <TabsTrigger
                         value="security"
-                        className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
+                        className="flex-1 md:flex-none rounded-xl px-3 sm:px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
                     >
                         <ShieldCheck size={16} className="mr-2" />
                         Security
@@ -164,7 +164,7 @@ export default function AccountPage() {
                     {isVerified && (
                         <TabsTrigger
                             value="billing"
-                            className="flex-1 md:flex-none rounded-xl px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
+                            className="flex-1 md:flex-none rounded-xl px-3 sm:px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
                         >
                             <CreditCard size={16} className="mr-2" />
                             Billing
@@ -180,9 +180,9 @@ export default function AccountPage() {
                             </div>
                         ) : (
                             <div className="space-y-10">
-                                <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
-                                    <CardHeader className="p-8 pb-4">
-                                        <div className="flex items-center gap-6">
+                                <Card className="border-slate-100 shadow-sm rounded-2xl sm:rounded-[2rem] overflow-hidden">
+                                    <CardHeader className="p-4 sm:p-8 pb-4">
+                                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left w-full">
                                             <div className="relative">
                                                 <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm">
                                                     <AvatarImage src={(profile as any)?.kyc?.selfiePicture || ''} />
@@ -198,9 +198,9 @@ export default function AccountPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                            <div>
+                                            <div className="w-full">
                                                 <h3 className="text-2xl font-black text-slate-900">{profile?.name}</h3>
-                                                <div className="flex flex-wrap items-center gap-2 mt-2">
+                                                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-2">
                                                     <Badge className="bg-blue-50 text-[#003399] border-0 text-[10px] font-black uppercase tracking-widest px-2">
                                                         {getFriendlyRoleName(profile?.roles?.[0])}
                                                     </Badge>
@@ -220,7 +220,7 @@ export default function AccountPage() {
                                         </div>
                                     </CardHeader>
 
-                                    <CardContent className="p-8 pt-2">
+                                    <CardContent className="p-4 sm:p-8 pt-2">
                                         <form onSubmit={handleRegisteredSubmit} className="grid gap-6 md:grid-cols-2">
 
                                             {/* Name */}
@@ -377,7 +377,7 @@ export default function AccountPage() {
                                                 <Button
                                                     type="submit"
                                                     disabled={updateRegisteredProfile.isPending}
-                                                    className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
+                                                    className="w-full sm:w-auto bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-12 transition-all"
                                                 >
                                                     {updateRegisteredProfile.isPending ? (
                                                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>

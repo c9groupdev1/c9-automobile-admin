@@ -56,8 +56,8 @@ export function SecuritySettings() {
     return (
         <div className="space-y-8">
             {/* Change Password Card */}
-            <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
-                <CardHeader className="p-8 pb-4">
+            <Card className="border-slate-100 shadow-sm rounded-2xl sm:rounded-[2rem] overflow-hidden">
+                <CardHeader className="p-4 sm:p-8 pb-4">
                     <div className="flex items-center gap-3 mb-2">
                         <KeyRound className="text-[#003399] h-5 w-5" />
                         <CardTitle className="text-xl font-bold text-slate-900">Access Credentials</CardTitle>
@@ -66,7 +66,7 @@ export function SecuritySettings() {
                         Update your authentication parameters to maintain protocol security.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="p-8">
+                <CardContent className="p-4 sm:p-8">
                     <form onSubmit={handlePasswordSubmit} className="space-y-6 max-w-2xl">
                         <div className="space-y-2">
                             <Label className="text-xs font-black uppercase tracking-widest text-slate-400">Current Password</Label>
@@ -116,9 +116,9 @@ export function SecuritySettings() {
                             <Button 
                                 type="submit" 
                                 disabled={changePassword.isPending}
-                                className="bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-11 transition-all"
+                                className="w-full sm:w-auto bg-[#003399] hover:bg-blue-800 rounded-xl px-8 font-bold shadow-lg shadow-blue-900/10 h-11 transition-all"
                             >
-                                {changePassword.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Modify Credentials"}
+                                {changePassword.isPending ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Modify Credentials"}
                             </Button>
                         </div>
                     </form>
@@ -126,8 +126,8 @@ export function SecuritySettings() {
             </Card>
 
             {/* Danger Zone */}
-            <Card className="border-rose-100 bg-rose-50/30 shadow-sm rounded-[2rem] overflow-hidden border-dashed">
-                <CardHeader className="p-8 pb-4">
+            <Card className="border-rose-100 bg-rose-50/30 shadow-sm rounded-2xl sm:rounded-[2rem] overflow-hidden border-dashed">
+                <CardHeader className="p-4 sm:p-8 pb-4">
                     <div className="flex items-center gap-3 mb-2">
                         <ShieldAlert className="text-rose-500 h-5 w-5" />
                         <CardTitle className="text-xl font-bold text-rose-900">Danger Protocol</CardTitle>
@@ -136,8 +136,8 @@ export function SecuritySettings() {
                         Irreversible actions that will result in immediate data purging.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="p-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-rose-100">
+                <CardContent className="p-4 sm:p-8">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white p-6 rounded-2xl border border-rose-100">
                         <div>
                             <p className="text-sm font-bold text-slate-900">Purge Account Record</p>
                             <p className="text-xs font-medium text-slate-500 mt-1">Permanently delete your profile and all associated marketplace data.</p>
@@ -145,7 +145,7 @@ export function SecuritySettings() {
                         
                         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                             <DialogTrigger render={
-                                <Button variant="ghost" className="bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl px-6 font-bold text-xs h-10 border border-rose-200">
+                                <Button variant="ghost" className="w-full sm:w-auto bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-xl px-6 font-bold text-xs h-10 border border-rose-200">
                                     <Trash2 size={14} className="mr-2" />
                                     Purge Record
                                 </Button>
