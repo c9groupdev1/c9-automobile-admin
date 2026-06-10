@@ -47,6 +47,7 @@ import {
     useActivePromotions,
     usePaymentDetail,
     useRequeryPayment,
+    useExportPayments,
     PaymentHistory,
     ActivePromotion,
     PaymentHistoryFilters
@@ -133,6 +134,18 @@ export default function PaymentsPage() {
 
     const [isGeneratingReceipt, setIsGeneratingReceipt] = useState(false);
     const requeryPayment = useRequeryPayment();
+    const exportPayments = useExportPayments();
+
+    const handleExportPayments = async () => {
+        try {
+            toast.loading('Exporting transactions as CSV...', { id: 'export-payments' });
+            await exportPayments.mutateAsync();
+            toast.success('Export downloaded successfully!', { id: 'export-payments' });
+        } catch (error: any) {
+            console.error('Export failed:', error);
+            toast.error(error.response?.data?.message || 'Failed to export payments', { id: 'export-payments' });
+        }
+    };
 
     const handleDownloadReceipt = async (payment: any) => {
         if (!payment) {
@@ -585,8 +598,17 @@ export default function PaymentsPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Button variant="outline" className="h-12 rounded-2xl border-slate-200 font-bold hover:bg-slate-50 transition-all">
-                        <Download className="w-4 h-4 mr-2" />
+                    <Button
+                        variant="outline"
+                        className="h-12 rounded-2xl border-slate-200 font-bold hover:bg-slate-50 transition-all"
+                        onClick={handleExportPayments}
+                        disabled={exportPayments.isPending}
+                    >
+                        {exportPayments.isPending ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                            <Download className="w-4 h-4 mr-2" />
+                        )}
                         Export History
                     </Button>
                 </div>

@@ -48,8 +48,9 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useKycRequests } from '@/hooks/useKyc';
+import { useDebounce } from '@/hooks/use-debounce';
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
 
@@ -59,14 +60,41 @@ export default function KYCManagementPage() {
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('all');
     const [typeFilter, setTypeFilter] = useState('all');
+    const [search, setSearch] = useState('');
+    const debouncedSearch = useDebounce(search, 300);
+    const isMounted = useRef(false);
 
-    const { data: kycData, isLoading } = useKycRequests({
+    // Reset to page 1 when search changes, but skip initial mount
+    useEffect(() => {
+        if (isMounted.current) {
+            setPage(1);
+        } else {
+            isMounted.current = true;
+        }
+    }, [debouncedSearch]);
+
+    const { data: kycData, isLoading, refetch } = useKycRequests({
         page,
-        status: statusFilter === 'all' ? undefined : statusFilter
+        status: statusFilter === 'all' ? undefined : statusFilter,
+        type: typeFilter === 'all' ? undefined : typeFilter,
+        search: debouncedSearch || undefined
     });
 
-    const requests = kycData?.data.data || [];
-    const meta = kycData?.data;
+    const requests = Array.isArray(kycData?.data?.data) 
+        ? kycData.data.data 
+        : (Array.isArray(kycData?.data) ? kycData.data : []);
+
+    const rawMeta = kycData?.data && typeof kycData.data === 'object'
+        ? ('meta' in kycData.data && kycData.data.meta ? kycData.data.meta : kycData.data)
+        : undefined;
+
+    const meta = rawMeta ? {
+        current_page: Number((rawMeta as any).current_page || 1),
+        last_page: Number((rawMeta as any).last_page || 1),
+        from: Number((rawMeta as any).from || 0),
+        to: Number((rawMeta as any).to || 0),
+        total: Number((rawMeta as any).total || 0)
+    } : undefined;
 
     const formatDate = (dateStr: string) => {
         try {
@@ -158,6 +186,8 @@ export default function KYCManagementPage() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                         <Input
                             placeholder="Search by name, email, phone, RC number..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
                             className="h-12 pl-12 rounded-xl bg-slate-50 border-transparent focus:bg-white focus:border-slate-200 transition-all text-sm font-medium"
                         />
                     </div>
@@ -174,7 +204,7 @@ export default function KYCManagementPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                    <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || 'all')}>
+                    <Select value={typeFilter} onValueChange={(val) => { setTypeFilter(val || 'all'); setPage(1); }}>
                         <SelectTrigger className="w-[150px] h-10 rounded-xl bg-slate-50 border-transparent font-bold text-[10px] text-slate-600 uppercase tracking-widest">
                             <SelectValue placeholder="All Types" />
                         </SelectTrigger>
@@ -185,7 +215,7 @@ export default function KYCManagementPage() {
                         </SelectContent>
                     </Select>
 
-                    <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || 'all')}>
+                    <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val || 'all'); setPage(1); }}>
                         <SelectTrigger className="w-[160px] h-10 rounded-xl bg-slate-50 border-transparent font-bold text-[10px] text-slate-600 uppercase tracking-widest">
                             <SelectValue placeholder="Review Status" />
                         </SelectTrigger>
@@ -209,7 +239,7 @@ export default function KYCManagementPage() {
                         </SelectContent>
                     </Select>
 
-                    <Button variant="ghost" size="icon" className="h-10 w-10 bg-slate-50 rounded-xl border-transparent text-slate-400">
+                    <Button variant="ghost" size="icon" className="h-10 w-10 bg-slate-50 rounded-xl border-transparent text-slate-400 hover:text-slate-600" onClick={() => refetch()}>
                         <RefreshCcw size={16} />
                     </Button>
                 </div>
@@ -370,22 +400,61 @@ export default function KYCManagementPage() {
                                 <ChevronLeft size={16} />
                             </Button>
                             <div className="flex gap-1.5">
-                                {Array.from({ length: Math.min(meta.last_page, 5) }, (_, i) => {
-                                    const p = i + 1;
+                                {(() => {
+                                    const pages = [];
+                                    const totalPages = meta.last_page;
+                                    const maxVisible = 5;
+                                    let start = Math.max(1, page - 2);
+                                    let end = Math.min(totalPages, start + maxVisible - 1);
+                                    if (end - start + 1 < maxVisible) {
+                                        start = Math.max(1, end - maxVisible + 1);
+                                    }
+
+                                    for (let p = start; p <= end; p++) {
+                                        pages.push(
+                                            <Button
+                                                key={p}
+                                                onClick={() => setPage(p)}
+                                                className={cn(
+                                                    "h-10 w-10 rounded-xl font-bold text-xs transition-all",
+                                                    page === p ? "bg-[#003399] text-white shadow-lg shadow-blue-900/10" : "bg-white border border-slate-100 text-slate-600 hover:bg-slate-50"
+                                                )}
+                                            >
+                                                {p}
+                                            </Button>
+                                        );
+                                    }
                                     return (
-                                        <Button
-                                            key={p}
-                                            onClick={() => setPage(p)}
-                                            className={cn(
-                                                "h-10 w-10 rounded-xl font-bold text-xs transition-all",
-                                                page === p ? "bg-[#003399] text-white shadow-lg shadow-blue-900/10" : "bg-white border border-slate-100 text-slate-600 hover:bg-slate-50"
+                                        <>
+                                            {start > 1 && (
+                                                <>
+                                                    <Button
+                                                        onClick={() => setPage(1)}
+                                                        className="h-10 w-10 rounded-xl font-bold text-xs transition-all bg-white border border-slate-100 text-slate-600 hover:bg-slate-50"
+                                                    >
+                                                        1
+                                                    </Button>
+                                                    {start > 2 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
+                                                </>
                                             )}
-                                        >
-                                            {p}
-                                        </Button>
+                                            {pages}
+                                            {end < totalPages && (
+                                                <>
+                                                    {end < totalPages - 1 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
+                                                    <Button
+                                                        onClick={() => setPage(totalPages)}
+                                                        className={cn(
+                                                            "h-10 px-4 rounded-xl bg-white border border-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-50",
+                                                            page === totalPages && "bg-[#003399] text-white"
+                                                        )}
+                                                    >
+                                                        {totalPages}
+                                                    </Button>
+                                                </>
+                                            )}
+                                        </>
                                     );
-                                })}
-                                {meta.last_page > 5 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
+                                })()}
                             </div>
                             <Button
                                 variant="outline"

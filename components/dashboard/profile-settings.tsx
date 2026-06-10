@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, User, Mail, Phone, MapPin, Save, Building2, ShieldCheck, ShieldAlert, Facebook, Instagram, Twitter, Clock, Briefcase, Globe } from 'lucide-react';
+import { Loader2, User, Mail, Phone, MapPin, Save, Building2, ShieldCheck, ShieldAlert, Facebook, Instagram, Twitter, Clock, Briefcase, Globe, Camera } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +27,9 @@ export function ProfileSettings() {
         if (type.toLowerCase() === 'business') return 'Standard';
         return type.charAt(0).toUpperCase() + type.slice(1);
     };
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string>('');
 
     const [registeredData, setRegisteredData] = useState({
         name: '',
@@ -58,18 +61,41 @@ export function ProfileSettings() {
                     tiktok_url: (profile as any).vendorProfile.tiktok_url ?? (profile as any).vendorProfile.tiktokUrl ?? ''
                 } : {})
             }));
+            setSelectedFile(null);
+            setPreviewUrl('');
         }
     }, [profile]);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
     const handleRegisteredSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const payload = {
-            ...registeredData,
-            years_in_business: registeredData.years_in_business
-                ? parseInt(String(registeredData.years_in_business), 10)
-                : null
-        };
-        await updateRegisteredProfile.mutateAsync(payload);
+        
+        const formData = new FormData();
+        formData.append('name', registeredData.name || profile?.name || '');
+        formData.append('contact_number', registeredData.contact_number);
+        formData.append('address', registeredData.address);
+        if (registeredData.years_in_business !== '') {
+            formData.append('years_in_business', String(parseInt(String(registeredData.years_in_business), 10)));
+        }
+        formData.append('business_description', registeredData.business_description);
+        formData.append('opening_hours', registeredData.opening_hours);
+        formData.append('facebook_url', registeredData.facebook_url);
+        formData.append('instagram_url', registeredData.instagram_url);
+        formData.append('x_url', registeredData.x_url);
+        formData.append('tiktok_url', registeredData.tiktok_url);
+
+        if (selectedFile) {
+            formData.append('profile_picture', selectedFile);
+        }
+
+        await updateRegisteredProfile.mutateAsync(formData);
     };
 
     if (isLoading) {
@@ -87,13 +113,23 @@ export function ProfileSettings() {
             <Card className="border-slate-100 shadow-sm rounded-[2rem] overflow-hidden">
                 <CardHeader className="p-8 pb-4">
                     <div className="flex items-center gap-6">
-                        <div className="relative">
-                            <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm">
-                                <AvatarImage src={(profile as any)?.kyc?.selfiePicture || ''} />
+                        <div className="relative group cursor-pointer" onClick={() => document.getElementById('vendor-profile-input-dashboard')?.click()}>
+                            <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm transition-all group-hover:opacity-95">
+                                <AvatarImage src={previewUrl || (profile as any)?.vendorProfile?.profilePicture || (profile as any)?.vendorProfile?.picture || (profile as any)?.kyc?.selfiePicture || ''} className="object-cover" />
                                 <AvatarFallback className="bg-[#003399] text-white text-2xl font-bold uppercase">
                                     {profile?.name?.[0]}
                                 </AvatarFallback>
                             </Avatar>
+                            <div className="absolute inset-0 bg-black/40 rounded-3xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Camera className="text-white w-6 h-6" />
+                            </div>
+                            <input
+                                type="file"
+                                id="vendor-profile-input-dashboard"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
                             <div className="absolute -bottom-2 -right-2 bg-white p-1 rounded-lg shadow-sm border border-slate-100">
                                 {(profile as any)?.kycStatus === 'verified' ? (
                                     <ShieldCheck className="text-emerald-500 h-5 w-5" />

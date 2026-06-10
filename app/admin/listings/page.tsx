@@ -18,8 +18,10 @@ import {
     ArrowUpRight,
     Calendar,
     MapPin,
-    RotateCcw
+    RotateCcw,
+    Loader2
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,7 +57,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { useListings, useListingAnalysis } from '@/hooks/useListings';
+import { useListings, useListingAnalysis, useExportListings } from '@/hooks/useListings';
 import { useDebounce } from '@/hooks/use-debounce';
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
@@ -79,6 +81,19 @@ export default function ListingsPage() {
     const [tempStateId, setTempStateId] = useState('');
 
     const debouncedSearch = useDebounce(search, 500);
+
+    const exportListings = useExportListings();
+
+    const handleExportListings = async () => {
+        try {
+            toast.loading('Exporting listings as CSV...', { id: 'export-listings' });
+            await exportListings.mutateAsync();
+            toast.success('Export downloaded successfully!', { id: 'export-listings' });
+        } catch (error: any) {
+            console.error('Export failed:', error);
+            toast.error(error.response?.data?.message || 'Failed to export listings', { id: 'export-listings' });
+        }
+    };
 
     const { data: listingsData, isLoading: loadingListings } = useListings({
         page,
@@ -318,10 +333,19 @@ export default function ListingsPage() {
                                 </SheetFooter>
                             </SheetContent>
                         </Sheet>
-                        {/* <Button variant="outline" className="border-slate-100 rounded-xl px-6 h-12 font-bold text-xs text-slate-600 hover:bg-slate-50">
-                            <Download size={16} className="mr-2" />
+                        <Button
+                            variant="outline"
+                            className="border-slate-100 rounded-xl px-6 h-12 font-bold text-xs text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                            onClick={handleExportListings}
+                            disabled={exportListings.isPending}
+                        >
+                            {exportListings.isPending ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <Download className="w-4 h-4 mr-2" />
+                            )}
                             Export
-                        </Button> */}
+                        </Button>
                     </div>
                 </div>
 
@@ -557,31 +581,61 @@ export default function ListingsPage() {
                                 <ChevronLeft size={16} />
                             </button>
                             <div className="flex gap-1.5">
-                                {Array.from({ length: Math.min(meta.last_page, 5) }, (_, i) => {
-                                    const p = i + 1;
+                                {(() => {
+                                    const pages = [];
+                                    const totalPages = meta.last_page;
+                                    const maxVisible = 5;
+                                    let start = Math.max(1, page - 2);
+                                    let end = Math.min(totalPages, start + maxVisible - 1);
+                                    if (end - start + 1 < maxVisible) {
+                                        start = Math.max(1, end - maxVisible + 1);
+                                    }
+
+                                    for (let p = start; p <= end; p++) {
+                                        pages.push(
+                                            <button
+                                                key={p}
+                                                onClick={() => setPage(p)}
+                                                className={cn(
+                                                    "h-10 w-10 rounded-xl font-bold text-xs transition-all",
+                                                    page === p ? "bg-[#003399] text-white shadow-lg shadow-blue-900/10" : "bg-white border border-slate-100 text-slate-600 hover:bg-slate-50"
+                                                )}
+                                            >
+                                                {p}
+                                            </button>
+                                        );
+                                    }
                                     return (
-                                        <button
-                                            key={p}
-                                            onClick={() => setPage(p)}
-                                            className={cn(
-                                                "h-10 w-10 rounded-xl font-bold text-xs transition-all",
-                                                page === p ? "bg-[#003399] text-white shadow-lg shadow-blue-900/10" : "bg-white border border-slate-100 text-slate-600 hover:bg-slate-50"
+                                        <>
+                                            {start > 1 && (
+                                                <>
+                                                    <button
+                                                        onClick={() => setPage(1)}
+                                                        className="h-10 w-10 rounded-xl font-bold text-xs transition-all bg-white border border-slate-100 text-slate-600 hover:bg-slate-50"
+                                                    >
+                                                        1
+                                                    </button>
+                                                    {start > 2 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
+                                                </>
                                             )}
-                                        >
-                                            {p}
-                                        </button>
+                                            {pages}
+                                            {end < totalPages && (
+                                                <>
+                                                    {end < totalPages - 1 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
+                                                    <button
+                                                        onClick={() => setPage(totalPages)}
+                                                        className={cn(
+                                                            "h-10 px-4 rounded-xl bg-white border border-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-50",
+                                                            page === totalPages && "bg-[#003399] text-white"
+                                                        )}
+                                                    >
+                                                        {totalPages}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </>
                                     );
-                                })}
-                                {meta.last_page > 5 && <div className="px-2 self-end text-slate-400 font-bold mb-2">...</div>}
-                                {meta.last_page > 5 && (
-                                    <button
-                                        onClick={() => setPage(meta.last_page)}
-                                        className={cn(
-                                            "h-10 px-4 rounded-xl bg-white border border-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-50",
-                                            page === meta.last_page && "bg-[#003399] text-white"
-                                        )}
-                                    >{meta.last_page}</button>
-                                )}
+                                })()}
                             </div>
                             <button
                                 onClick={() => setPage(p => Math.min(meta.last_page, p + 1))}

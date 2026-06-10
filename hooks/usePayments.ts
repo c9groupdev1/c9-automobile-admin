@@ -118,3 +118,24 @@ export function useRequeryPayment() {
         },
     });
 }
+
+export function useExportPayments() {
+    return useMutation({
+        mutationFn: async () => {
+            const response = await api.get('/admin/payments/export', {
+                responseType: 'blob',
+            });
+            return response.data;
+        },
+        onSuccess: (data) => {
+            const url = window.URL.createObjectURL(new Blob([data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `payments-export-${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        },
+    });
+}
+
