@@ -40,25 +40,35 @@ export type KycDetail = KycRequest;
 export interface KycResponse {
     success: boolean;
     data: {
-        current_page: number;
+        current_page?: number;
         data: KycRequest[];
-        first_page_url: string;
-        from: number;
-        last_page: number;
-        last_page_url: string;
-        links: Array<{ url: string | null; label: string; active: boolean }>;
-        next_page_url: string | null;
-        path: string;
-        per_page: number;
-        prev_page_url: string | null;
-        to: number;
-        total: number;
+        first_page_url?: string;
+        from?: number;
+        last_page?: number;
+        last_page_url?: string;
+        links?: Array<{ url: string | null; label: string; active: boolean }>;
+        next_page_url?: string | null;
+        path?: string;
+        per_page?: number;
+        prev_page_url?: string | null;
+        to?: number;
+        total?: number;
+        meta?: {
+            current_page: number;
+            from: number;
+            last_page: number;
+            links: Array<{ url: string | null; label: string; active: boolean }>;
+            path: string;
+            per_page: number;
+            to: number;
+            total: number;
+        };
     };
     message: string;
 }
 
 
-export function useKycRequests(params?: { status?: string; page?: number }) {
+export function useKycRequests(params?: { status?: string; page?: number; search?: string; type?: string }) {
     return useQuery({
         queryKey: ['kyc', params],
         queryFn: async () => {

@@ -147,7 +147,10 @@ export function useUpdateVendorProfile() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (data: any) => {
-            const response = await api.post('/user/vendor-profile', data);
+            const isFormData = data instanceof FormData;
+            const response = await api.post('/user/vendor-profile', data, {
+                headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
+            });
             return response.data;
         },
         onSuccess: () => {
