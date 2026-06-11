@@ -58,6 +58,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useListings, useListingAnalysis, useExportListings } from '@/hooks/useListings';
+import { useVehicleMakes, useVehicleModelsByMake, useVehicleFuelTypes, useVehicleTransmissions } from '@/hooks/useVehicles';
 import { useDebounce } from '@/hooks/use-debounce';
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
@@ -109,6 +110,21 @@ export default function ListingsPage() {
     const [tempStartDate, setTempStartDate] = useState('');
     const [tempEndDate, setTempEndDate] = useState('');
     const [tempUserId, setTempUserId] = useState('');
+
+    const { data: makes, isLoading: makesLoading } = useVehicleMakes();
+    
+    // Robust array extraction to handle flat lists, Laravel pagination wrappers, or API envelopes
+    const makesList = Array.isArray(makes) ? makes : (Array.isArray(makes?.data) ? makes.data : (Array.isArray(makes?.data?.data) ? makes.data.data : []));
+    
+    const activeMakeObj = makesList?.find((m: any) => String(m.name).toLowerCase() === String(tempMake).toLowerCase());
+    const makeIdForQuery = activeMakeObj?.id;
+
+    const { data: models, isLoading: modelsLoading } = useVehicleModelsByMake(makeIdForQuery);
+    const { data: fuelTypes, isLoading: fuelTypesLoading } = useVehicleFuelTypes();
+    const { data: transmissions, isLoading: transmissionsLoading } = useVehicleTransmissions();
+
+    const modelsList = Array.isArray(models) ? models : (Array.isArray(models?.data) ? models.data : (Array.isArray(models?.data?.data) ? models.data.data : []));
+    const filteredModels = modelsList;
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -224,7 +240,7 @@ export default function ListingsPage() {
 
     const clearFilter = (key: string) => {
         if (key === 'status') { setStatusFilter('all'); setTempStatus('all'); }
-        if (key === 'make') { setMakeFilter(''); setTempMake(''); }
+        if (key === 'make') { setMakeFilter(''); setTempMake(''); setModelFilter(''); setTempModel(''); }
         if (key === 'model') { setModelFilter(''); setTempModel(''); }
         if (key === 'year') { setYearFilter(''); setTempYear(''); }
         if (key === 'stateId') { setStateIdFilter(''); setTempStateId(''); }
@@ -389,21 +405,46 @@ export default function ListingsPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-3">
                                             <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vehicle Make</Label>
-                                            <Input
-                                                placeholder="Toyota"
-                                                value={tempMake}
-                                                onChange={(e) => setTempMake(e.target.value)}
-                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
-                                            />
+                                            <Select value={tempMake || 'all'} onValueChange={(val) => {
+                                                setTempMake(val === 'all' || !val ? '' : val);
+                                                setTempModel('');
+                                            }}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Make" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100 max-h-[300px] overflow-y-auto">
+                                                    <SelectItem value="all">All Makes</SelectItem>
+                                                    {makesLoading ? (
+                                                        <div className="flex items-center justify-center py-2">
+                                                            <Loader2 className="h-4 w-4 animate-spin text-[#003399]" />
+                                                        </div>
+                                                    ) : (
+                                                        makesList?.map((make: any) => (
+                                                            <SelectItem key={make.id} value={make.name}>{make.name}</SelectItem>
+                                                        ))
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                         <div className="space-y-3">
                                             <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vehicle Model</Label>
-                                            <Input
-                                                placeholder="Camry"
-                                                value={tempModel}
-                                                onChange={(e) => setTempModel(e.target.value)}
-                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
-                                            />
+                                            <Select value={tempModel || 'all'} onValueChange={(val) => setTempModel(val === 'all' || !val ? '' : val)} disabled={!tempMake}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0 disabled:opacity-50">
+                                                    <SelectValue placeholder={tempMake ? "Select Model" : "Select a Make first"} />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100 max-h-[300px] overflow-y-auto">
+                                                    <SelectItem value="all">All Models</SelectItem>
+                                                    {modelsLoading ? (
+                                                        <div className="flex items-center justify-center py-2">
+                                                            <Loader2 className="h-4 w-4 animate-spin text-[#003399]" />
+                                                        </div>
+                                                    ) : (
+                                                        filteredModels?.map((model: any) => (
+                                                            <SelectItem key={model.id} value={model.name}>{model.name}</SelectItem>
+                                                        ))
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                     </div>
 
@@ -450,10 +491,17 @@ export default function ListingsPage() {
                                                 <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
                                                     <SelectValue placeholder="Select Transmission" />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                <SelectContent className="rounded-2xl border-slate-100 max-h-[300px] overflow-y-auto">
                                                     <SelectItem value="all">All Transmissions</SelectItem>
-                                                    <SelectItem value="Automatic">Automatic</SelectItem>
-                                                    <SelectItem value="Manual">Manual</SelectItem>
+                                                    {transmissionsLoading ? (
+                                                        <div className="flex items-center justify-center py-2">
+                                                            <Loader2 className="h-4 w-4 animate-spin text-[#003399]" />
+                                                        </div>
+                                                    ) : (
+                                                        transmissions?.map((t: any) => (
+                                                            <SelectItem key={t.id} value={t.name}>{t.name}</SelectItem>
+                                                        ))
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -466,11 +514,17 @@ export default function ListingsPage() {
                                                 <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
                                                     <SelectValue placeholder="Select Fuel Type" />
                                                 </SelectTrigger>
-                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                <SelectContent className="rounded-2xl border-slate-100 max-h-[300px] overflow-y-auto">
                                                     <SelectItem value="all">All Fuel Types</SelectItem>
-                                                    <SelectItem value="Petrol">Petrol</SelectItem>
-                                                    <SelectItem value="Diesel">Diesel</SelectItem>
-                                                    <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                                    {fuelTypesLoading ? (
+                                                        <div className="flex items-center justify-center py-2">
+                                                            <Loader2 className="h-4 w-4 animate-spin text-[#003399]" />
+                                                        </div>
+                                                    ) : (
+                                                        fuelTypes?.map((f: any) => (
+                                                            <SelectItem key={f.id} value={f.name}>{f.name}</SelectItem>
+                                                        ))
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
