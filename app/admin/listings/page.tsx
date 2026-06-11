@@ -80,6 +80,17 @@ export default function ListingsPage() {
     const [modelFilter, setModelFilter] = useState('');
     const [yearFilter, setYearFilter] = useState('');
     const [stateIdFilter, setStateIdFilter] = useState('');
+    const [conditionFilter, setConditionFilter] = useState('all');
+    const [transmissionFilter, setTransmissionFilter] = useState('all');
+    const [fuelTypeFilter, setFuelTypeFilter] = useState('all');
+    const [driveTypeFilter, setDriveTypeFilter] = useState('all');
+    const [isRegisteredFilter, setIsRegisteredFilter] = useState('all');
+    const [isFeaturedFilter, setIsFeaturedFilter] = useState('all');
+    const [minAmountFilter, setMinAmountFilter] = useState('');
+    const [maxAmountFilter, setMaxAmountFilter] = useState('');
+    const [startDateFilter, setStartDateFilter] = useState('');
+    const [endDateFilter, setEndDateFilter] = useState('');
+    const [userIdFilter, setUserIdFilter] = useState('');
 
     // Temporary states for the filter sheet
     const [tempStatus, setTempStatus] = useState('all');
@@ -87,6 +98,17 @@ export default function ListingsPage() {
     const [tempModel, setTempModel] = useState('');
     const [tempYear, setTempYear] = useState('');
     const [tempStateId, setTempStateId] = useState('');
+    const [tempCondition, setTempCondition] = useState('all');
+    const [tempTransmission, setTempTransmission] = useState('all');
+    const [tempFuelType, setTempFuelType] = useState('all');
+    const [tempDriveType, setTempDriveType] = useState('all');
+    const [tempIsRegistered, setTempIsRegistered] = useState('all');
+    const [tempIsFeatured, setTempIsFeatured] = useState('all');
+    const [tempMinAmount, setTempMinAmount] = useState('');
+    const [tempMaxAmount, setTempMaxAmount] = useState('');
+    const [tempStartDate, setTempStartDate] = useState('');
+    const [tempEndDate, setTempEndDate] = useState('');
+    const [tempUserId, setTempUserId] = useState('');
 
     const debouncedSearch = useDebounce(search, 500);
 
@@ -95,7 +117,25 @@ export default function ListingsPage() {
     const handleExportListings = async () => {
         try {
             toast.loading('Exporting listings as CSV...', { id: 'export-listings' });
-            await exportListings.mutateAsync();
+            await exportListings.mutateAsync({
+                q: debouncedSearch || undefined,
+                status: statusFilter === 'all' ? undefined : statusFilter,
+                make: makeFilter || undefined,
+                model: modelFilter || undefined,
+                year: yearFilter || undefined,
+                stateId: stateIdFilter || undefined,
+                condition: conditionFilter === 'all' ? undefined : conditionFilter,
+                transmission: transmissionFilter === 'all' ? undefined : transmissionFilter,
+                fuelType: fuelTypeFilter === 'all' ? undefined : fuelTypeFilter,
+                driveType: driveTypeFilter === 'all' ? undefined : driveTypeFilter,
+                isRegistered: isRegisteredFilter === 'all' ? undefined : (isRegisteredFilter === 'yes'),
+                isFeatured: isFeaturedFilter === 'all' ? undefined : (isFeaturedFilter === 'yes'),
+                minAmount: minAmountFilter ? parseInt(minAmountFilter) : undefined,
+                maxAmount: maxAmountFilter ? parseInt(maxAmountFilter) : undefined,
+                startDate: startDateFilter || undefined,
+                endDate: endDateFilter || undefined,
+                userId: userIdFilter || undefined,
+            });
             toast.success('Export downloaded successfully!', { id: 'export-listings' });
         } catch (error: any) {
             console.error('Export failed:', error);
@@ -105,12 +145,23 @@ export default function ListingsPage() {
 
     const { data: listingsData, isLoading: loadingListings } = useListings({
         page,
-        search: debouncedSearch,
+        q: debouncedSearch || undefined,
         status: statusFilter === 'all' ? undefined : statusFilter,
         make: makeFilter || undefined,
         model: modelFilter || undefined,
         year: yearFilter || undefined,
         stateId: stateIdFilter || undefined,
+        condition: conditionFilter === 'all' ? undefined : conditionFilter,
+        transmission: transmissionFilter === 'all' ? undefined : transmissionFilter,
+        fuelType: fuelTypeFilter === 'all' ? undefined : fuelTypeFilter,
+        driveType: driveTypeFilter === 'all' ? undefined : driveTypeFilter,
+        isRegistered: isRegisteredFilter === 'all' ? undefined : (isRegisteredFilter === 'yes'),
+        isFeatured: isFeaturedFilter === 'all' ? undefined : (isFeaturedFilter === 'yes'),
+        minAmount: minAmountFilter ? parseInt(minAmountFilter) : undefined,
+        maxAmount: maxAmountFilter ? parseInt(maxAmountFilter) : undefined,
+        startDate: startDateFilter || undefined,
+        endDate: endDateFilter || undefined,
+        userId: userIdFilter || undefined,
         perPage: 10
     });
 
@@ -120,6 +171,17 @@ export default function ListingsPage() {
         setModelFilter(tempModel);
         setYearFilter(tempYear);
         setStateIdFilter(tempStateId);
+        setConditionFilter(tempCondition);
+        setTransmissionFilter(tempTransmission);
+        setFuelTypeFilter(tempFuelType);
+        setDriveTypeFilter(tempDriveType);
+        setIsRegisteredFilter(tempIsRegistered);
+        setIsFeaturedFilter(tempIsFeatured);
+        setMinAmountFilter(tempMinAmount);
+        setMaxAmountFilter(tempMaxAmount);
+        setStartDateFilter(tempStartDate);
+        setEndDateFilter(tempEndDate);
+        setUserIdFilter(tempUserId);
         setPage(1);
     };
 
@@ -129,12 +191,34 @@ export default function ListingsPage() {
         setTempModel('');
         setTempYear('');
         setTempStateId('');
+        setTempCondition('all');
+        setTempTransmission('all');
+        setTempFuelType('all');
+        setTempDriveType('all');
+        setTempIsRegistered('all');
+        setTempIsFeatured('all');
+        setTempMinAmount('');
+        setTempMaxAmount('');
+        setTempStartDate('');
+        setTempEndDate('');
+        setTempUserId('');
 
         setStatusFilter('all');
         setMakeFilter('');
         setModelFilter('');
         setYearFilter('');
         setStateIdFilter('');
+        setConditionFilter('all');
+        setTransmissionFilter('all');
+        setFuelTypeFilter('all');
+        setDriveTypeFilter('all');
+        setIsRegisteredFilter('all');
+        setIsFeaturedFilter('all');
+        setMinAmountFilter('');
+        setMaxAmountFilter('');
+        setStartDateFilter('');
+        setEndDateFilter('');
+        setUserIdFilter('');
         setPage(1);
     };
 
@@ -144,6 +228,17 @@ export default function ListingsPage() {
         if (key === 'model') { setModelFilter(''); setTempModel(''); }
         if (key === 'year') { setYearFilter(''); setTempYear(''); }
         if (key === 'stateId') { setStateIdFilter(''); setTempStateId(''); }
+        if (key === 'condition') { setConditionFilter('all'); setTempCondition('all'); }
+        if (key === 'transmission') { setTransmissionFilter('all'); setTempTransmission('all'); }
+        if (key === 'fuelType') { setFuelTypeFilter('all'); setTempFuelType('all'); }
+        if (key === 'driveType') { setDriveTypeFilter('all'); setTempDriveType('all'); }
+        if (key === 'isRegistered') { setIsRegisteredFilter('all'); setTempIsRegistered('all'); }
+        if (key === 'isFeatured') { setIsFeaturedFilter('all'); setTempIsFeatured('all'); }
+        if (key === 'minAmount') { setMinAmountFilter(''); setTempMinAmount(''); }
+        if (key === 'maxAmount') { setMaxAmountFilter(''); setTempMaxAmount(''); }
+        if (key === 'startDate') { setStartDateFilter(''); setTempStartDate(''); }
+        if (key === 'endDate') { setEndDateFilter(''); setTempEndDate(''); }
+        if (key === 'userId') { setUserIdFilter(''); setTempUserId(''); }
         setPage(1);
     };
 
@@ -242,20 +337,37 @@ export default function ListingsPage() {
                                     <Button variant="outline" className="border-slate-100 rounded-xl px-6 h-12 font-bold text-xs text-slate-600 hover:bg-slate-50">
                                         <Filter size={16} className="mr-2" />
                                         All Filters
-                                        {(statusFilter !== 'all' || makeFilter || modelFilter || yearFilter || stateIdFilter) && (
+                                        {(statusFilter !== 'all' || makeFilter || modelFilter || yearFilter || stateIdFilter || conditionFilter !== 'all' || transmissionFilter !== 'all' || fuelTypeFilter !== 'all' || driveTypeFilter !== 'all' || isRegisteredFilter !== 'all' || isFeaturedFilter !== 'all' || minAmountFilter || maxAmountFilter || startDateFilter || endDateFilter || userIdFilter) && (
                                             <Badge className="ml-2 bg-[#003399] text-white h-5 w-5 p-0 flex items-center justify-center rounded-full text-[10px]">
-                                                {[statusFilter !== 'all', !!makeFilter, !!modelFilter, !!yearFilter, !!stateIdFilter].filter(Boolean).length}
+                                                {[
+                                                    statusFilter !== 'all', 
+                                                    !!makeFilter, 
+                                                    !!modelFilter, 
+                                                    !!yearFilter, 
+                                                    !!stateIdFilter,
+                                                    conditionFilter !== 'all',
+                                                    transmissionFilter !== 'all',
+                                                    fuelTypeFilter !== 'all',
+                                                    driveTypeFilter !== 'all',
+                                                    isRegisteredFilter !== 'all',
+                                                    isFeaturedFilter !== 'all',
+                                                    !!minAmountFilter,
+                                                    !!maxAmountFilter,
+                                                    !!startDateFilter,
+                                                    !!endDateFilter,
+                                                    !!userIdFilter
+                                                ].filter(Boolean).length}
                                             </Badge>
                                         )}
                                     </Button>
                                 }
                             />
-                            <SheetContent className="w-[400px] sm:w-[540px] rounded-l-[2rem] border-slate-100 p-8">
-                                <SheetHeader className="pb-8 border-b border-slate-100">
+                            <SheetContent className="w-[400px] sm:w-[540px] rounded-l-[2rem] border-slate-100 p-8 flex flex-col h-full">
+                                <SheetHeader className="pb-8 border-b border-slate-100 flex-shrink-0">
                                     <SheetTitle className="text-2xl font-bold">Advanced Filters</SheetTitle>
                                     <SheetDescription className="text-slate-500 font-medium pt-1">Refine your vehicle list using multiple parameters.</SheetDescription>
                                 </SheetHeader>
-                                <div className="py-8 space-y-8">
+                                <div className="flex-1 overflow-y-auto pr-4 -mr-4 py-8 space-y-8">
                                     <div className="space-y-3">
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-[#003399]">Operational Status</Label>
                                         <Select value={tempStatus} onValueChange={(val) => setTempStatus(val || 'all')}>
@@ -316,8 +428,152 @@ export default function ListingsPage() {
                                             />
                                         </div>
                                     </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Condition</Label>
+                                            <Select value={tempCondition} onValueChange={(val) => setTempCondition(val || 'all')}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Condition" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                    <SelectItem value="all">All Conditions</SelectItem>
+                                                    <SelectItem value="Brand New">Brand New</SelectItem>
+                                                    <SelectItem value="Foreign Used">Foreign Used</SelectItem>
+                                                    <SelectItem value="Nigerian Used">Nigerian Used</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Transmission</Label>
+                                            <Select value={tempTransmission} onValueChange={(val) => setTempTransmission(val || 'all')}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Transmission" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                    <SelectItem value="all">All Transmissions</SelectItem>
+                                                    <SelectItem value="Automatic">Automatic</SelectItem>
+                                                    <SelectItem value="Manual">Manual</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fuel Type</Label>
+                                            <Select value={tempFuelType} onValueChange={(val) => setTempFuelType(val || 'all')}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Fuel Type" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                    <SelectItem value="all">All Fuel Types</SelectItem>
+                                                    <SelectItem value="Petrol">Petrol</SelectItem>
+                                                    <SelectItem value="Diesel">Diesel</SelectItem>
+                                                    <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Drive Type</Label>
+                                            <Select value={tempDriveType} onValueChange={(val) => setTempDriveType(val || 'all')}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Drive Type" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                    <SelectItem value="all">All Drive Types</SelectItem>
+                                                    <SelectItem value="AWD">AWD</SelectItem>
+                                                    <SelectItem value="FWD">FWD</SelectItem>
+                                                    <SelectItem value="RWD">RWD</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Is Registered</Label>
+                                            <Select value={tempIsRegistered} onValueChange={(val) => setTempIsRegistered(val || 'all')}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Registered Status" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                    <SelectItem value="all">All</SelectItem>
+                                                    <SelectItem value="yes">Yes</SelectItem>
+                                                    <SelectItem value="no">No</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Is Featured</Label>
+                                            <Select value={tempIsFeatured} onValueChange={(val) => setTempIsFeatured(val || 'all')}>
+                                                <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold focus:ring-offset-0 focus:ring-0">
+                                                    <SelectValue placeholder="Select Featured Status" />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-2xl border-slate-100">
+                                                    <SelectItem value="all">All</SelectItem>
+                                                    <SelectItem value="yes">Yes</SelectItem>
+                                                    <SelectItem value="no">No</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Min Price (₦)</Label>
+                                            <Input
+                                                placeholder="e.g. 5000000"
+                                                type="number"
+                                                value={tempMinAmount}
+                                                onChange={(e) => setTempMinAmount(e.target.value)}
+                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
+                                            />
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Max Price (₦)</Label>
+                                            <Input
+                                                placeholder="e.g. 25000000"
+                                                type="number"
+                                                value={tempMaxAmount}
+                                                onChange={(e) => setTempMaxAmount(e.target.value)}
+                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Submission Date From</Label>
+                                            <Input
+                                                type="date"
+                                                value={tempStartDate}
+                                                onChange={(e) => setTempStartDate(e.target.value)}
+                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold text-slate-500"
+                                            />
+                                        </div>
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Submission Date To</Label>
+                                            <Input
+                                                type="date"
+                                                value={tempEndDate}
+                                                onChange={(e) => setTempEndDate(e.target.value)}
+                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold text-slate-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vendor / Owner UUID</Label>
+                                        <Input
+                                            placeholder="e.g. 9d8d6f5a-..."
+                                            value={tempUserId}
+                                            onChange={(e) => setTempUserId(e.target.value)}
+                                            className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
+                                        />
+                                    </div>
                                 </div>
-                                <SheetFooter className="p-0 pt-8 border-t border-slate-100 mt-auto">
+                                <SheetFooter className="p-0 pt-8 border-t border-slate-100 mt-auto flex-shrink-0">
                                     <div className="flex items-center gap-3 w-full">
                                         <Button
                                             variant="ghost"
@@ -357,7 +613,7 @@ export default function ListingsPage() {
                     </div>
                 </div>
 
-                {(statusFilter !== 'all' || makeFilter || modelFilter || yearFilter || stateIdFilter) && (
+                {(statusFilter !== 'all' || makeFilter || modelFilter || yearFilter || stateIdFilter || conditionFilter !== 'all' || transmissionFilter !== 'all' || fuelTypeFilter !== 'all' || driveTypeFilter !== 'all' || isRegisteredFilter !== 'all' || isFeaturedFilter !== 'all' || minAmountFilter || maxAmountFilter || startDateFilter || endDateFilter || userIdFilter) && (
                     <div className="flex flex-wrap items-center gap-2">
                         {statusFilter !== 'all' && (
                             <div className="flex items-center gap-2 bg-blue-50 text-[#003399] pl-3 pr-2 py-1.5 rounded-lg border border-blue-100 shadow-sm">
@@ -408,6 +664,127 @@ export default function ListingsPage() {
                                 <span className="text-[10px] font-bold uppercase tracking-widest">State: {stateIdFilter}</span>
                                 <button
                                     onClick={() => clearFilter('stateId')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {conditionFilter !== 'all' && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Condition: {conditionFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('condition')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {transmissionFilter !== 'all' && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Transmission: {transmissionFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('transmission')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {fuelTypeFilter !== 'all' && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Fuel: {fuelTypeFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('fuelType')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {driveTypeFilter !== 'all' && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Drive: {driveTypeFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('driveType')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {isRegisteredFilter !== 'all' && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Registered: {isRegisteredFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('isRegistered')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {isFeaturedFilter !== 'all' && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Featured: {isFeaturedFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('isFeatured')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {minAmountFilter && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Min Price: ₦{parseInt(minAmountFilter).toLocaleString()}</span>
+                                <button
+                                    onClick={() => clearFilter('minAmount')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {maxAmountFilter && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Max Price: ₦{parseInt(maxAmountFilter).toLocaleString()}</span>
+                                <button
+                                    onClick={() => clearFilter('maxAmount')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {startDateFilter && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">From: {startDateFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('startDate')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {endDateFilter && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">To: {endDateFilter}</span>
+                                <button
+                                    onClick={() => clearFilter('endDate')}
+                                    className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        )}
+                        {userIdFilter && (
+                            <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Vendor ID: {userIdFilter.substring(0, 8)}...</span>
+                                <button
+                                    onClick={() => clearFilter('userId')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
                                 >
                                     <X size={12} />

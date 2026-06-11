@@ -50,6 +50,7 @@ import { useState } from 'react';
 import { useUsers, useUserAnalysis, useResetPassword, useUpdateUserStatus, useRoles, useExportUsers } from '@/hooks/useUsers';
 import { useDebounce } from '@/hooks/use-debounce';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -75,6 +76,7 @@ import { usePermissions } from '@/hooks/use-permissions';
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
 export default function UsersPage() {
+    const router = useRouter();
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const debouncedSearch = useDebounce(search, 500);
@@ -82,7 +84,6 @@ export default function UsersPage() {
     const [verificationStatus, setVerificationStatus] = useState<string>('all-verification');
     const [userType, setUserType] = useState<string>('all-types');
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState<{ id: string; name: string; email: string; role: string } | undefined>();
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [perPage, setPerPage] = useState('10');
     const [sortBy, setSortBy] = useState('created_at');
@@ -148,7 +149,6 @@ export default function UsersPage() {
                     <PermissionGuard permission="user.create">
                         <Button
                             onClick={() => {
-                                setEditingUser(undefined);
                                 setIsFormOpen(true);
                             }}
                             className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10"
@@ -373,8 +373,6 @@ export default function UsersPage() {
                                 {/* <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">User ID</TableHead> */}
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Full Name</TableHead>
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email Address</TableHead>
-                                <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phone Number</TableHead>
-                                <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</TableHead>
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account Type</TableHead>
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">KYC Status</TableHead>
                                 <TableHead className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Account Status</TableHead>
@@ -403,8 +401,6 @@ export default function UsersPage() {
                                             </Link>
                                         </TableCell>
                                         <TableCell className="px-4 py-5 text-xs font-medium text-slate-500">{user.emailAddress}</TableCell>
-                                        <TableCell className="px-4 py-5 text-xs font-medium text-slate-500">{user.phoneNumber || 'N/A'}</TableCell>
-                                        <TableCell className="px-4 py-5 text-xs font-medium text-slate-500">{user.location || 'N/A'}</TableCell>
                                         <TableCell className="px-4 py-5">
                                             <span className={cn(
                                                 "text-[10px] font-bold",
@@ -450,13 +446,7 @@ export default function UsersPage() {
                                                     <PermissionGuard permission="user.update">
                                                         <DropdownMenuItem
                                                             onClick={() => {
-                                                                setEditingUser({
-                                                                    id: user.id,
-                                                                    name: user.fullName,
-                                                                    email: user.emailAddress,
-                                                                    role: user.accountType
-                                                                });
-                                                                setIsFormOpen(true);
+                                                                router.push(`/admin/users/${user.id}/edit`);
                                                             }}
                                                             className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors"
                                                         >
@@ -574,15 +564,14 @@ export default function UsersPage() {
                 <SheetContent className="w-[400px] sm:w-[540px] rounded-l-[3rem] border-l-slate-100 p-10 flex flex-col">
                     <SheetHeader className="mb-8">
                         <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#003399] mb-4">
-                            {editingUser ? <Save size={24} /> : <UserPlus size={24} />}
+                            <UserPlus size={24} />
                         </div>
-                        <SheetTitle className="text-2xl font-black text-slate-900">{editingUser ? 'Modify User Profile' : 'Add New User'}</SheetTitle>
-                        <SheetDescription className="text-slate-500 font-medium">{editingUser ? `Updating access and credentials for User ID: ${editingUser.id}` : 'Configure access clearance and identities for a new account member'}</SheetDescription>
+                        <SheetTitle className="text-2xl font-black text-slate-900">Add New User</SheetTitle>
+                        <SheetDescription className="text-slate-500 font-medium">Configure access clearance and identities for a new account member</SheetDescription>
                     </SheetHeader>
 
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4">
                         <UserForm
-                            initialData={editingUser}
                             onSuccess={() => {
                                 setIsFormOpen(false);
                                 refetch();
