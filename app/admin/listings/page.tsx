@@ -61,6 +61,14 @@ import { useListings, useListingAnalysis, useExportListings } from '@/hooks/useL
 import { useDebounce } from '@/hooks/use-debounce';
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -550,13 +558,31 @@ export default function ListingsPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="px-6 py-6 text-right">
-                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-[#003399] hover:bg-blue-50" title="View Details">
-                                                    <ArrowUpRight size={14} />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600">
-                                                    <MoreVertical size={16} />
-                                                </Button>
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Link href={`/admin/listings/${listing.id}`}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-[#003399] hover:bg-blue-50" title="View Details">
+                                                        <ArrowUpRight size={14} />
+                                                    </Button>
+                                                </Link>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger
+                                                        render={
+                                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600" title="Actions">
+                                                                <MoreVertical size={16} />
+                                                            </Button>
+                                                        }
+                                                    />
+                                                    <DropdownMenuContent align="end" className="w-56 rounded-2xl border-slate-100 shadow-2xl p-2 bg-white">
+                                                        <DropdownMenuLabel className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Listing Actions</DropdownMenuLabel>
+                                                        <DropdownMenuSeparator className="bg-slate-50" />
+                                                        <Link href={`/admin/listings/${listing.id}`}>
+                                                            <DropdownMenuItem className="px-3 py-3 rounded-xl font-bold text-xs text-slate-700 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors">
+                                                                <Car size={14} className="text-[#003399]" />
+                                                                Inspect Details
+                                                            </DropdownMenuItem>
+                                                        </Link>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </div>
                                         </TableCell>
                                     </TableRow>
