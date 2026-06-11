@@ -29,6 +29,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { PermissionGuard } from '@/components/auth/permission-guard';
 import { 
     Select, 
     SelectContent, 
@@ -156,6 +157,16 @@ export default function UserDetailPage() {
                             </div>
                         </div>
                     </div>
+                    <PermissionGuard permission="user.update">
+                        <div className="flex items-center gap-2 self-start md:self-auto">
+                            <Link href={`/admin/users/${id}/edit`}>
+                                <Button className="bg-[#003399] hover:bg-blue-800 rounded-xl px-6 h-12 font-bold text-xs shadow-lg shadow-blue-900/10 gap-2">
+                                    <Settings size={16} />
+                                    Modify Profile
+                                </Button>
+                            </Link>
+                        </div>
+                    </PermissionGuard>
                 </div>
 
                 {/* Profile Header Card */}

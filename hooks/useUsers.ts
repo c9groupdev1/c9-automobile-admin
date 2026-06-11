@@ -167,8 +167,22 @@ export function useCreateUser() {
 export function useUpdateUser() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async ({ id, data }: { id: string; data: { name?: string; email?: string; role?: string } }) => {
-            const response = await api.post(`/admin/users/${id}/update`, data);
+        mutationFn: async ({ id, data }: { 
+            id: string; 
+            data: { 
+                name?: string; 
+                email?: string; 
+                role?: string;
+                phoneNumber?: string;
+                phone_number?: string;
+                address?: string;
+                residentialAddress?: string;
+                status?: 'active' | 'suspended' | 'under_review';
+                kycVerified?: boolean;
+                kyc_verified?: boolean;
+            } 
+        }) => {
+            const response = await api.put(`/admin/users/${id}`, data);
             return response.data;
         },
         onSuccess: () => {

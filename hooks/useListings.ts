@@ -72,20 +72,36 @@ export interface ListingsResponse {
 
 export function useListings(params?: {
     page?: number;
+    q?: string;
     search?: string;
     status?: string;
     make?: string;
     model?: string;
     year?: string | number;
+    condition?: string;
+    transmission?: string;
+    fuelType?: string;
+    driveType?: string;
+    isRegistered?: boolean;
+    isFeatured?: boolean;
     stateId?: string | number;
+    userId?: string;
+    minAmount?: number;
+    maxAmount?: number;
+    startDate?: string;
+    endDate?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
     perPage?: number;
 }) {
+    const apiParams = { ...params };
+    if (apiParams.search && !apiParams.q) {
+        apiParams.q = apiParams.search;
+    }
     return useQuery({
-        queryKey: ['listings', params],
+        queryKey: ['listings', apiParams],
         queryFn: async () => {
-            const response = await api.get<ListingsResponse>('/admin/listings/vehicles', { params });
+            const response = await api.get<ListingsResponse>('/admin/listings/vehicles', { params: apiParams });
             return response.data.data;
         },
     });
@@ -319,8 +335,9 @@ export function useVerifyVin() {
 
 export function useExportListings() {
     return useMutation({
-        mutationFn: async () => {
+        mutationFn: async (params?: any) => {
             const response = await api.get('/admin/listings/vehicles/export', {
+                params,
                 responseType: 'blob',
             });
             return response.data;

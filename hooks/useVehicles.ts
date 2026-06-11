@@ -84,6 +84,18 @@ export const useVehicleModels = (search?: string) => {
     });
 };
 
+export const useVehicleModelsByMake = (makeId?: string | number) => {
+    return useQuery({
+        queryKey: ['vehicle-models-by-make', makeId],
+        queryFn: async () => {
+            if (!makeId) return [];
+            const { data } = await api.get(`/vehicle/makes/${makeId}/models`);
+            return data?.data?.data || data?.data || [];
+        },
+        enabled: !!makeId,
+    });
+};
+
 export const useCreateModel = () => {
     const queryClient = useQueryClient();
     return useMutation({
