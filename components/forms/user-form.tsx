@@ -242,9 +242,24 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                                         <FormLabel className="text-[10px] font-black uppercase tracking-widest text-[#0066CC] flex items-center gap-2">
                                             Email Address
                                         </FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="user@c9x.network" {...field} className="h-12 rounded-xl bg-slate-50 border-slate-100 focus:bg-white transition-all font-semibold" />
-                                        </FormControl>
+                                        <div className="relative">
+                                            <FormControl>
+                                                <Input 
+                                                    placeholder="user@c9x.network" 
+                                                    {...field} 
+                                                    disabled={isEdit} 
+                                                    className="h-12 pr-10 rounded-xl bg-slate-50 border-slate-100 focus:bg-white disabled:bg-slate-100/60 disabled:text-slate-400 disabled:cursor-not-allowed transition-all font-semibold" 
+                                                />
+                                            </FormControl>
+                                            {isEdit && (
+                                                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
+                                                    <Lock size={14} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        {isEdit && (
+                                            <p className="text-[9px] font-medium text-slate-400">Email address is locked. Contact identity support to modify.</p>
+                                        )}
                                         <FormMessage />
                                     </FormItem>
                                 )}

@@ -58,7 +58,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useListings, useListingAnalysis, useExportListings } from '@/hooks/useListings';
-import { useVehicleMakes, useVehicleModelsByMake, useVehicleFuelTypes, useVehicleTransmissions } from '@/hooks/useVehicles';
+import { useVehicleMakes, useVehicleModelsByMake, useVehicleFuelTypes, useVehicleTransmissions, useVehicleStates } from '@/hooks/useVehicles';
+import { useUsers } from '@/hooks/useUsers';
+import { SearchableDropdown } from '@/components/ui/searchable-dropdown';
 import { useDebounce } from '@/hooks/use-debounce';
 import { format, parseISO } from 'date-fns';
 import Link from 'next/link';
@@ -112,16 +114,36 @@ export default function ListingsPage() {
     const [tempUserId, setTempUserId] = useState('');
 
     const { data: makes, isLoading: makesLoading } = useVehicleMakes();
-    
+
     // Robust array extraction to handle flat lists, Laravel pagination wrappers, or API envelopes
     const makesList = Array.isArray(makes) ? makes : (Array.isArray(makes?.data) ? makes.data : (Array.isArray(makes?.data?.data) ? makes.data.data : []));
-    
+
     const activeMakeObj = makesList?.find((m: any) => String(m.name).toLowerCase() === String(tempMake).toLowerCase());
     const makeIdForQuery = activeMakeObj?.id;
 
     const { data: models, isLoading: modelsLoading } = useVehicleModelsByMake(makeIdForQuery);
     const { data: fuelTypes, isLoading: fuelTypesLoading } = useVehicleFuelTypes();
     const { data: transmissions, isLoading: transmissionsLoading } = useVehicleTransmissions();
+
+    const { data: states, isLoading: statesLoading } = useVehicleStates();
+    const statesList = Array.isArray(states) ? states : [];
+    const stateOptions = statesList.map((state: any) => ({
+        label: state.name,
+        value: state.id,
+    }));
+
+    const { data: usersData, isLoading: usersLoading } = useUsers({ perPage: 250 });
+    const usersList = usersData?.data || [];
+    const vendorOptions = usersList.map((user: any) => ({
+        label: `${user.fullName || 'Unnamed User'} (${user.emailAddress || ''})`,
+        value: user.id,
+    }));
+
+    const activeStateObj = stateOptions.find(opt => String(opt.value) === String(stateIdFilter));
+    const stateDisplayName = activeStateObj ? activeStateObj.label : stateIdFilter;
+
+    const activeUserObj = vendorOptions.find(opt => String(opt.value) === String(userIdFilter));
+    const userDisplayName = activeUserObj ? activeUserObj.label : `${userIdFilter?.substring(0, 8)}...`;
 
     const modelsList = Array.isArray(models) ? models : (Array.isArray(models?.data) ? models.data : (Array.isArray(models?.data?.data) ? models.data.data : []));
     const filteredModels = modelsList;
@@ -356,10 +378,10 @@ export default function ListingsPage() {
                                         {(statusFilter !== 'all' || makeFilter || modelFilter || yearFilter || stateIdFilter || conditionFilter !== 'all' || transmissionFilter !== 'all' || fuelTypeFilter !== 'all' || driveTypeFilter !== 'all' || isRegisteredFilter !== 'all' || isFeaturedFilter !== 'all' || minAmountFilter || maxAmountFilter || startDateFilter || endDateFilter || userIdFilter) && (
                                             <Badge className="ml-2 bg-[#003399] text-white h-5 w-5 p-0 flex items-center justify-center rounded-full text-[10px]">
                                                 {[
-                                                    statusFilter !== 'all', 
-                                                    !!makeFilter, 
-                                                    !!modelFilter, 
-                                                    !!yearFilter, 
+                                                    statusFilter !== 'all',
+                                                    !!makeFilter,
+                                                    !!modelFilter,
+                                                    !!yearFilter,
                                                     !!stateIdFilter,
                                                     conditionFilter !== 'all',
                                                     transmissionFilter !== 'all',
@@ -460,12 +482,14 @@ export default function ListingsPage() {
                                             />
                                         </div>
                                         <div className="space-y-3">
-                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">State (ID)</Label>
-                                            <Input
-                                                placeholder="Lagos (19)"
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">State</Label>
+                                            <SearchableDropdown
+                                                options={stateOptions}
                                                 value={tempStateId}
-                                                onChange={(e) => setTempStateId(e.target.value)}
-                                                className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
+                                                onChange={(val) => setTempStateId(String(val))}
+                                                placeholder="Select State"
+                                                searchPlaceholder="Search state..."
+                                                loading={statesLoading}
                                             />
                                         </div>
                                     </div>
@@ -618,12 +642,14 @@ export default function ListingsPage() {
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vendor / Owner UUID</Label>
-                                        <Input
-                                            placeholder="e.g. 9d8d6f5a-..."
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vendor / Owner</Label>
+                                        <SearchableDropdown
+                                            options={vendorOptions}
                                             value={tempUserId}
-                                            onChange={(e) => setTempUserId(e.target.value)}
-                                            className="h-12 rounded-xl bg-slate-50 border-slate-100 font-semibold"
+                                            onChange={(val) => setTempUserId(String(val))}
+                                            placeholder="Select Vendor"
+                                            searchPlaceholder="Search vendor name or email..."
+                                            loading={usersLoading}
                                         />
                                     </div>
                                 </div>
@@ -643,7 +669,7 @@ export default function ListingsPage() {
                                                     className="flex-[2] h-14 rounded-2xl font-bold bg-[#003399] hover:bg-blue-900 shadow-xl shadow-blue-900/10"
                                                     onClick={handleApplyFilters}
                                                 >
-                                                    Apply Parameters
+                                                    Apply Filter
                                                 </Button>
                                             }
                                         />
@@ -715,7 +741,7 @@ export default function ListingsPage() {
                         )}
                         {stateIdFilter && (
                             <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
-                                <span className="text-[10px] font-bold uppercase tracking-widest">State: {stateIdFilter}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">State: {stateDisplayName}</span>
                                 <button
                                     onClick={() => clearFilter('stateId')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"
@@ -836,7 +862,7 @@ export default function ListingsPage() {
                         )}
                         {userIdFilter && (
                             <div className="flex items-center gap-2 bg-slate-50 text-slate-900 pl-3 pr-2 py-1.5 rounded-lg border border-slate-100 shadow-sm">
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Vendor ID: {userIdFilter.substring(0, 8)}...</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Vendor: {userDisplayName}</span>
                                 <button
                                     onClick={() => clearFilter('userId')}
                                     className="text-slate-400 p-0.5 hover:bg-slate-100 rounded-md transition-colors"

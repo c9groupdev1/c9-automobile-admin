@@ -432,3 +432,19 @@ export const useDeleteTransmission = () => {
     });
 };
 
+export interface VehicleState {
+    id: number;
+    name: string;
+    slug: string;
+}
+
+export const useVehicleStates = () => {
+    return useQuery({
+        queryKey: ['vehicle-states'],
+        queryFn: async () => {
+            const { data } = await api.get('/states');
+            return data?.data || [];
+        },
+    });
+};
+
