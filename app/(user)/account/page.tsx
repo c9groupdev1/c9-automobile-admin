@@ -84,19 +84,19 @@ export default function AccountPage() {
                     years_in_business: (profile as any).vendorProfile.years_in_business ?? (profile as any).vendorProfile.yearsInBusiness ?? '',
                     business_description: (profile as any).vendorProfile.business_description ?? (profile as any).vendorProfile.businessDescription ?? '',
                     opening_hours: (profile as any).vendorProfile.opening_hours ?? (profile as any).vendorProfile.openingHours ?? '',
-                    facebook_url: (profile as any).vendorProfile.facebook_url ?? 
-                                  (profile as any).vendorProfile.facebook ?? 
-                                  (profile as any).vendorProfile.socialMedia?.facebook ?? '',
-                    instagram_url: (profile as any).vendorProfile.instagram_url ?? 
-                                   (profile as any).vendorProfile.instagram ?? 
-                                   (profile as any).vendorProfile.socialMedia?.instagram ?? '',
-                    x_url: (profile as any).vendorProfile.x_url ?? 
-                           (profile as any).vendorProfile.x ?? 
-                           (profile as any).vendorProfile.socialMedia?.x ?? 
-                           (profile as any).vendorProfile.socialMedia?.twitter ?? '',
-                    tiktok_url: (profile as any).vendorProfile.tiktok_url ?? 
-                                (profile as any).vendorProfile.tiktok ?? 
-                                (profile as any).vendorProfile.socialMedia?.tiktok ?? ''
+                    facebook_url: (profile as any).vendorProfile.facebook_url ??
+                        (profile as any).vendorProfile.facebook ??
+                        (profile as any).vendorProfile.socialMedia?.facebook ?? '',
+                    instagram_url: (profile as any).vendorProfile.instagram_url ??
+                        (profile as any).vendorProfile.instagram ??
+                        (profile as any).vendorProfile.socialMedia?.instagram ?? '',
+                    x_url: (profile as any).vendorProfile.x_url ??
+                        (profile as any).vendorProfile.x ??
+                        (profile as any).vendorProfile.socialMedia?.x ??
+                        (profile as any).vendorProfile.socialMedia?.twitter ?? '',
+                    tiktok_url: (profile as any).vendorProfile.tiktok_url ??
+                        (profile as any).vendorProfile.tiktok ??
+                        (profile as any).vendorProfile.socialMedia?.tiktok ?? ''
                 } : {})
             }));
 
@@ -123,7 +123,7 @@ export default function AccountPage() {
 
     const handleRegisteredSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const formData = new FormData();
         formData.append('name', registeredData.name || profile?.name || '');
         formData.append('contact_number', registeredData.contact_number);
@@ -179,7 +179,7 @@ export default function AccountPage() {
                         <ShieldCheck size={16} className="mr-2" />
                         Security
                     </TabsTrigger>
-                    {isVerified && (
+                    {/* {isVerified && (
                         <TabsTrigger
                             value="billing"
                             className="flex-1 md:flex-none rounded-xl px-3 sm:px-8 h-12 text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#003399]"
@@ -187,7 +187,7 @@ export default function AccountPage() {
                             <CreditCard size={16} className="mr-2" />
                             Billing
                         </TabsTrigger>
-                    )}
+                    )} */}
                 </TabsList>
 
                 {isVendor && (
