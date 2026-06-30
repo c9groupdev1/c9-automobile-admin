@@ -36,10 +36,17 @@ function subscribeToReverbChannel(
     onNewMessage: (msg: any) => void,
     onStatusChange: (status: 'connecting' | 'connected' | 'disconnected' | 'failed') => void
 ) {
-    const apiKey = 'y3b32oxichzbqlx4q94e'; // Reverb Key from mobile env
-    const host = 'c9x-staging.thec9group.com';
+    const apiKey = process.env.NEXT_PUBLIC_REVERB_KEY;
+    const host = process.env.NEXT_PUBLIC_REVERB_HOST;
+
+    if (!apiKey || !host) {
+        console.error('[Reverb ERROR] NEXT_PUBLIC_REVERB_KEY or NEXT_PUBLIC_REVERB_HOST environment variable is missing!');
+        onStatusChange('failed');
+        return () => {};
+    }
+
     const wsUrl = `wss://${host}/app/${apiKey}`;
-    const authEndpoint = 'https://c9x-staging.thec9group.com/broadcasting/auth';
+    const authEndpoint = '/api/app/broadcasting/auth';
 
     let ws: WebSocket | null = null;
     let pingInterval: NodeJS.Timeout | null = null;
