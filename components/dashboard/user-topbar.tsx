@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogOut, User, Settings, Bell } from 'lucide-react';
+import { LogOut, User, Settings, Bell, Car, PlusCircle, MessageSquare, ShieldCheck, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -25,7 +25,7 @@ export function UserTopbar() {
 
     return (
         <header className="sticky top-0 z-30 flex h-20 w-full items-center justify-between border-b border-slate-100 bg-white/80 backdrop-blur-xl px-4 md:px-8 lg:px-12">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-8">
                 <Link href="/" className="flex items-center gap-3">
                     <Logo className="w-10 h-10" />
                     <div className="flex flex-col">
@@ -35,6 +35,29 @@ export function UserTopbar() {
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Member Space</span>
                     </div>
                 </Link>
+
+                <nav className="hidden lg:flex items-center gap-6 ml-6 border-l border-slate-100 pl-6">
+                    <Link href="/marketplace" className="text-xs font-bold text-slate-650 hover:text-[#003399] transition-colors uppercase tracking-wider flex items-center gap-1.5">
+                        <Car size={14} className="text-slate-400" />
+                        Marketplace
+                    </Link>
+                    <Link href="/list-vehicle" className="text-xs font-bold text-slate-650 hover:text-[#003399] transition-colors uppercase tracking-wider flex items-center gap-1.5">
+                        <PlusCircle size={14} className="text-slate-400" />
+                        List Vehicle
+                    </Link>
+                    <Link href="/messages" className="text-xs font-bold text-slate-650 hover:text-[#003399] transition-colors uppercase tracking-wider flex items-center gap-1.5">
+                        <MessageSquare size={14} className="text-slate-400" />
+                        Messages
+                    </Link>
+                    <Link href="/kyc" className="text-xs font-bold text-slate-650 hover:text-[#003399] transition-colors uppercase tracking-wider flex items-center gap-1.5">
+                        <ShieldCheck size={14} className="text-slate-400" />
+                        KYC Verification
+                    </Link>
+                    <Link href="/support" className="text-xs font-bold text-slate-650 hover:text-[#003399] transition-colors uppercase tracking-wider flex items-center gap-1.5">
+                        <LifeBuoy size={14} className="text-slate-400" />
+                        Support
+                    </Link>
+                </nav>
             </div>
 
             <div className="flex items-center gap-4 md:gap-6">
@@ -70,6 +93,39 @@ export function UserTopbar() {
                                     </div>
                                 </div>
                             </DropdownMenuLabel>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <Link href="/marketplace">
+                                <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
+                                    <Car className="mr-3 h-4 w-4" />
+                                    <span>Marketplace</span>
+                                </DropdownMenuItem>
+                            </Link>
+                            <Link href="/list-vehicle">
+                                <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
+                                    <PlusCircle className="mr-3 h-4 w-4" />
+                                    <span>List Vehicle</span>
+                                </DropdownMenuItem>
+                            </Link>
+                            <Link href="/messages">
+                                <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
+                                    <MessageSquare className="mr-3 h-4 w-4" />
+                                    <span>Inbox & Chats</span>
+                                </DropdownMenuItem>
+                            </Link>
+                            <Link href="/kyc">
+                                <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
+                                    <ShieldCheck className="mr-3 h-4 w-4" />
+                                    <span>KYC Verification</span>
+                                </DropdownMenuItem>
+                            </Link>
+                            <Link href="/support">
+                                <DropdownMenuItem className="h-11 rounded-xl px-4 cursor-pointer focus:bg-slate-50 focus:text-[#003399] font-bold text-xs">
+                                    <LifeBuoy className="mr-3 h-4 w-4" />
+                                    <span>Get Support</span>
+                                </DropdownMenuItem>
+                            </Link>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>

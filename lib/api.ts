@@ -24,7 +24,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
-      window.location.href = '/secured-admin/login';
+      if (typeof window !== 'undefined') {
+        const isSecuredAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/secured-admin');
+        window.location.href = isSecuredAdmin ? '/secured-admin/login' : '/login';
+      }
     }
     return Promise.reject(error);
   }

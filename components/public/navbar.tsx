@@ -46,6 +46,7 @@ export function PublicNavbar() {
 
                         <div className="hidden md:flex items-center space-x-8">
                             <div className="flex items-center space-x-12 mr-8">
+                                <Link href="/marketplace" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Marketplace</Link>
                                 <Link href="/about" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>About Us</Link>
                                 <Link href="/contact" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>Contact Us</Link>
                                 <Link href="/faq" className={`text-sm font-bold transition-colors ${scrolled ? 'text-slate-600 hover:text-[#0066CC]' : 'text-white/80 hover:text-white'}`}>FAQ</Link>
@@ -58,7 +59,7 @@ export function PublicNavbar() {
                                     </Button>
                                 </Link>
                             ) : (
-                                <Link href="/secured-admin/login">
+                                <Link href="/login">
                                     <Button className={`rounded-xl px-6 font-bold h-11 transition-all ${scrolled ? 'bg-[#003399] text-white' : 'bg-white text-[#003399] hover:bg-slate-100'}`}>
                                         Sign In
                                     </Button>
@@ -93,6 +94,7 @@ export function PublicNavbar() {
                         className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl px-8 pt-32 md:hidden"
                     >
                         <div className="flex flex-col space-y-10">
+                            <Link href="/marketplace" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Marketplace</Link>
                             <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">About Us</Link>
                             <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">Contact Us</Link>
                             <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-3xl font-bold text-slate-900">FAQ</Link>
