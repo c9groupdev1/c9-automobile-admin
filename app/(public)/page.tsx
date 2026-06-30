@@ -103,6 +103,24 @@ export default function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
+                {isAuthenticated ? (
+                  <Button
+                    size="lg"
+                    onClick={() => router.push('/account')}
+                    className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold bg-white text-[#003399] hover:bg-slate-100 shrink-0 shadow-lg"
+                  >
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <Button
+                    size="lg"
+                    onClick={() => router.push('/register')}
+                    className="w-full sm:w-auto h-12 px-10 rounded-xl text-base font-bold bg-white text-[#003399] hover:bg-slate-100 shrink-0 shadow-lg"
+                  >
+                    Register / Create Account
+                  </Button>
+                )}
+
                 <Button
                   size="lg"
                   variant="outline"
@@ -484,6 +502,35 @@ export default function LandingPage() {
             <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
               Start Buying, Selling and Bidding Today
             </h2>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6">
+              {isAuthenticated ? (
+                <Button
+                  size="lg"
+                  onClick={() => router.push('/marketplace')}
+                  className="w-full sm:w-auto h-14 px-10 rounded-xl text-lg font-bold bg-[#003399] text-white hover:bg-blue-800 transition-all shadow-lg"
+                >
+                  Browse Marketplace
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    size="lg"
+                    onClick={() => router.push('/register')}
+                    className="w-full sm:w-auto h-14 px-10 rounded-xl text-lg font-bold bg-white text-slate-900 hover:bg-slate-100 transition-all shadow-lg"
+                  >
+                    Register / Create Account
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => router.push('/login')}
+                    className="w-full sm:w-auto h-14 px-10 rounded-xl text-lg font-bold border-white/30 text-white bg-transparent hover:bg-white/10"
+                  >
+                    Sign In
+                  </Button>
+                </>
+              )}
+            </div>
           </motion.div>
         </div>
       </section>

@@ -37,7 +37,7 @@ export default function PublicLayout({
 
             <PublicNavbar />
 
-            <main className="relative z-10">
+            <main className="relative">
                 {children}
             </main>
 

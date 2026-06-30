@@ -43,11 +43,12 @@ import {
     Info,
     CheckCircle2,
     XCircle,
+    X,
     Gauge,
     Settings,
     Zap,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 export default function CarDetailPage() {
@@ -58,6 +59,7 @@ export default function CarDetailPage() {
 
     // State
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [isZoomOpen, setIsZoomOpen] = useState(false);
     const [reportReason, setReportReason] = useState('');
     const [reportDesc, setReportDesc] = useState('');
     const [isReporting, setIsReporting] = useState(false);
@@ -337,17 +339,20 @@ export default function CarDetailPage() {
 
                         {/* Media Gallery */}
                         <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm space-y-4">
-                            <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100">
+                            <div 
+                                className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-100 cursor-zoom-in group"
+                                onClick={() => setIsZoomOpen(true)}
+                            >
                                 <img
                                     src={mainImageUrl}
                                     alt={listing.title}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
                                     onError={(e) => {
                                         (e.target as HTMLImageElement).src = '/c9x-logo.png';
                                     }}
                                 />
                                 <button
-                                    onClick={handleFavoriteToggle}
+                                    onClick={(e) => { e.stopPropagation(); handleFavoriteToggle(); }}
                                     className="absolute top-4 right-4 z-10 w-11 h-11 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-100 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-105 transition-all"
                                 >
                                     <Heart 
@@ -845,6 +850,79 @@ export default function CarDetailPage() {
                     </aside>
                 </div>
             </div>
+
+            {/* Image Zoom Modal / Lightbox */}
+            <AnimatePresence>
+                {isZoomOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsZoomOpen(false)}
+                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 md:p-10 select-none cursor-zoom-out"
+                    >
+                        {/* Close button */}
+                        <button
+                            onClick={() => setIsZoomOpen(false)}
+                            className="absolute top-6 right-6 z-[110] p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors border border-white/10 shadow-lg cursor-pointer"
+                        >
+                            <X size={24} />
+                        </button>
+
+                        {/* Main Zoomed Image Container */}
+                        <div 
+                            className="relative max-w-5xl max-h-[75vh] w-full flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()} // Prevent clicking image from closing lightbox
+                        >
+                            <motion.img
+                                key={activeImageIndex}
+                                initial={{ scale: 0.95, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.95, opacity: 0 }}
+                                transition={{ duration: 0.25 }}
+                                src={mainImageUrl}
+                                alt={listing.title}
+                                className="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/5"
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/c9x-logo.png';
+                                }}
+                            />
+                        </div>
+
+                        {/* Lightbox Navigation & Caption */}
+                        <div className="mt-8 flex flex-col items-center gap-4 text-white z-[110]" onClick={(e) => e.stopPropagation()}>
+                            {images.length > 1 && (
+                                <div className="flex items-center gap-6">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveImageIndex(prev => (prev === 0 ? images.length - 1 : prev - 1));
+                                        }}
+                                        className="p-3 bg-white/10 hover:bg-white/20 rounded-full border border-white/10 text-white transition-colors cursor-pointer"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <span className="text-xs font-bold uppercase tracking-widest text-slate-450">
+                                        {activeImageIndex + 1} / {images.length}
+                                    </span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setActiveImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1));
+                                        }}
+                                        className="p-3 bg-white/10 hover:bg-white/20 rounded-full border border-white/10 text-white transition-colors cursor-pointer"
+                                    >
+                                        <ArrowRight size={20} />
+                                    </button>
+                                </div>
+                            )}
+                            <p className="text-xs font-bold text-slate-300 text-center max-w-md uppercase tracking-wider">
+                                {listing.title} • {formatNaira(pricingAndLocation.amount ?? listing.amount)}
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
