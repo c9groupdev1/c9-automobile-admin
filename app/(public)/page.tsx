@@ -26,7 +26,8 @@ import {
     Fuel,
     ShieldCheck,
     Smartphone,
-    Star
+    Star,
+    Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -775,6 +776,196 @@ export default function MarketplacePage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+      <section className="py-24 bg-slate-50 border-t border-b border-slate-100 relative overflow-hidden">
+        <div className="absolute inset-0 grid-pattern opacity-5 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+          <div className="grid lg:grid-cols-12 gap-16 items-center">
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 bg-blue-50 text-[#003399] border border-blue-100 rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest">
+                <Smartphone size={14} className="animate-bounce" />
+                Now Available on iOS & Android
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight uppercase">
+                Nigeria's Premier <br className="hidden md:inline" />
+                Automotive App
+              </h2>
+              <p className="text-slate-505 text-base md:text-lg font-medium leading-relaxed max-w-xl">
+                Download the seamless C9X mobile application to access live vehicle auctions, secure instantaneous bidding, instant push alerts, and direct chats with verified sellers.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 pt-4 max-w-md">
+                <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+                  <div className="bg-blue-50 p-2 rounded-xl text-[#003399]">
+                    <Zap size={18} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Real-time Bidding</h4>
+                    <p className="text-xs text-slate-400 font-medium">Instant live updates</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
+                  <div className="bg-blue-50 p-2 rounded-xl text-[#003399]">
+                    <ShieldCheck size={18} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900">Secure Transactions</h4>
+                    <p className="text-xs text-slate-400 font-medium">100% vetted profiles</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Content */}
+            <div className="lg:col-span-5 flex flex-col items-center lg:items-start justify-center space-y-6">
+              <div className="w-full space-y-4 text-center lg:text-left">
+                <h4 className="text-xl font-bold text-slate-900 tracking-tight">Get the App Today</h4>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                  Install C9X from your official store to enjoy premium automotive services instantly.
+                </p>
+                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 w-full justify-center lg:justify-start pt-2">
+                  {/* App Store Download */}
+                  {(deviceOS === 'ios' || deviceOS === 'desktop') && (
+                    <a
+                      href="https://apps.apple.com/ng/app/c9x/id6762285536"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3.5 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-xl w-full sm:w-auto xl:flex-1 justify-center group"
+                    >
+                      <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[9px] uppercase font-bold tracking-widest text-slate-400">Download on the</p>
+                        <p className="text-base font-extrabold text-white mt-1">App Store</p>
+                      </div>
+                    </a>
+                  )}
+
+                  {/* Google Play Download */}
+                  {(deviceOS === 'android' || deviceOS === 'desktop') && (
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3.5 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-xl w-full sm:w-auto xl:flex-1 justify-center group"
+                    >
+                      <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
+                        <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
+                      </svg>
+                      <div className="text-left leading-none">
+                        <p className="text-[9px] uppercase font-bold tracking-widest text-slate-400">Get it on</p>
+                        <p className="text-base font-extrabold text-white mt-1">Google Play</p>
+                      </div>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <AnimatePresence>
+        {showAppPopup && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', duration: 0.5 }}
+              className="relative w-full max-w-lg overflow-hidden bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-2xl"
+            >
+              {/* Dynamic light glows */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none" />
+
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setShowAppPopup(false);
+                  sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                }}
+                className="absolute right-4 top-4 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="relative z-10 space-y-6">
+                {/* Header Badge */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-xs font-black uppercase tracking-wider">
+                  <Star size={12} className="fill-blue-400" />
+                  <span>C9X Mobile Experience</span>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight">
+                    Get a Better <br />
+                    Experience on Mobile
+                  </h3>
+                  <p className="text-slate-400 font-semibold text-sm leading-relaxed">
+                    Unlock instant push notifications, real-time trackers, and direct chat rooms with vetted sellers.
+                  </p>
+                </div>
+
+                {/* Mobile Mockup representation inside details */}
+                <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
+                    <Smartphone size={24} />
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-bold">Official App Store Verified</h5>
+                    <p className="text-xs text-slate-500 font-medium">Safe & secure download under 30MB</p>
+                  </div>
+                </div>
+
+                {/* Download Actions */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  {(deviceOS === 'ios' || deviceOS === 'desktop') && (
+                    <a
+                      href="https://apps.apple.com/ng/app/c9x/id6762285536"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        setShowAppPopup(false);
+                        sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                      }}
+                      className="flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-950 px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg font-black text-sm w-full"
+                    >
+                      <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
+                      </svg>
+                      <span>iOS App Store</span>
+                    </a>
+                  )}
+
+                  {(deviceOS === 'android' || deviceOS === 'desktop') && (
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        setShowAppPopup(false);
+                        sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                      }}
+                      className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/15 text-white px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 border border-white/10 font-black text-sm w-full"
+                    >
+                      <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                        <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
+                      </svg>
+                      <span>Google Play Store</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+
         </div>
     );
 }
