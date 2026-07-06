@@ -260,6 +260,19 @@ function ListVehicleFormContent() {
             setCity(pl.location?.city || '');
             setArea(pl.location?.area || '');
             setLandmark(pl.location?.landmark || '');
+
+            // Auto-advance step
+            const hasBasicInfo = !!(bi.make || initialListing.car?.make);
+            const hasMedia = initialListing.mediaReview?.images && initialListing.mediaReview.images.length > 0;
+            const hasPricing = pl.amount !== undefined && pl.amount !== null;
+
+            if (hasBasicInfo && !hasMedia) {
+                setStep(2);
+            } else if (hasBasicInfo && hasMedia && !hasPricing) {
+                setStep(3);
+            } else {
+                setStep(1);
+            }
         }
     }, [initialListing]);
 

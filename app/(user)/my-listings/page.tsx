@@ -19,7 +19,8 @@ import {
     Eye,
     PlusCircle,
     Clock,
-    X
+    X,
+    Pencil
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -207,6 +208,17 @@ export default function MyListingsPage() {
 
                                     {/* Action items */}
                                     <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-3 md:pt-0 mt-2 md:mt-0 flex-wrap">
+                                        <Link href={`/list-vehicle?listingId=${item.id}`}>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="rounded-xl border-slate-200 text-slate-600 font-bold text-xs h-9 px-3"
+                                            >
+                                                <Pencil size={13} className="mr-1" />
+                                                Edit Ad
+                                            </Button>
+                                        </Link>
+
                                         <Link href={`/marketplace/${item.id}`}>
                                             <Button
                                                 variant="outline"
