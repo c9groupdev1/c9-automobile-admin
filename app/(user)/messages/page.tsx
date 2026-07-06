@@ -227,7 +227,7 @@ function MessagesDashboardContent() {
                     const dataCopy = { ...oldData };
                     const convData = { ...dataCopy.data };
                     
-                    let messagesList = [];
+                    let messagesList: any[] = [];
                     let isNested = false;
                     
                     if (Array.isArray(convData.messages)) {
