@@ -24,7 +24,7 @@ export function PublicNavbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const isHome = pathname === '/';
+    const isHome = pathname === '/overview';
 
     const navClass = isHome
         ? (scrolled ? 'glass py-3 shadow-md border-b border-slate-100/50' : 'bg-transparent py-6')
@@ -60,7 +60,6 @@ export function PublicNavbar() {
 
                         <div className="hidden md:flex items-center space-x-8">
                             <div className="flex items-center space-x-12 mr-8">
-                                <Link href="/marketplace" className={`text-sm font-bold transition-colors ${textClass}`}>Marketplace</Link>
                                 <Link href="/about" className={`text-sm font-bold transition-colors ${textClass}`}>About Us</Link>
                                 <Link href="/contact" className={`text-sm font-bold transition-colors ${textClass}`}>Contact Us</Link>
                                 <Link href="/faq" className={`text-sm font-bold transition-colors ${textClass}`}>FAQ</Link>
@@ -121,7 +120,6 @@ export function PublicNavbar() {
                         className="fixed inset-0 z-40 bg-white/95 backdrop-blur-xl px-8 pt-32 md:hidden"
                     >
                         <div className="flex flex-col space-y-8">
-                            <Link href="/marketplace" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">Marketplace</Link>
                             <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">About Us</Link>
                             <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">Contact Us</Link>
                             <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">FAQ</Link>

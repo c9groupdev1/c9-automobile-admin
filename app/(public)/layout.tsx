@@ -27,7 +27,7 @@ export default function PublicLayout({
     const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(pathname);
 
     return (
-        <div className="min-h-screen gradient-bg text-slate-900 selection:bg-primary/10 selection:text-primary scroll-smooth font-sans antialiased overflow-x-hidden relative">
+        <div className="min-h-screen gradient-bg text-slate-900 selection:bg-primary/10 selection:text-primary scroll-smooth font-sans antialiased overflow-x-clip relative">
             {/* Scroll Progress Indicator */}
             <motion.div
                 className="fixed top-0 left-0 right-0 h-[3px] bg-[#0066CC] z-[70] origin-left"
