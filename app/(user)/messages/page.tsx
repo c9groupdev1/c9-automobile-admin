@@ -9,7 +9,7 @@ import {
     useSendMessage 
 } from '@/hooks/useUserMessaging';
 import { useAuthStore } from '@/store/authStore';
-import { formatNaira } from '@/app/(public)/marketplace/page';
+import { formatNaira } from '@/app/(public)/page';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

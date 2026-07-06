@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useFavoriteListings, useToggleFavorite } from '@/hooks/useUserMarketplace';
-import { formatNaira } from '@/app/(public)/marketplace/page';
+import { formatNaira } from '@/app/(public)/page';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

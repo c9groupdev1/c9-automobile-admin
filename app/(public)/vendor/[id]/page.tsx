@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useVendorProfile, useToggleFavorite } from '@/hooks/useUserMarketplace';
 import { useAuthStore } from '@/store/authStore';
-import { formatNaira } from '../../marketplace/page';
+import { formatNaira } from '../../page';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
