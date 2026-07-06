@@ -396,16 +396,22 @@ function ListVehicleFormContent() {
             const formData = new FormData();
             formData.append('listingId', listingId);
 
-            uploadedImages.forEach((img, idx) => {
+            let newImagesCount = 0;
+            let primaryIndex = -1;
+
+            uploadedImages.forEach((img) => {
                 if (img.file) {
                     formData.append('images[]', img.file);
+                    if (img.isPrimary) {
+                        primaryIndex = newImagesCount;
+                    }
+                    newImagesCount++;
                 }
             });
 
-            const primaryIdx = uploadedImages.findIndex(img => img.isPrimary);
-            if (primaryIdx !== -1) {
-                formData.append('isPrimary', String(primaryIdx));
-                formData.append('is_primary', String(primaryIdx));
+            if (primaryIndex !== -1) {
+                formData.append('isPrimary', String(primaryIndex));
+                formData.append('is_primary', String(primaryIndex));
             }
 
             if (deletedMediaIds.length > 0) {
@@ -986,14 +992,6 @@ function ListVehicleFormContent() {
                                                             alt={`Upload preview ${idx + 1}`}
                                                             className="w-full h-full object-cover"
                                                         />
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleSetPrimaryImage(idx)}
-                                                            className="absolute bottom-2 left-2 right-2 py-1.5 rounded-lg border backdrop-blur-sm shadow-sm transition-all bg-white/95 text-slate-600 hover:text-[#003399] border-slate-100 opacity-0 group-hover:opacity-100 text-xs font-bold"
-                                                        >
-                                                            Make Cover
-                                                        </button>
 
                                                         <button
                                                             type="button"
