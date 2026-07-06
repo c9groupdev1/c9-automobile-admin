@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { 
     useConversations, 
-    useChatMessages, 
     useConversationDetail, 
     useSendMessage 
 } from '@/hooks/useUserMessaging';
@@ -23,7 +22,8 @@ import {
     Loader2, 
     Wifi, 
     WifiOff, 
-    ShieldCheck 
+    ShieldCheck,
+    AlertCircle 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
@@ -45,8 +45,9 @@ function subscribeToReverbChannel(
         return () => {};
     }
 
-    const wsUrl = `wss://${host}/app/${apiKey}`;
-    const authEndpoint = '/api/app/broadcasting/auth';
+    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'https://c9x-staging.thec9group.com';
+    const wsUrl = `wss://${host}/reverb/app/${apiKey}`;
+    const authEndpoint = `${apiBase}/broadcasting/auth`;
 
     let ws: WebSocket | null = null;
     let pingInterval: NodeJS.Timeout | null = null;
@@ -180,19 +181,17 @@ function MessagesDashboardContent() {
 
     // Queries
     const { data: convData, isLoading: isLoadingConvs, refetch: refetchConvs } = useConversations();
-    const { data: messagesResponse, isLoading: isLoadingMsgs } = useChatMessages(selectedId || '');
-    const { data: detailResponse } = useConversationDetail(selectedId || '');
-    
+    const { data: activeConvResponse, isLoading: isLoadingMsgs } = useConversationDetail(selectedId || '');
+    const activeConversation = activeConvResponse?.data || activeConvResponse;
+
     // Send mutation
     const sendMessageMutation = useSendMessage();
-
     const conversations = convData?.data || [];
-    const activeConversation = detailResponse?.data;
 
-    // Fallback: If the dedicated GET /messages endpoint returns 405, the messages might be embedded directly inside the conversation details.
-    const messages = messagesResponse?.data?.data || 
-                     (Array.isArray(activeConversation?.messages) ? activeConversation.messages : activeConversation?.messages?.data) || 
-                     [];
+    // Messages are embedded inside the conversation object
+    const messages = Array.isArray(activeConversation?.messages) 
+        ? activeConversation.messages 
+        : activeConversation?.messages?.data || [];
 
     // Debug activeConversation payload in browser console
     useEffect(() => {
@@ -222,18 +221,34 @@ function MessagesDashboardContent() {
             token,
             (newMsg) => {
                 // Instantly append new message into React Query cache
-                queryClient.setQueryData(['chat-messages', selectedId], (oldData: any) => {
-                    if (!oldData) return oldData;
+                queryClient.setQueryData(['conversation-detail', selectedId], (oldData: any) => {
+                    if (!oldData || !oldData.data) return oldData;
+                    
                     const dataCopy = { ...oldData };
-                    const innerData = dataCopy.data || {};
-                    const messagesList = [...(innerData.data || [])];
+                    const convData = { ...dataCopy.data };
+                    
+                    let messagesList = [];
+                    let isNested = false;
+                    
+                    if (Array.isArray(convData.messages)) {
+                        messagesList = [...convData.messages];
+                    } else if (convData.messages?.data) {
+                        messagesList = [...convData.messages.data];
+                        isNested = true;
+                    }
                     
                     // Check duplicate
                     if (!messagesList.find((m: any) => String(m.id) === String(newMsg.id))) {
                         messagesList.push(newMsg);
                     }
                     
-                    dataCopy.data = { ...innerData, data: messagesList };
+                    if (isNested) {
+                        convData.messages = { ...convData.messages, data: messagesList };
+                    } else {
+                        convData.messages = messagesList;
+                    }
+                    
+                    dataCopy.data = convData;
                     return dataCopy;
                 });
                 
@@ -284,9 +299,9 @@ function MessagesDashboardContent() {
     });
 
     return (
-        <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden h-[calc(100vh-180px)] min-h-[500px] grid lg:grid-cols-[320px_1fr] relative">
+        <div className="bg-white border-y border-x-0 lg:border-x border-slate-100 rounded-none lg:rounded-[2rem] shadow-sm lg:shadow-md overflow-hidden flex-1 grid lg:grid-cols-[320px_1fr] relative min-h-0">
             {/* Sidebar thread lists */}
-            <div className={`border-r border-slate-100 flex flex-col h-full ${selectedId ? 'hidden lg:flex' : 'flex'}`}>
+            <div className={`border-r border-slate-100 flex flex-col h-full min-h-0 ${selectedId ? 'hidden lg:flex' : 'flex'}`}>
                 {/* Search Bar */}
                 <div className="p-4 border-b border-slate-100 space-y-4">
                     <h3 className="font-extrabold text-slate-900 text-sm uppercase tracking-wider">Inbox</h3>
@@ -302,7 +317,7 @@ function MessagesDashboardContent() {
                 </div>
 
                 {/* List Container */}
-                <div className="flex-1 overflow-y-auto divide-y divide-slate-50/50">
+                <div className="flex-1 overflow-y-auto divide-y divide-slate-50/50 min-h-0">
                     {isLoadingConvs ? (
                         <div className="flex flex-col items-center justify-center py-20 gap-2">
                             <Loader2 className="h-6 w-6 animate-spin text-[#003399]" />
@@ -357,7 +372,7 @@ function MessagesDashboardContent() {
             </div>
 
             {/* Message Panel Console */}
-            <div className={`flex flex-col h-full ${!selectedId ? 'hidden lg:flex' : 'flex'}`}>
+            <div className={`flex flex-col h-full min-h-0 ${!selectedId ? 'hidden lg:flex' : 'flex'}`}>
                 {activeConversation ? (
                     <>
                         {/* Conversation Header */}
@@ -389,19 +404,43 @@ function MessagesDashboardContent() {
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide truncate max-w-[200px] sm:max-w-xs">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide truncate max-w-[130px] sm:max-w-[200px]">
                                         Listing: {activeConversation.listing?.title}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="text-right">
+                            <div className="text-right flex-shrink-0 ml-auto">
                                 <span className="text-xs font-black text-[#003399] block">{formatNaira(activeConversation.listing?.amount)}</span>
                             </div>
                         </div>
 
                         {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/20">
+                        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-slate-50/20 min-h-0">
+                            {/* Safety Notice */}
+                            <div className="bg-slate-100 rounded-2xl p-4 md:p-5 mb-6 text-center max-w-lg mx-auto">
+                                <div className="flex items-center justify-center gap-2 mb-2">
+                                    <ShieldCheck className="w-5 h-5 text-slate-600" />
+                                    <h4 className="font-bold text-slate-800 text-sm">Trade Safety Notice</h4>
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed">
+                                    C9X facilitates communication. Final vehicle inspection, negotiation, and payment happen offline. Never pay before inspection and always verify the vehicle's VIN before proceeding.
+                                </p>
+                            </div>
+
+                            {/* Reported Content Warning */}
+                            {(activeConversation?.is_reported || activeConversation?.listing?.is_reported) && (
+                                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-5 mb-6 flex items-start gap-3">
+                                    <AlertCircle className="w-6 h-6 text-amber-700 shrink-0 mt-0.5" />
+                                    <div>
+                                        <h4 className="font-bold text-amber-900 text-sm mb-1">Safety Warning</h4>
+                                        <p className="text-xs text-amber-800 leading-relaxed">
+                                            This {activeConversation?.is_reported ? 'conversation' : 'listing'} has been reported for violating our community guidelines. Please proceed with extreme caution and do not share personal information or make payments.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             {isLoadingMsgs && !activeConversation?.messages ? (
                                 <div className="flex items-center justify-center py-20">
                                     <Loader2 className="h-6 w-6 animate-spin text-[#003399]" />
@@ -468,17 +507,15 @@ function MessagesDashboardContent() {
 
 export default function MessagesDashboardPage() {
     return (
-        <div className="min-h-screen bg-slate-50 gradient-bg pb-20 pt-28">
-            <div className="max-w-6xl mx-auto px-6">
-                <Suspense fallback={
-                    <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                        <Loader2 className="h-8 w-8 animate-spin text-[#003399] mb-4" />
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Loading Inbox...</p>
-                    </div>
-                }>
-                    <MessagesDashboardContent />
-                </Suspense>
-            </div>
+        <div className="w-auto flex flex-col h-[calc(100dvh-64px)] lg:h-[calc(100vh-140px)] -m-5 md:-m-8 lg:m-0">
+            <Suspense fallback={
+                <div className="flex flex-col items-center justify-center flex-1">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#003399] mb-4" />
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Loading Inbox...</p>
+                </div>
+            }>
+                <MessagesDashboardContent />
+            </Suspense>
         </div>
     );
 }

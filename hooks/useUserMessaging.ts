@@ -44,7 +44,7 @@ export function useSendMessage() {
             return response.data;
         },
         onSuccess: (data, variables) => {
-            queryClient.invalidateQueries({ queryKey: ['chat-messages', variables.conversationId] });
+            queryClient.invalidateQueries({ queryKey: ['conversation-detail', variables.conversationId] });
             queryClient.invalidateQueries({ queryKey: ['conversations'] });
         },
         onError: (error: any) => {
