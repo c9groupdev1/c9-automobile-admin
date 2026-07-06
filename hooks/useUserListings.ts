@@ -111,11 +111,7 @@ export function useSubmitListingStep2() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (formData: FormData) => {
-            const response = await api.post('/user/listings/car/step-2', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const response = await api.post('/user/listings/car/step-2', formData);
             return response.data;
         },
         onSuccess: (data) => {
