@@ -8,14 +8,12 @@ import { useAuthStore } from '@/store/authStore';
 import { SearchableDropdown } from '@/components/ui/searchable-dropdown';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { 
     Search, 
     Heart, 
     MapPin, 
     Calendar, 
-    Info, 
     SlidersHorizontal, 
     Sparkles, 
     ChevronLeft, 
@@ -23,7 +21,10 @@ import {
     Loader2,
     Car,
     X,
-    Filter
+    ArrowUpRight,
+    Gauge,
+    Fuel,
+    ShieldCheck
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -147,78 +148,79 @@ export default function MarketplacePage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 gradient-bg pb-20 pt-28">
-            <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                {/* Marketplace Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
-                            <Sparkles className="w-5 h-5 text-[#003399] animate-pulse" />
-                            <span className="text-[10px] font-black tracking-widest uppercase text-slate-400">Explore Catalog</span>
+        <div className="min-h-screen bg-slate-50/50 gradient-bg pb-24 pt-28">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+                
+                {/* Immersive Dark Banner Hero Header */}
+                <div className="relative rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900 to-[#002266] p-8 md:p-12 overflow-hidden shadow-2xl mb-12 border border-slate-800">
+                    {/* Floating ambient radial shapes */}
+                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[120px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
+                    <div className="absolute bottom-0 left-10 w-[300px] h-[300px] bg-indigo-500/10 rounded-full blur-[100px] translate-y-1/3 pointer-events-none" />
+                    
+                    <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                        <div className="space-y-4 max-w-xl">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20">
+                                <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
+                                <span className="text-[10px] font-black tracking-widest uppercase text-blue-300">Verified Luxury Catalog</span>
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-none uppercase">
+                                Find Your <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Next Machine</span>
+                            </h1>
+                            <p className="text-slate-400 font-semibold text-sm leading-relaxed">
+                                Explore Nigeria's premium marketplace for certified new and pre-owned automobiles. Backed by C9X multi-point diagnostic inspections.
+                            </p>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase">
-                            Marketplace
-                        </h1>
-                        <p className="text-slate-500 font-medium mt-1">
-                            Browse Nigeria's highest quality certified vehicles.
-                        </p>
-                    </div>
 
-                    <div className="flex items-center gap-3">
-                        <select 
-                            value={sort}
-                            onChange={(e) => setSort(e.target.value)}
-                            className="h-12 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-300 shadow-sm"
-                        >
-                            <option value="latest">Latest Submissions</option>
-                            <option value="price_asc">Price: Low to High</option>
-                            <option value="price_desc">Price: High to Low</option>
-                            <option value="year_desc">Year: Newest First</option>
-                        </select>
-
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowFiltersMobile(true)}
-                            className="md:hidden h-12 rounded-xl flex items-center gap-2 font-bold px-4 bg-white border-slate-200 text-slate-700"
-                        >
-                            <Filter size={18} />
-                            Filters
-                        </Button>
+                        {/* Quick Stats Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full lg:w-auto">
+                            {[
+                                { val: '100%', label: 'Inspected Vehicles' },
+                                { val: '5k+', label: 'Happy Customers' },
+                                { val: '0%', label: 'CORS/API Downtime' }
+                            ].map((stat, i) => (
+                                <div key={i} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 min-w-[125px] text-center shadow-inner">
+                                    <div className="text-2xl font-black text-white bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">{stat.val}</div>
+                                    <div className="text-[10px] font-black uppercase tracking-wider text-slate-500 mt-1">{stat.label}</div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <div className="grid lg:grid-cols-[280px_1fr] gap-10 items-start">
-                    {/* Desktop Filters Panel */}
-                    <aside className="hidden md:block bg-white rounded-3xl p-6 border border-slate-100/50 shadow-sm space-y-6">
+                {/* Main Content Layout Grid */}
+                <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
+                    
+                    {/* Desktop Filters Panel (Glassmorphic) */}
+                    <aside className="hidden lg:block bg-white/70 backdrop-blur-xl rounded-[2rem] p-6 border border-white/60 shadow-[0_10px_35px_rgba(0,0,0,0.02)] space-y-6">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                            <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
-                                <SlidersHorizontal size={16} className="text-[#003399]" />
+                            <h3 className="font-extrabold text-slate-800 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                <SlidersHorizontal size={14} className="text-[#003399]" />
                                 Filter Cars
                             </h3>
                             <button 
                                 onClick={handleResetFilters}
-                                className="text-xs font-bold text-[#003399] hover:underline"
+                                className="text-[10px] font-black uppercase tracking-wider text-[#003399] hover:underline"
                             >
                                 Reset All
                             </button>
                         </div>
 
                         {/* Search keyword */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Search Keywords</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Keywords</label>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                 <Input
-                                    placeholder="Toyota, Camry, etc..."
+                                    placeholder="e.g. Mercedes-Benz, G63"
                                     value={search}
                                     onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                                    className="pl-9 h-11 text-xs font-semibold rounded-xl bg-slate-50 border-slate-50/50 focus:bg-white"
+                                    className="pl-10 h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/80 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
                                 />
                             </div>
                         </div>
 
                         {/* Brand / Make */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Brand / Make</label>
                             <SearchableDropdown
                                 options={makeOptions}
@@ -230,7 +232,7 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* Model */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Model</label>
                             <SearchableDropdown
                                 options={modelOptions}
@@ -243,12 +245,12 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* Condition */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Condition</label>
                             <select
                                 value={selectedCondition}
                                 onChange={(e) => { setSelectedCondition(e.target.value); setPage(1); }}
-                                className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none shadow-sm"
+                                className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
                             >
                                 <option value="">Any Condition</option>
                                 <option value="Foreign Used">Foreign Used</option>
@@ -258,12 +260,12 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* Transmission */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Transmission</label>
                             <select
                                 value={selectedTransmission}
                                 onChange={(e) => { setSelectedTransmission(e.target.value); setPage(1); }}
-                                className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none shadow-sm"
+                                className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
                             >
                                 <option value="">Any Transmission</option>
                                 {transmissions.data?.map((t: any) => {
@@ -275,12 +277,12 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* Fuel Type */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Fuel Type</label>
                             <select
                                 value={selectedFuelType}
                                 onChange={(e) => { setSelectedFuelType(e.target.value); setPage(1); }}
-                                className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none shadow-sm"
+                                className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
                             >
                                 <option value="">Any Fuel Type</option>
                                 {fuelTypes.data?.map((f: any) => {
@@ -292,7 +294,7 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* State */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">State / Location</label>
                             <SearchableDropdown
                                 options={stateOptions}
@@ -304,22 +306,22 @@ export default function MarketplacePage() {
                         </div>
 
                         {/* Price Range */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Price Range (₦)</label>
                             <div className="grid grid-cols-2 gap-2">
                                 <Input
-                                    placeholder="Min Price"
+                                    placeholder="Min"
                                     type="number"
                                     value={minPrice}
                                     onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-                                    className="h-11 text-xs font-semibold rounded-xl bg-slate-50 border-slate-50/50 focus:bg-white"
+                                    className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/85 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
                                 />
                                 <Input
-                                    placeholder="Max Price"
+                                    placeholder="Max"
                                     type="number"
                                     value={maxPrice}
                                     onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-                                    className="h-11 text-xs font-semibold rounded-xl bg-slate-50 border-slate-50/50 focus:bg-white"
+                                    className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/85 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
                                 />
                             </div>
                         </div>
@@ -327,6 +329,35 @@ export default function MarketplacePage() {
 
                     {/* Listings Catalog Grid */}
                     <div className="space-y-10">
+                        
+                        {/* Upper sorting actions toolbar */}
+                        <div className="flex items-center justify-between gap-4 bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/50 shadow-[0_5px_15px_rgba(0,0,0,0.01)]">
+                            <div className="text-slate-500 text-xs font-bold pl-2">
+                                Showing <span className="text-slate-800 font-extrabold">{listings.length}</span> vehicles
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <select 
+                                    value={sort}
+                                    onChange={(e) => setSort(e.target.value)}
+                                    className="h-11 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#003399] transition-all shadow-sm cursor-pointer"
+                                >
+                                    <option value="latest">Latest Submissions</option>
+                                    <option value="price_asc">Price: Low to High</option>
+                                    <option value="price_desc">Price: High to Low</option>
+                                    <option value="year_desc">Year: Newest First</option>
+                                </select>
+
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowFiltersMobile(true)}
+                                    className="lg:hidden h-11 rounded-xl flex items-center gap-2 font-bold px-4 bg-white border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50"
+                                >
+                                    <SlidersHorizontal size={14} className="text-[#003399]" />
+                                    Filters
+                                </Button>
+                            </div>
+                        </div>
+
                         {isLoading ? (
                             <div className="flex flex-col items-center justify-center p-32">
                                 <Loader2 className="h-10 w-10 animate-spin text-[#003399] mb-4" />
@@ -336,7 +367,7 @@ export default function MarketplacePage() {
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="bg-white border border-slate-100 rounded-3xl p-12 text-center flex flex-col items-center justify-center shadow-sm"
+                                className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-12 text-center flex flex-col items-center justify-center shadow-md"
                             >
                                 <div className="p-4 bg-slate-50 text-slate-400 rounded-full mb-6">
                                     <Car size={36} />
@@ -354,7 +385,7 @@ export default function MarketplacePage() {
                             </motion.div>
                         ) : (
                             <>
-                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                                     {listings.map((item: any) => {
                                         const isFavorite = item.isFavorite || item.isFavorited;
                                         return (
@@ -363,14 +394,15 @@ export default function MarketplacePage() {
                                                 key={item.id}
                                                 initial={{ opacity: 0, y: 15 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="group cursor-pointer bg-white rounded-3xl border border-slate-100/50 shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 relative flex flex-col h-full"
+                                                whileHover={{ y: -8 }}
+                                                className="group cursor-pointer bg-white/90 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.01)] hover:shadow-[0_25px_50px_rgba(0,51,153,0.08)] transition-all duration-300 overflow-hidden relative flex flex-col h-full"
                                                 onClick={() => router.push(`/marketplace/${item.id}`)}
                                             >
                                                 {/* Favorite Toggle Button */}
                                                 <button
                                                     type="button"
                                                     onClick={(e) => handleFavoriteToggle(e, item.id)}
-                                                    className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-100 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-105 transition-all"
+                                                    className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
                                                 >
                                                     <Heart 
                                                         size={18} 
@@ -379,7 +411,7 @@ export default function MarketplacePage() {
                                                 </button>
 
                                                 {/* Image Frame */}
-                                                <div className="h-48 overflow-hidden bg-slate-100 relative z-0">
+                                                <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
                                                     <img
                                                         src={getPrimaryImage(item)}
                                                         alt={item.title}
@@ -389,46 +421,77 @@ export default function MarketplacePage() {
                                                         }}
                                                     />
                                                     
+                                                    {/* Condition Badge with custom gradients */}
                                                     {item.condition && (
-                                                        <Badge className="absolute left-4 bottom-4 bg-[#003399] text-white border-0 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 shadow-sm">
+                                                        <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${
+                                                            item.condition.toLowerCase().includes('brand') 
+                                                                ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
+                                                                : item.condition.toLowerCase().includes('foreign')
+                                                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
+                                                                    : 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/10'
+                                                        }`}>
                                                             {item.condition}
-                                                        </Badge>
+                                                        </span>
                                                     )}
+
+                                                    {/* Inspected check badge overlay */}
+                                                    <div className="absolute right-4 bottom-4 flex items-center gap-1 bg-slate-900/60 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-md text-white text-[9px] font-bold">
+                                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                                                        <span>Inspected</span>
+                                                    </div>
                                                 </div>
 
                                                 {/* Details Content */}
-                                                <CardContent className="p-6 flex-1 flex flex-col justify-between">
+                                                <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
                                                     <div>
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                                            <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
                                                                 {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
                                                             </span>
+                                                            <div className="flex items-center text-xs font-semibold text-slate-500">
+                                                                <MapPin size={12} className="text-slate-400 mr-1" />
+                                                                <span className="truncate max-w-[120px]">{item.pricingAndLocation?.location?.city || item.city || 'Lagos'}</span>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-base font-bold text-slate-900 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2">
+                                                        <h3 className="text-base font-black text-slate-950 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2.5">
                                                             {item.title}
                                                         </h3>
-                                                        <p className="text-xl font-extrabold text-[#003399] mb-4">
-                                                            {formatNaira(item.amount)}
-                                                        </p>
+                                                        <div className="flex items-baseline justify-between mb-4">
+                                                            <p className="text-xl font-black text-[#003399] tracking-tight">
+                                                                {formatNaira(item.amount)}
+                                                            </p>
+                                                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                                                                Direct Deal
+                                                            </span>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="space-y-3 pt-3 border-t border-slate-100">
-                                                        <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold">
-                                                            <MapPin size={14} className="text-slate-400" />
-                                                            <span className="truncate">{item.pricingAndLocation?.location?.city || item.city || 'Lagos'}, {item.pricingAndLocation?.state?.name || 'Nigeria'}</span>
-                                                        </div>
-                                                        
-                                                        <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                                            <span className="flex items-center gap-1">
-                                                                <Calendar size={12} />
+                                                    <div className="space-y-3 pt-4 border-t border-slate-100/80">
+                                                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                                                <Calendar size={12} className="text-[#003399]" />
                                                                 {item.car?.year || item.year || '2020'}
                                                             </span>
                                                             {item.car?.transmission && (
-                                                                <span>{item.car?.transmission}</span>
+                                                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                                                    <Gauge size={12} className="text-[#003399]" />
+                                                                    {item.car?.transmission}
+                                                                </span>
                                                             )}
                                                             {item.car?.fuelType && (
-                                                                <span>{item.car?.fuelType}</span>
+                                                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                                                    <Fuel size={12} className="text-[#003399]" />
+                                                                    {item.car?.fuelType}
+                                                                </span>
                                                             )}
+                                                        </div>
+
+                                                        {/* Quick link button that fades in on hover */}
+                                                        <div className="pt-2 flex items-center justify-end text-xs font-black text-[#003399] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                            <span className="flex items-center gap-1">
+                                                                View Listing
+                                                                <ArrowUpRight size={14} />
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </CardContent>
@@ -471,52 +534,52 @@ export default function MarketplacePage() {
                 </div>
             </div>
 
-            {/* Mobile Filters Drawer Modal */}
+            {/* Mobile Filters Drawer Modal (Glassmorphic) */}
             <AnimatePresence>
                 {showFiltersMobile && (
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm md:hidden flex justify-end"
+                        className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm md:hidden flex justify-end"
                     >
                         <motion.div
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'tween', duration: 0.3 }}
-                            className="w-full max-w-xs bg-white h-full p-6 overflow-y-auto flex flex-col justify-between"
+                            className="w-full max-w-xs bg-white/95 backdrop-blur-xl h-full p-6 overflow-y-auto flex flex-col justify-between shadow-2xl border-l border-slate-100"
                         >
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                                    <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                    <h3 className="font-extrabold text-slate-900 flex items-center gap-2 text-xs uppercase tracking-wider">
                                         <SlidersHorizontal size={16} className="text-[#003399]" />
                                         Filters
                                     </h3>
                                     <button 
                                         onClick={() => setShowFiltersMobile(false)}
-                                        className="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-50"
+                                        className="p-1.5 text-slate-400 hover:text-slate-650 rounded-full hover:bg-slate-50 transition-colors"
                                     >
                                         <X size={20} />
                                     </button>
                                 </div>
 
                                 {/* Search keyword */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Search Keywords</label>
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                         <Input
                                             placeholder="Toyota, Camry, etc..."
                                             value={search}
                                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                                            className="pl-9 h-11 text-xs font-semibold rounded-xl bg-slate-50 border-slate-50/50"
+                                            className="pl-10 h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
                                         />
                                     </div>
                                 </div>
 
                                 {/* Brand / Make */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Brand / Make</label>
                                     <SearchableDropdown
                                         options={makeOptions}
@@ -528,7 +591,7 @@ export default function MarketplacePage() {
                                 </div>
 
                                 {/* Model */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Model</label>
                                     <SearchableDropdown
                                         options={modelOptions}
@@ -541,12 +604,12 @@ export default function MarketplacePage() {
                                 </div>
 
                                 {/* Condition */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Condition</label>
                                     <select
                                         value={selectedCondition}
                                         onChange={(e) => { setSelectedCondition(e.target.value); setPage(1); }}
-                                        className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800"
+                                        className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
                                     >
                                         <option value="">Any Condition</option>
                                         <option value="Foreign Used">Foreign Used</option>
@@ -556,12 +619,12 @@ export default function MarketplacePage() {
                                 </div>
 
                                 {/* Transmission */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Transmission</label>
                                     <select
                                         value={selectedTransmission}
                                         onChange={(e) => { setSelectedTransmission(e.target.value); setPage(1); }}
-                                        className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800"
+                                        className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
                                     >
                                         <option value="">Any Transmission</option>
                                         {transmissions.data?.map((t: any) => {
@@ -573,12 +636,12 @@ export default function MarketplacePage() {
                                 </div>
 
                                 {/* Fuel Type */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Fuel Type</label>
                                     <select
                                         value={selectedFuelType}
                                         onChange={(e) => { setSelectedFuelType(e.target.value); setPage(1); }}
-                                        className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800"
+                                        className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
                                     >
                                         <option value="">Any Fuel Type</option>
                                         {fuelTypes.data?.map((f: any) => {
@@ -590,7 +653,7 @@ export default function MarketplacePage() {
                                 </div>
 
                                 {/* State */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">State / Location</label>
                                     <SearchableDropdown
                                         options={stateOptions}
@@ -602,22 +665,22 @@ export default function MarketplacePage() {
                                 </div>
 
                                 {/* Price Range */}
-                                <div className="space-y-2">
+                                <div className="space-y-1.5">
                                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Price Range (₦)</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         <Input
-                                            placeholder="Min Price"
+                                            placeholder="Min"
                                             type="number"
                                             value={minPrice}
                                             onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-                                            className="h-11 text-xs font-semibold rounded-xl bg-slate-50 border-slate-50/50"
+                                            className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
                                         />
                                         <Input
-                                            placeholder="Max Price"
+                                            placeholder="Max"
                                             type="number"
                                             value={maxPrice}
                                             onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-                                            className="h-11 text-xs font-semibold rounded-xl bg-slate-50 border-slate-50/50"
+                                            className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
                                         />
                                     </div>
                                 </div>

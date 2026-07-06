@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import api from '@/lib/api';
-import { Loader2, Mail, Lock, User, Check, ArrowRight, ArrowLeft, Building2, Ticket, ShieldCheck, Key } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Check, ArrowRight, ArrowLeft, Building2, Ticket, ShieldCheck, Key, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,6 +43,8 @@ export default function UserRegisterPage() {
     const [accountType, setAccountType] = useState<'personal' | 'vendor' | null>(null);
     const [registeredEmail, setRegisteredEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
     // OTP State
     const [otpCode, setOtpCode] = useState('');
@@ -316,10 +318,17 @@ export default function UserRegisterPage() {
                                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
                                                                 placeholder="Min. 8 characters"
-                                                                type="password"
+                                                                type={showPassword ? 'text' : 'password'}
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 pr-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
                                                             />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowPassword(!showPassword)}
+                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#003399] transition-colors focus:outline-none"
+                                                            >
+                                                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                            </button>
                                                         </div>
                                                     </FormControl>
                                                     <FormMessage className="text-xs font-semibold text-rose-500 ml-1" />
@@ -339,10 +348,17 @@ export default function UserRegisterPage() {
                                                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
                                                                 placeholder="Re-enter password"
-                                                                type="password"
+                                                                type={showConfirmPassword ? 'text' : 'password'}
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 pr-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
                                                             />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#003399] transition-colors focus:outline-none"
+                                                            >
+                                                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                            </button>
                                                         </div>
                                                     </FormControl>
                                                     <FormMessage className="text-xs font-semibold text-rose-500 ml-1" />

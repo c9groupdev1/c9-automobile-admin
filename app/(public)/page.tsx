@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { motion } from 'framer-motion';
+import { useHomeExploration } from '@/hooks/useUserMarketplace';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
   ShieldCheck,
@@ -30,16 +31,49 @@ import {
   FileCheck,
   ChevronRight,
   Smartphone,
-  Download
+  Download,
+  X as CloseIcon,
+  Star,
+  Sparkles,
+  Calendar
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TiltCard } from '@/components/public/tilt-card';
 import { Logo } from '@/components/logo';
 
+function formatNaira(amount: number | string) {
+  if (amount === null || amount === undefined) return '₦0';
+  const parsedAmount = typeof amount === 'string' ? parseFloat(amount.replace(/,/g, '')) : amount;
+  if (isNaN(parsedAmount)) return '₦0';
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(parsedAmount).replace('NGN', '₦');
+}
+
 export default function LandingPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const [deviceOS, setDeviceOS] = useState<'ios' | 'android' | 'desktop'>('desktop');
+  const [showAppPopup, setShowAppPopup] = useState(false);
+
+  const { data: homeExploration, isLoading: isLoadingFeatured } = useHomeExploration();
+  const featuredCars = homeExploration?.featuredVehicles || [];
+  const boostedCars = homeExploration?.boostedVehicles || [];
+
+  useEffect(() => {
+    // Check if the user has already dismissed the popup in the current session
+    const hasSeenPopup = sessionStorage.getItem('c9x_app_popup_seen');
+    if (!hasSeenPopup) {
+      // Delay showing the popup slightly for premium UX feel
+      const timer = setTimeout(() => {
+        setShowAppPopup(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera || '';
@@ -139,7 +173,7 @@ export default function LandingPage() {
                     className="flex items-center gap-3 bg-white hover:bg-slate-100 text-[#003399] rounded-xl px-5 py-2 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg border border-transparent w-full sm:w-auto justify-center group shrink-0"
                   >
                     <svg className="w-5 h-5 fill-current text-[#003399] shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z"/>
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
                     </svg>
                     <div className="text-left leading-none">
                       <p className="text-[8px] uppercase font-bold tracking-widest text-[#003399]/70 leading-none">Download on the</p>
@@ -245,7 +279,7 @@ export default function LandingPage() {
                       className="flex items-center gap-3.5 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-xl w-full sm:w-auto xl:flex-1 justify-center group"
                     >
                       <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z"/>
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
                       </svg>
                       <div className="text-left leading-none">
                         <p className="text-[9px] uppercase font-bold tracking-widest text-slate-400">Download on the</p>
@@ -277,6 +311,87 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Featured & Boosted Showcase */}
+      {(!isLoadingFeatured && (featuredCars.length > 0 || boostedCars.length > 0)) && (
+        <section className="py-24 bg-white relative overflow-hidden border-b border-slate-100">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#003399] border border-blue-100 text-xs font-black uppercase tracking-wider mb-3">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Premium Showrooms
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight uppercase">
+                  Featured & Boosted
+                </h2>
+                <p className="text-slate-500 font-medium mt-1">
+                  Spotlighted high-fidelity assets currently trading on the network.
+                </p>
+              </div>
+              <Link href="/marketplace" className="text-sm font-black text-[#003399] hover:underline flex items-center gap-1 mt-4 md:mt-0">
+                View Entire Catalog
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            {/* List Grids */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...featuredCars, ...boostedCars].slice(0, 4).map((item: any) => {
+                const isFeatured = item.isFeatured || item.promotionType === 'featured' || item.promotionType === 'premium_featured';
+                
+                const getPrimaryImageHome = (it: any): string => {
+                  if (it.primaryImage?.url) return it.primaryImage.url;
+                  if (it.primaryImage?.path) return it.primaryImage.path;
+                  if (it.images?.length > 0) return it.images[0]?.path || it.images[0]?.url || '/c9x-logo.png';
+                  return '/c9x-logo.png';
+                };
+
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => router.push(`/marketplace/${item.id}`)}
+                    className="group cursor-pointer bg-slate-50/50 hover:bg-white rounded-3xl border border-slate-150/40 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden relative flex flex-col h-full"
+                  >
+                    {/* Badge overlay */}
+                    <span className={`absolute top-4 left-4 z-10 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg text-white ${
+                      isFeatured
+                        ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
+                    }`}>
+                      {isFeatured ? 'Featured' : 'Boosted'}
+                    </span>
+
+                    {/* Primary Image */}
+                    <div className="h-44 overflow-hidden bg-slate-100 relative z-0">
+                      <img
+                        src={getPrimaryImageHome(item)}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/c9x-logo.png';
+                        }}
+                      />
+                    </div>
+
+                    {/* Content card */}
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-900 line-clamp-1 mb-1 group-hover:text-[#003399] transition-colors">{item.title}</h4>
+                        <p className="text-base font-black text-[#003399] mb-3">{formatNaira(item.amount)}</p>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-3 border-t border-slate-100">
+                        <span className="flex items-center gap-1"><Calendar size={11} />{item.car?.year || item.year || '2020'}</span>
+                        <span className="truncate max-w-[100px] flex items-center gap-1"><MapPin size={11} />{item.pricingAndLocation?.location?.city || item.city || 'Lagos'}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Services Section - Simplified to focus on core platform */}
       <section className="py-32 bg-slate-50 relative overflow-hidden">
@@ -534,6 +649,104 @@ export default function LandingPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Modern Marketing App Download Popup */}
+      <AnimatePresence>
+        {showAppPopup && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', duration: 0.5 }}
+              className="relative w-full max-w-lg overflow-hidden bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-2xl"
+            >
+              {/* Dynamic light glows */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none" />
+
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  setShowAppPopup(false);
+                  sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                }}
+                className="absolute right-4 top-4 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+              >
+                <CloseIcon size={20} />
+              </button>
+
+              <div className="relative z-10 space-y-6">
+                {/* Header Badge */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-xs font-black uppercase tracking-wider">
+                  <Star size={12} className="fill-blue-400" />
+                  <span>C9X Mobile Experience</span>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight">
+                    Get a Better <br />
+                    Experience on Mobile
+                  </h3>
+                  <p className="text-slate-400 font-semibold text-sm leading-relaxed">
+                    Unlock instant push notifications, real-time trackers, and direct chat rooms with vetted sellers.
+                  </p>
+                </div>
+
+                {/* Mobile Mockup representation inside details */}
+                <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
+                    <Smartphone size={24} />
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-bold">Official App Store Verified</h5>
+                    <p className="text-xs text-slate-500 font-medium">Safe & secure download under 30MB</p>
+                  </div>
+                </div>
+
+                {/* Download Actions */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  {(deviceOS === 'ios' || deviceOS === 'desktop') && (
+                    <a
+                      href="https://apps.apple.com/ng/app/c9x/id6762285536"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        setShowAppPopup(false);
+                        sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                      }}
+                      className="flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-950 px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg font-black text-sm w-full"
+                    >
+                      <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
+                      </svg>
+                      <span>iOS App Store</span>
+                    </a>
+                  )}
+
+                  {(deviceOS === 'android' || deviceOS === 'desktop') && (
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        setShowAppPopup(false);
+                        sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                      }}
+                      className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/15 text-white px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 border border-white/10 font-black text-sm w-full"
+                    >
+                      <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                        <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
+                      </svg>
+                      <span>Google Play Store</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
