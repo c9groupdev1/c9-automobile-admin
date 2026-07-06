@@ -58,9 +58,87 @@ const POPULAR_COLORS = [
     'Mint Green', 'Sage Green', 'Khaki', 'Mustard', 'Lemon', 'Neon Yellow', 'Neon Green'
 ].sort();
 
+const getColorCssValue = (colorName: string) => {
+    const specialMap: Record<string, string> = {
+        'Pearl White': '#F8F9FA',
+        'Matte Black': '#28282B',
+        'Navy Blue': '#000080',
+        'Sky Blue': '#87CEEB',
+        'Forest Green': '#228B22',
+        'Olive Green': '#556B2F',
+        'Lime Green': '#32CD32',
+        'Rose Gold': '#B76E79',
+        'Metallic Silver': '#A8A9AD',
+        'Metallic Gray': '#8A8D8F',
+        'Metallic Blue': '#32527B',
+        'Metallic Red': '#A42A04',
+        'Gunmetal': '#2A3439',
+        'Midnight Blue': '#191970',
+        'Ice Blue': '#99FFFF',
+        'Cherry Red': '#D2042D',
+        'Wine Red': '#722F37',
+        'Mint Green': '#98FF98',
+        'Sage Green': '#9DC183',
+        'Neon Yellow': '#FFFF33',
+        'Neon Green': '#39FF14',
+        'Charcoal': '#36454F',
+        'Burgundy': '#800020',
+        'Teal': '#008080',
+        'Turquoise': '#40E0D0',
+        'Maroon': '#800000',
+        'Crimson': '#DC143C',
+        'Ruby Red': '#9B111E',
+        'Champagne': '#F7E7CE',
+        'Ivory': '#FFFFF0',
+        'Cream': '#FFFDD0',
+        'Tan': '#D2B48C',
+        'Sand': '#C2B280',
+        'Espresso': '#4E312D',
+        'Copper': '#B87333',
+        'Rust': '#B7410E',
+        'Indigo': '#4B0082',
+        'Violet': '#EE82EE',
+        'Magenta': '#FF00FF',
+        'Pink': '#FFC0CB',
+        'Graphite': '#594D5B',
+        'Slate': '#708090',
+        'Titanium': '#878681',
+        'Platinum': '#E5E4E2',
+        'Sapphire': '#0F52BA',
+        'Emerald': '#50C878',
+        'Topaz': '#FFC87C',
+        'Amethyst': '#9966CC',
+        'Amber': '#FFBF00',
+        'Onyx': '#353839',
+        'Obsidian': '#4B0082',
+        'Quartz': '#51484F',
+        'Cobalt': '#0047AB',
+        'Denim': '#1560BD',
+        'Electric Blue': '#7DF9FF',
+        'Ocean Blue': '#4F42B5',
+        'Mahogany': '#C04000',
+        'Auburn': '#A52A2A',
+        'Terracotta': '#E2725B',
+        'Coral': '#FF7F50',
+        'Peach': '#FFE5B4',
+        'Khaki': '#F0E68C',
+        'Mustard': '#FFDB58',
+        'Lemon': '#FFF700',
+    };
+    return specialMap[colorName] || colorName.toLowerCase();
+};
+
 const colorOptions = [
-    ...POPULAR_COLORS.map(c => ({ label: c, value: c })),
-    { label: '+ Add Custom Color', value: 'CUSTOM_COLOR' }
+    ...POPULAR_COLORS.map(c => ({ 
+        label: c, 
+        value: c,
+        icon: <div className="w-3.5 h-3.5 rounded-full border border-slate-200/50 shadow-sm flex-shrink-0" style={{ backgroundColor: getColorCssValue(c) }} />
+    })),
+    { 
+        label: '+ Add Custom Color', 
+        value: 'CUSTOM_COLOR',
+        icon: <div className="w-3.5 h-3.5 rounded-full border border-slate-200 flex-shrink-0 bg-gradient-to-tr from-rose-400 via-fuchsia-500 to-indigo-500" />
+    }
 ];
 
 function ListVehicleFormContent() {
@@ -638,12 +716,20 @@ function ListVehicleFormContent() {
                                                 placeholder="Select Exterior Color"
                                             />
                                             {isCustomBodyColor && (
-                                                <div className="mt-2">
+                                                <div className="mt-2 flex gap-2">
+                                                    <div className="relative">
+                                                        <Input
+                                                            type="color"
+                                                            value={bodyColor.startsWith('#') ? bodyColor : '#ffffff'}
+                                                            onChange={(e) => setBodyColor(e.target.value)}
+                                                            className="w-12 h-12 p-1 rounded-xl cursor-pointer border-slate-200"
+                                                        />
+                                                    </div>
                                                     <Input
                                                         placeholder="Enter Custom Exterior Color"
                                                         value={bodyColor}
                                                         onChange={(e) => setBodyColor(e.target.value)}
-                                                        className="bg-slate-50 h-12 rounded-xl"
+                                                        className="bg-slate-50 h-12 rounded-xl flex-1 border-slate-200"
                                                         autoFocus
                                                     />
                                                 </div>
@@ -666,12 +752,20 @@ function ListVehicleFormContent() {
                                                 placeholder="Select Interior Color"
                                             />
                                             {isCustomInteriorColor && (
-                                                <div className="mt-2">
+                                                <div className="mt-2 flex gap-2">
+                                                    <div className="relative">
+                                                        <Input
+                                                            type="color"
+                                                            value={interiorColor.startsWith('#') ? interiorColor : '#ffffff'}
+                                                            onChange={(e) => setInteriorColor(e.target.value)}
+                                                            className="w-12 h-12 p-1 rounded-xl cursor-pointer border-slate-200"
+                                                        />
+                                                    </div>
                                                     <Input
                                                         placeholder="Enter Custom Interior Color"
                                                         value={interiorColor}
                                                         onChange={(e) => setInteriorColor(e.target.value)}
-                                                        className="bg-slate-50 h-12 rounded-xl"
+                                                        className="bg-slate-50 h-12 rounded-xl flex-1 border-slate-200"
                                                         autoFocus
                                                     />
                                                 </div>

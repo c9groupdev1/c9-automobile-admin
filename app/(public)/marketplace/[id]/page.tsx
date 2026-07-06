@@ -12,7 +12,7 @@ import {
 } from '@/hooks/useUserMarketplace';
 import { useStartConversation } from '@/hooks/useUserMessaging';
 import { useAuthStore } from '@/store/authStore';
-import { formatNaira } from '../page';
+import { formatNaira } from '../../page';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';

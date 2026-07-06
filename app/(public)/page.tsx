@@ -964,8 +964,6 @@ export default function MarketplacePage() {
           </div>
         )}
       </AnimatePresence>
-    </div>
-
         </div>
     );
 }

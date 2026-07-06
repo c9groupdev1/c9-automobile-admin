@@ -157,7 +157,7 @@ export default function MyListingsPage() {
                         return (
                             <Card key={item.id} className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white hover:border-slate-200 transition-colors">
                                 <CardContent className="p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                                    <div className="flex gap-4 items-center min-w-0 w-full md:w-auto">
+                                    <Link href={`/marketplace/${item.id}`} className="flex gap-4 items-center min-w-0 w-full md:w-auto hover:opacity-80 transition-opacity">
                                         <div className="w-20 h-16 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-100">
                                             <img
                                                 src={getPrimaryImage(item)}
@@ -184,7 +184,7 @@ export default function MyListingsPage() {
                                                     </Badge>
                                                 )}
                                             </div>
-                                            <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate">
+                                            <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate group-hover:text-[#003399]">
                                                 {item.title}
                                             </h3>
                                             <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 mt-1 flex-wrap">
@@ -203,7 +203,7 @@ export default function MyListingsPage() {
                                                 </span>
                                             </div>
                                         </div>
-                                    </div>
+                                    </Link>
 
                                     {/* Action items */}
                                     <div className="flex items-center gap-2 w-full md:w-auto justify-end border-t md:border-t-0 pt-3 md:pt-0 mt-2 md:mt-0 flex-wrap">
