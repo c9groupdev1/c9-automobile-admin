@@ -215,9 +215,12 @@ export default function AccountPage() {
                                                 </Badge>
                                                 <Badge className={cn(
                                                     "border-0 text-[10px] font-black uppercase tracking-widest px-2",
-                                                    (profile as any)?.kycStatus === 'verified' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                                                    (profile as any)?.kycStatus?.toLowerCase() === 'verified' || (profile as any)?.kycStatus?.toLowerCase() === 'approved' ? "bg-emerald-50 text-emerald-600" : 
+                                                    (profile as any)?.kycStatus?.toLowerCase() === 'pending' ? "bg-amber-50 text-amber-600" :
+                                                    (profile as any)?.kycStatus?.toLowerCase() === 'rejected' ? "bg-rose-50 text-rose-600" :
+                                                    "bg-slate-50 text-slate-600"
                                                 )}>
-                                                    KYC {(profile as any)?.kycStatus}
+                                                    KYC {(profile as any)?.kycStatus || 'None'}
                                                 </Badge>
                                                 {(profile as any)?.kyc?.type && (
                                                     <Badge className="bg-slate-100 text-slate-600 border-0 text-[10px] font-black uppercase tracking-widest px-2">

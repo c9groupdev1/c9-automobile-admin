@@ -37,6 +37,14 @@ export default function MyListingsPage() {
     const [showBoostModal, setShowBoostModal] = useState(false);
     const [selectedPromotionId, setSelectedPromotionId] = useState<string | null>(null);
 
+const getStatusColor = (status: string) => {
+    const s = status?.toLowerCase() || '';
+    if (['pending'].includes(s)) return 'bg-amber-50 text-amber-600';
+    if (['sold', 'rejected', 'failed', 'cancelled'].includes(s)) return 'bg-rose-50 text-rose-600';
+    if (['available', 'successful', 'success', 'approved', 'active'].includes(s)) return 'bg-emerald-50 text-emerald-700';
+    return 'bg-slate-50 text-slate-600';
+};
+
     const listings = Array.isArray(listingsResponse?.data?.data) 
         ? listingsResponse.data.data 
         : Array.isArray(listingsResponse?.data)
@@ -171,11 +179,7 @@ export default function MyListingsPage() {
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="flex items-center gap-2 mb-1 flex-wrap">
-                                                <Badge className={`border-0 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 ${
-                                                    isSold 
-                                                        ? 'bg-rose-50 text-rose-600' 
-                                                        : 'bg-emerald-50 text-emerald-700'
-                                                }`}>
+                                                <Badge className={`border-0 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 ${getStatusColor(status)}`}>
                                                     {status}
                                                 </Badge>
                                                 {item.isBoosted && (

@@ -247,7 +247,15 @@ function ListVehicleFormContent() {
 
             // Pricing / location
             const pl = initialListing.pricingAndLocation || {};
-            setAmount(pl.amount?.toString() || '');
+            if (pl.amount) {
+                const rawAmount = String(pl.amount).replace(/,/g, '');
+                setAmount(Number(rawAmount).toLocaleString('en-US'));
+            } else if (initialListing.amount) {
+                const rawAmount = String(initialListing.amount).replace(/,/g, '');
+                setAmount(Number(rawAmount).toLocaleString('en-US'));
+            } else {
+                setAmount('');
+            }
             setIsNegotiable(pl.isNegotiable || false);
             setInspectionAccepted(pl.inspectionAccepted || false);
             setStateId(pl.state?.id || '');
@@ -450,7 +458,7 @@ function ListVehicleFormContent() {
         try {
             const payload = {
                 listingId,
-                amount: parseFloat(amount),
+                amount: parseFloat(amount.replace(/,/g, '')),
                 isNegotiable,
                 inspectionAccepted,
                 stateId,
@@ -1032,10 +1040,24 @@ function ListVehicleFormContent() {
                                             <div className="relative">
                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-500">₦</span>
                                                 <Input
-                                                    type="number"
+                                                    type="text"
                                                     placeholder="0.00"
                                                     value={amount}
-                                                    onChange={(e) => setAmount(e.target.value)}
+                                                    onChange={(e) => {
+                                                        const raw = e.target.value.replace(/,/g, '');
+                                                        if (raw === '') {
+                                                            setAmount('');
+                                                            return;
+                                                        }
+                                                        // Allow only numbers and a single decimal point
+                                                        if (/^\d*\.?\d*$/.test(raw)) {
+                                                            const parts = raw.split('.');
+                                                            if (parts[0] !== '') {
+                                                                parts[0] = Number(parts[0]).toLocaleString('en-US');
+                                                            }
+                                                            setAmount(parts.join('.'));
+                                                        }
+                                                    }}
                                                     className="bg-slate-50 h-12 pl-8 font-extrabold text-slate-900"
                                                 />
                                             </div>
