@@ -902,31 +902,84 @@ function ListVehicleFormContent() {
                                         Media & Showcase
                                     </h3>
 
-                                    {/* Drag-n-drop dropzone */}
-                                    <div className="border-2 border-dashed border-slate-200 hover:border-[#003399]/40 rounded-3xl p-10 bg-slate-50/50 hover:bg-blue-50/5 text-center transition-all cursor-pointer relative group">
-                                        <input
-                                            type="file"
-                                            multiple
-                                            accept="image/*"
-                                            onChange={handleFileChange}
-                                            className="absolute inset-0 opacity-0 cursor-pointer"
-                                        />
-                                        <Upload className="mx-auto h-10 w-10 text-slate-400 group-hover:scale-110 group-hover:text-[#003399] transition-all mb-4" />
-                                        <p className="text-sm font-bold text-slate-800">Drag & drop your vehicle images</p>
-                                        <p className="text-xs text-slate-400 font-semibold mt-1">or click to browse local files (JPG, PNG, max 5MB)</p>
+                                    {/* Primary Image Section */}
+                                    <div className="space-y-3 mb-8">
+                                        <label className="text-xs font-bold text-slate-600 block ml-1">Cover Image (Primary)</label>
+                                        {uploadedImages.some(img => img.isPrimary) ? (
+                                            <div className="relative aspect-[21/9] sm:aspect-[21/7] rounded-3xl overflow-hidden border border-amber-400 ring-4 ring-amber-400/20 bg-slate-50 shadow-md group">
+                                                {uploadedImages.map((img, idx) => img.isPrimary && (
+                                                    <React.Fragment key={img.url + idx}>
+                                                        <img src={img.url} className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                                                            <label className="bg-white hover:bg-slate-50 text-slate-800 font-bold px-4 py-2 rounded-xl cursor-pointer shadow-sm text-sm">
+                                                                Change Cover
+                                                                <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                                                                    if (e.target.files && e.target.files[0]) {
+                                                                        const file = e.target.files[0];
+                                                                        setUploadedImages(prev => {
+                                                                            const newImg = { file, url: URL.createObjectURL(file), isPrimary: true };
+                                                                            const copy = prev.filter(p => !p.isPrimary);
+                                                                            return [newImg, ...copy];
+                                                                        });
+                                                                    }
+                                                                }} />
+                                                            </label>
+                                                        </div>
+                                                    </React.Fragment>
+                                                ))}
+                                                <div className="absolute top-3 left-3 bg-amber-400 text-white text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-lg shadow-sm flex items-center gap-1">
+                                                    <Star size={10} fill="currentColor" /> Cover Image
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <label className="block border-2 border-dashed border-amber-400/50 hover:border-amber-500 rounded-3xl p-10 bg-amber-50/30 hover:bg-amber-50/50 text-center transition-all cursor-pointer relative group">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        if (e.target.files && e.target.files[0]) {
+                                                            const file = e.target.files[0];
+                                                            setUploadedImages(prev => {
+                                                                const newImg = { file, url: URL.createObjectURL(file), isPrimary: true };
+                                                                // In case there was already a primary image, we replace it (handled below by filtering out the old one)
+                                                                const copy = prev.map(p => ({ ...p, isPrimary: false }));
+                                                                return [newImg, ...copy];
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                />
+                                                <div className="mx-auto w-14 h-14 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                                    <ImageIcon size={24} />
+                                                </div>
+                                                <p className="text-sm font-bold text-slate-800">Upload Cover Image</p>
+                                                <p className="text-xs text-slate-400 font-semibold mt-1">First impression matters. Max 5MB</p>
+                                            </label>
+                                        )}
                                     </div>
 
-                                    {/* Selected Images Grid */}
-                                    {uploadedImages.length > 0 && (
-                                        <div className="space-y-3">
-                                            <label className="text-xs font-bold text-slate-600 block ml-1">Uploaded Images ({uploadedImages.length})</label>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                                {uploadedImages.map((img, idx) => (
+                                    {/* Additional Images Section */}
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-slate-600 block ml-1">Additional Images (Gallery)</label>
+                                        <div className="border-2 border-dashed border-slate-200 hover:border-[#003399]/40 rounded-3xl p-8 bg-slate-50/50 hover:bg-blue-50/5 text-center transition-all cursor-pointer relative group">
+                                            <input
+                                                type="file"
+                                                multiple
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                            />
+                                            <Upload className="mx-auto h-8 w-8 text-slate-400 group-hover:scale-110 group-hover:text-[#003399] transition-all mb-3" />
+                                            <p className="text-sm font-bold text-slate-800">Add more photos</p>
+                                            <p className="text-xs text-slate-400 font-semibold mt-1">Interior, engine, scratches, etc.</p>
+                                        </div>
+
+                                        {uploadedImages.filter(img => !img.isPrimary).length > 0 && (
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                                                {uploadedImages.map((img, idx) => !img.isPrimary && (
                                                     <div 
                                                         key={img.url + idx}
-                                                        className={`relative aspect-video rounded-2xl overflow-hidden border bg-slate-50 group shadow-sm ${
-                                                            img.isPrimary ? 'border-amber-400 ring-2 ring-amber-400/20' : 'border-slate-100'
-                                                        }`}
+                                                        className="relative aspect-video rounded-2xl overflow-hidden border bg-slate-50 group shadow-sm border-slate-100"
                                                     >
                                                         <img
                                                             src={img.url}
@@ -934,21 +987,14 @@ function ListVehicleFormContent() {
                                                             className="w-full h-full object-cover"
                                                         />
 
-                                                        {/* Primary image star indicator */}
                                                         <button
                                                             type="button"
                                                             onClick={() => handleSetPrimaryImage(idx)}
-                                                            className={`absolute top-2 left-2 p-1.5 rounded-lg border backdrop-blur-sm shadow-sm transition-all ${
-                                                                img.isPrimary 
-                                                                    ? 'bg-amber-400 text-white border-transparent' 
-                                                                    : 'bg-white/95 text-slate-400 hover:text-amber-500 border-slate-100'
-                                                            }`}
-                                                            title={img.isPrimary ? 'Primary Image' : 'Set as Primary'}
+                                                            className="absolute bottom-2 left-2 right-2 py-1.5 rounded-lg border backdrop-blur-sm shadow-sm transition-all bg-white/95 text-slate-600 hover:text-[#003399] border-slate-100 opacity-0 group-hover:opacity-100 text-xs font-bold"
                                                         >
-                                                            <Star size={12} fill={img.isPrimary ? 'currentColor' : 'transparent'} />
+                                                            Make Cover
                                                         </button>
 
-                                                        {/* Delete button */}
                                                         <button
                                                             type="button"
                                                             onClick={() => handleRemoveImage(idx)}
@@ -959,8 +1005,8 @@ function ListVehicleFormContent() {
                                                     </div>
                                                 ))}
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
 
                                     {/* Video URL Link */}
                                     <div className="space-y-2">
