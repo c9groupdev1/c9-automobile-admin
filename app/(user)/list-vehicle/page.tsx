@@ -173,9 +173,6 @@ function ListVehicleFormContent() {
 
     // Engine/Specs conditions
     const [engineType, setEngineType] = useState('');
-    const [engineCondition, setEngineCondition] = useState('Excellent');
-    const [transmissionCondition, setTransmissionCondition] = useState('Excellent');
-    const [suspensionCondition, setSuspensionCondition] = useState('Excellent');
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
     // Form inputs state - Step 2
@@ -234,9 +231,6 @@ function ListVehicleFormContent() {
 
             const spec = initialListing.specifications || {};
             setEngineType(bi.engineType || '');
-            setEngineCondition(spec.engineCondition || 'Excellent');
-            setTransmissionCondition(spec.transmissionCondition || 'Excellent');
-            setSuspensionCondition(spec.suspensionCondition || 'Excellent');
 
             setSelectedFeatures(initialListing.features?.keyFeatures || initialListing.carFeatures || []);
 
@@ -337,9 +331,6 @@ function ListVehicleFormContent() {
                 interiorColor: interiorColor || undefined,
                 vinChassisNumber: vin || undefined,
                 engineType: engineType || undefined,
-                engineCondition,
-                transmissionCondition,
-                suspensionCondition,
                 keyFeatures: selectedFeatures.length > 0 ? selectedFeatures : undefined,
             };
 
@@ -504,9 +495,6 @@ function ListVehicleFormContent() {
                 interiorColor: interiorColor || undefined,
                 vinChassisNumber: vin || undefined,
                 engineType: engineType || undefined,
-                engineCondition,
-                transmissionCondition,
-                suspensionCondition,
                 keyFeatures: selectedFeatures.length > 0 ? selectedFeatures : undefined,
             };
 
@@ -819,36 +807,6 @@ function ListVehicleFormContent() {
                                         </div>
                                     </div>
 
-                                    {/* Engine, trans condition spec options */}
-                                    <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                                        <h4 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Health Condition</h4>
-                                        <div className="grid md:grid-cols-3 gap-6">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase text-slate-400 block ml-1">Engine Health</label>
-                                                <select value={engineCondition} onChange={(e) => setEngineCondition(e.target.value)} className="h-10 w-full rounded-xl bg-white border border-slate-100 px-3 text-xs font-semibold text-slate-800">
-                                                    <option value="Excellent">Excellent</option>
-                                                    <option value="Good">Good</option>
-                                                    <option value="Needs Work">Needs Work</option>
-                                                </select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase text-slate-400 block ml-1">Transmission Health</label>
-                                                <select value={transmissionCondition} onChange={(e) => setTransmissionCondition(e.target.value)} className="h-10 w-full rounded-xl bg-white border border-slate-100 px-3 text-xs font-semibold text-slate-800">
-                                                    <option value="Excellent">Excellent</option>
-                                                    <option value="Good">Good</option>
-                                                    <option value="Needs Work">Needs Work</option>
-                                                </select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase text-slate-400 block ml-1">Suspension Health</label>
-                                                <select value={suspensionCondition} onChange={(e) => setSuspensionCondition(e.target.value)} className="h-10 w-full rounded-xl bg-white border border-slate-100 px-3 text-xs font-semibold text-slate-800">
-                                                    <option value="Excellent">Excellent</option>
-                                                    <option value="Good">Good</option>
-                                                    <option value="Needs Work">Needs Work</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                     {/* Features multi-selector */}
                                     {features.data && (
