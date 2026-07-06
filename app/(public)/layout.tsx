@@ -24,6 +24,8 @@ export default function PublicLayout({
         window.scrollTo(0, 0);
     }, [pathname]);
 
+    const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password'].includes(pathname);
+
     return (
         <div className="min-h-screen gradient-bg text-slate-900 selection:bg-primary/10 selection:text-primary scroll-smooth font-sans antialiased overflow-x-hidden relative">
             {/* Scroll Progress Indicator */}
@@ -35,13 +37,13 @@ export default function PublicLayout({
             {/* Grid Overlay for Texture */}
             <div className="fixed inset-0 grid-pattern opacity-30 pointer-events-none z-0" />
 
-            <PublicNavbar />
+            {!isAuthPage && <PublicNavbar />}
 
             <main className="relative">
                 {children}
             </main>
 
-            <PublicFooter />
+            {!isAuthPage && <PublicFooter />}
         </div>
     );
 }

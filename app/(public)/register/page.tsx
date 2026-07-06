@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import api from '@/lib/api';
-import { Loader2, Mail, Lock, User, Check, ArrowRight, ArrowLeft, Building2, Ticket, ShieldCheck, Key, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Check, ArrowRight, Ticket, ShieldCheck, Key, Eye, EyeOff, Quote, Star, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,8 +39,8 @@ const formSchema = z.object({
 
 export default function UserRegisterPage() {
     const router = useRouter();
-    const [step, setStep] = useState<1 | 2 | 3>(1); // 1: Account Type, 2: Registration details, 3: OTP Verification
-    const [accountType, setAccountType] = useState<'personal' | 'vendor' | null>(null);
+    const [step, setStep] = useState<2 | 3>(2); // 2: Registration details, 3: OTP Verification
+    const [accountType, setAccountType] = useState<'personal' | 'vendor'>('personal');
     const [registeredEmail, setRegisteredEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -73,11 +73,6 @@ export default function UserRegisterPage() {
         }
         return () => clearInterval(interval);
     }, [resendTimer]);
-
-    const handleAccountTypeSelect = (type: 'personal' | 'vendor') => {
-        setAccountType(type);
-        setStep(2);
-    };
 
     async function onRegisterSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
@@ -150,131 +145,89 @@ export default function UserRegisterPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 gradient-bg flex flex-col justify-center items-center p-6 relative">
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none z-0" />
+        <div className="min-h-screen w-full flex bg-slate-50 font-sans">
+            {/* Left Side: Brand / Hero Graphic */}
+            <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-[#003399] flex-col justify-between p-12 xl:p-20 text-white">
+                {/* Dynamic Background Gradients & Effects */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full bg-blue-500/40 blur-[100px] animate-pulse-slow" />
+                    <div className="absolute bottom-[10%] right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-400/30 blur-[100px]" />
+                    <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#003399]/20 to-[#002266]/80" />
+                </div>
+                
+                <div className="relative z-10">
+                    <Link href="/" className="inline-block transition-transform hover:scale-105 active:scale-95 bg-white p-2 rounded-xl shadow-lg">
+                        <Logo className="w-14 h-14" />
+                    </Link>
+                </div>
+                
+                <div className="relative z-10 space-y-8 mt-auto mb-12">
+                    <motion.h1 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-5xl xl:text-6xl font-black tracking-tight leading-[1.1]"
+                    >
+                        Join the ultimate <br/>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-200">
+                            auto marketplace.
+                        </span>
+                    </motion.h1>
+                    
+                    <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-blue-100 text-lg xl:text-xl max-w-lg font-medium leading-relaxed"
+                    >
+                        Experience seamless buying and selling with verified dealers, premium listings, and top-tier support.
+                    </motion.p>
+                </div>
+
+            </div>
             
-            {/* Ambient gradients */}
-            <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-blue-400/20 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 z-0" />
-            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-400/20 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 z-0" />
+            {/* Right Side: Form */}
+            <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 lg:p-20 relative">
+                {/* Mobile Back to Home */}
+                <Link href="/" className="lg:hidden absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold text-sm z-50 transition-colors">
+                    <ArrowLeft size={16} /> Home
+                </Link>
 
-            <div className="w-full max-w-2xl flex flex-col items-center">
-                <AnimatePresence mode="wait">
-                    {/* STEP 1: Account Type Selection */}
-                    {step === 1 && (
-                        <motion.div
-                            key="step1"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/50 w-full relative z-10 max-w-xl"
-                        >
-                            <div className="flex flex-col items-center mb-10 text-center">
-                                <div className="w-20 h-20 bg-gradient-to-tr from-[#003399] to-[#0066CC] rounded-[1.5rem] flex items-center justify-center mb-6 shadow-lg shadow-blue-500/10">
-                                    <Logo className="w-12 h-12 invert brightness-0" />
-                                </div>
-                                <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">Create Your Account</h2>
-                                <p className="text-slate-500 font-medium text-sm">
-                                    Choose how you want to interact with C9X
-                                </p>
-                            </div>
-
-                            <div className="space-y-6">
-                                {/* Personal Account Card */}
-                                <div
-                                    onClick={() => handleAccountTypeSelect('personal')}
-                                    className="group cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-[#003399] hover:bg-blue-50/10 transition-all shadow-sm hover:shadow-md flex items-start gap-5"
-                                >
-                                    <div className="p-4 bg-blue-50 text-[#003399] rounded-2xl group-hover:scale-105 transition-transform duration-300">
-                                        <User size={24} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-slate-900 mb-1 group-hover:text-[#003399] transition-colors">Personal Account</h3>
-                                        <p className="text-slate-500 font-semibold text-xs leading-relaxed mb-4">
-                                            Buy premium vehicles, chat with verified dealers, save favorites, and list cars as an individual.
-                                        </p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {['Save favorites', 'Chat with sellers', 'Sell occasionally'].map(f => (
-                                                <span key={f} className="text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-1 rounded-md">{f}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Vendor Account Card */}
-                                <div
-                                    onClick={() => handleAccountTypeSelect('vendor')}
-                                    className="group cursor-pointer bg-white rounded-2xl p-6 border-2 border-slate-100 hover:border-violet-600 hover:bg-violet-50/10 transition-all shadow-sm hover:shadow-md flex items-start gap-5"
-                                >
-                                    <div className="p-4 bg-violet-50 text-violet-600 rounded-2xl group-hover:scale-105 transition-transform duration-300">
-                                        <Building2 size={24} />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-violet-600 transition-colors">Vendor / Dealer Account</h3>
-                                            <span className="text-[9px] font-black tracking-wider uppercase text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">KYC Verification Required</span>
-                                        </div>
-                                        <p className="text-slate-500 font-semibold text-xs leading-relaxed mb-4">
-                                            List vehicles, parts, and services as a business. Gain professional vendor badges and unlimited postings.
-                                        </p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {['Unlimited listings', 'Service directory catalog', 'Verified business profile'].map(f => (
-                                                <span key={f} className="text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-1 rounded-md">{f}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="text-center text-xs font-bold text-slate-400 mt-8 pt-6 border-t border-slate-100">
-                                Already have an account?{' '}
-                                <Link href="/login" className="text-[#003399] hover:underline">
-                                    Sign In
-                                </Link>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* STEP 2: Registration Form */}
-                    {step === 2 && (
-                        <motion.div
-                            key="step2"
-                            initial={{ opacity: 0, x: 50 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -50 }}
-                            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/50 w-full relative z-10 max-w-xl"
-                        >
-                            <button
-                                onClick={() => setStep(1)}
-                                className="absolute left-6 top-8 p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center gap-1 text-xs font-bold"
+                <div className="w-full max-w-md relative z-10 mt-12 lg:mt-0">
+                    <AnimatePresence mode="wait">
+                        {/* STEP 2: Registration Form */}
+                        {step === 2 && (
+                            <motion.div
+                                key="step2"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
                             >
-                                <ArrowLeft size={16} />
-                                Back
-                            </button>
-                            
-                            <div className="flex flex-col items-center mb-10 text-center">
-                                <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">Create {accountType === 'vendor' ? 'Vendor' : 'Personal'} Account</h2>
-                                <p className="text-slate-500 font-medium text-sm">
-                                    Fill in your details below to register
-                                </p>
-                            </div>
+                                <div className="mb-10">
+                                    <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">Create Account</h2>
+                                    <p className="text-slate-500 font-medium text-sm sm:text-base">
+                                        Enter your details to get started with C9X.
+                                    </p>
+                                </div>
 
-                            <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onRegisterSubmit)} className="space-y-6">
-                                    <div className="space-y-4">
+                                <Form {...form}>
+                                    <form onSubmit={form.handleSubmit(onRegisterSubmit)} className="space-y-5">
                                         {/* Full Name */}
                                         <FormField
                                             control={form.control}
                                             name="name"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-2">
-                                                    <FormLabel className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Full Name</FormLabel>
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Full Name</FormLabel>
                                                     <FormControl>
                                                         <div className="relative group">
                                                             <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
                                                                 placeholder="Alice Johnson"
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-14 rounded-2xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-sm hover:border-slate-300"
                                                             />
                                                         </div>
                                                     </FormControl>
@@ -288,8 +241,8 @@ export default function UserRegisterPage() {
                                             control={form.control}
                                             name="email"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-2">
-                                                    <FormLabel className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Email Address</FormLabel>
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Email Address</FormLabel>
                                                     <FormControl>
                                                         <div className="relative group">
                                                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
@@ -297,7 +250,7 @@ export default function UserRegisterPage() {
                                                                 placeholder="you@example.com"
                                                                 type="email"
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-14 rounded-2xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-sm hover:border-slate-300"
                                                             />
                                                         </div>
                                                     </FormControl>
@@ -311,27 +264,27 @@ export default function UserRegisterPage() {
                                             control={form.control}
                                             name="password"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-2">
-                                                    <FormLabel className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Password</FormLabel>
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Password</FormLabel>
                                                     <FormControl>
                                                         <div className="relative group">
-                                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
+                                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
-                                                                placeholder="Min. 8 characters"
+                                                                placeholder="Min. 8 chars"
                                                                 type={showPassword ? 'text' : 'password'}
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 pr-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-14 rounded-2xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 pl-10 pr-10 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-sm hover:border-slate-300 text-sm"
                                                             />
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setShowPassword(!showPassword)}
                                                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#003399] transition-colors focus:outline-none"
                                                             >
-                                                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                                             </button>
                                                         </div>
                                                     </FormControl>
-                                                    <FormMessage className="text-xs font-semibold text-rose-500 ml-1" />
+                                                    <FormMessage className="text-[10px] font-semibold text-rose-500 ml-1" />
                                                 </FormItem>
                                             )}
                                         />
@@ -341,27 +294,27 @@ export default function UserRegisterPage() {
                                             control={form.control}
                                             name="confirmPassword"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-2">
-                                                    <FormLabel className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Confirm Password</FormLabel>
+                                                <FormItem className="space-y-1.5">
+                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Confirm Password</FormLabel>
                                                     <FormControl>
                                                         <div className="relative group">
-                                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
+                                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
                                                                 placeholder="Re-enter password"
                                                                 type={showConfirmPassword ? 'text' : 'password'}
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 pr-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-14 rounded-2xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 pl-10 pr-10 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-sm hover:border-slate-300 text-sm"
                                                             />
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#003399] transition-colors focus:outline-none"
                                                             >
-                                                                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                                                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                                             </button>
                                                         </div>
                                                     </FormControl>
-                                                    <FormMessage className="text-xs font-semibold text-rose-500 ml-1" />
+                                                    <FormMessage className="text-[10px] font-semibold text-rose-500 ml-1" />
                                                 </FormItem>
                                             )}
                                         />
@@ -371,15 +324,15 @@ export default function UserRegisterPage() {
                                             control={form.control}
                                             name="referralCode"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-2">
-                                                    <FormLabel className="text-xs font-bold text-slate-600 ml-1 uppercase tracking-wider">Referral Code (Optional)</FormLabel>
+                                                <FormItem className="space-y-1.5 pt-2">
+                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Referral Code <span className="text-slate-400 font-normal lowercase tracking-normal">(Optional)</span></FormLabel>
                                                     <FormControl>
                                                         <div className="relative group">
                                                             <Ticket className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
                                                                 placeholder="e.g. ABCD1234"
                                                                 {...field}
-                                                                className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold uppercase transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
+                                                                className="h-14 rounded-2xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold uppercase transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-sm hover:border-slate-300"
                                                             />
                                                         </div>
                                                     </FormControl>
@@ -393,23 +346,23 @@ export default function UserRegisterPage() {
                                             control={form.control}
                                             name="agreedToTerms"
                                             render={({ field }) => (
-                                                <FormItem className="space-y-2">
-                                                    <div className="flex items-start space-x-3 mt-4 ml-1">
+                                                <FormItem className="space-y-2 pt-2">
+                                                    <div className="flex items-start space-x-3 ml-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                                                         <FormControl>
                                                             <Checkbox
                                                                 checked={field.value}
                                                                 onCheckedChange={field.onChange}
-                                                                className="mt-0.5 rounded border-slate-300 text-[#003399] focus:ring-[#003399]"
+                                                                className="mt-0.5 rounded-md border-slate-300 text-[#003399] focus:ring-[#003399] data-[state=checked]:bg-[#003399]"
                                                             />
                                                         </FormControl>
                                                         <div className="space-y-1 leading-none">
-                                                            <label className="text-xs font-bold text-slate-500 leading-normal">
+                                                            <label className="text-xs font-bold text-slate-600 leading-relaxed cursor-pointer">
                                                                 I agree to the{' '}
-                                                                <Link href="/terms" className="text-[#003399] hover:underline">
+                                                                <Link href="/terms" className="text-[#003399] hover:underline decoration-2 underline-offset-2">
                                                                     Terms of Service
                                                                 </Link>{' '}
                                                                 and{' '}
-                                                                <Link href="/privacy" className="text-[#003399] hover:underline">
+                                                                <Link href="/privacy" className="text-[#003399] hover:underline decoration-2 underline-offset-2">
                                                                     Privacy Policy
                                                                 </Link>
                                                             </label>
@@ -419,96 +372,98 @@ export default function UserRegisterPage() {
                                                 </FormItem>
                                             )}
                                         />
-                                    </div>
 
-                                    <Button
-                                        type="submit"
-                                        disabled={isLoading}
-                                        className="w-full bg-gradient-to-r from-[#003399] to-[#0066CC] hover:from-blue-800 hover:to-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/10 h-13 font-bold text-sm tracking-wide transition-all mt-6"
-                                    >
-                                        {isLoading ? (
-                                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Registering...</>
-                                        ) : (
-                                            <><ArrowRight className="mr-2 h-4 w-4" />Create Account</>
-                                        )}
-                                    </Button>
-
-                                    <div className="text-center text-xs font-bold text-slate-400 mt-6 pt-6 border-t border-slate-100">
-                                        Already have an account?{' '}
-                                        <Link href="/login" className="text-[#003399] hover:underline">
-                                            Sign In
-                                        </Link>
-                                    </div>
-                                </form>
-                            </Form>
-                        </motion.div>
-                    )}
-
-                    {/* STEP 3: OTP Verification */}
-                    {step === 3 && (
-                        <motion.div
-                            key="step3"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/50 w-full relative z-10 max-w-md"
-                        >
-                            <div className="flex flex-col items-center mb-8 text-center">
-                                <div className="w-16 h-16 bg-[#EFF6FF] text-[#003399] rounded-2xl flex items-center justify-center mb-6">
-                                    <Key size={28} />
-                                </div>
-                                <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-2">Verify Your Email</h2>
-                                <p className="text-slate-500 font-semibold text-xs leading-relaxed px-4">
-                                    We sent a 6-digit confirmation code to <span className="text-slate-800 font-bold block mt-1">{registeredEmail}</span>
-                                </p>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block text-center mb-2">Verification Code</label>
-                                    <div className="relative group max-w-[240px] mx-auto">
-                                        <Input
-                                            type="text"
-                                            placeholder="Code"
-                                            maxLength={6}
-                                            value={otpCode}
-                                            onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
-                                            className="h-13 rounded-xl bg-slate-50/50 border-slate-200 text-slate-900 text-center font-bold tracking-[0.6em] text-xl transition-all focus:bg-white focus:border-[#003399] focus:ring-1 focus:ring-[#003399]"
-                                        />
-                                    </div>
-                                </div>
-
-                                <Button
-                                    onClick={handleVerifyOtp}
-                                    disabled={isVerifyingOtp || otpCode.length < 4}
-                                    className="w-full bg-[#003399] hover:bg-blue-800 text-white rounded-xl shadow-lg shadow-blue-500/10 h-13 font-bold text-sm tracking-wide transition-all"
-                                >
-                                    {isVerifyingOtp ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Verifying...</>
-                                    ) : (
-                                        <><ShieldCheck className="mr-2 h-4 w-4" />Verify & Sign In</>
-                                    )}
-                                </Button>
-
-                                <div className="text-center">
-                                    {resendTimer > 0 ? (
-                                        <p className="text-xs font-bold text-slate-400">
-                                            Resend code in <span className="text-[#003399] font-black">{resendTimer}s</span>
-                                        </p>
-                                    ) : (
-                                        <button
-                                            onClick={handleResendOtp}
-                                            disabled={isResendingOtp}
-                                            className="text-xs font-black text-[#003399] hover:underline disabled:opacity-50"
+                                        <Button
+                                            type="submit"
+                                            disabled={isLoading}
+                                            className="w-full bg-[#003399] hover:bg-blue-800 text-white rounded-2xl shadow-lg shadow-[#003399]/25 h-14 font-black text-sm tracking-wide transition-all hover:-translate-y-0.5 active:translate-y-0 mt-8"
                                         >
-                                            {isResendingOtp ? 'Resending...' : 'Resend Verification Code'}
-                                        </button>
-                                    )}
+                                            {isLoading ? (
+                                                <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Registering...</>
+                                            ) : (
+                                                <>Create Account <ArrowRight className="ml-2 h-5 w-5" /></>
+                                            )}
+                                        </Button>
+
+                                        <div className="text-center text-sm font-bold text-slate-500 mt-8 pt-6">
+                                            Already have an account?{' '}
+                                            <Link href="/login" className="text-[#003399] hover:underline decoration-2 underline-offset-2">
+                                                Sign In
+                                            </Link>
+                                        </div>
+                                    </form>
+                                </Form>
+                            </motion.div>
+                        )}
+
+                        {/* STEP 3: OTP Verification */}
+                        {step === 3 && (
+                            <motion.div
+                                key="step3"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                            >
+                                <div className="flex flex-col items-center mb-8 text-center bg-white p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+                                    <div className="w-20 h-20 bg-blue-50 text-[#003399] rounded-3xl flex items-center justify-center mb-8 relative">
+                                        <div className="absolute inset-0 bg-[#003399] opacity-10 rounded-3xl animate-ping" />
+                                        <Key size={32} />
+                                    </div>
+                                    <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-3">Verify Your Email</h2>
+                                    <p className="text-slate-500 font-semibold text-sm leading-relaxed px-4">
+                                        We sent a 6-digit confirmation code to <br/>
+                                        <span className="text-[#003399] font-black inline-block mt-2 bg-blue-50 px-3 py-1 rounded-lg">{registeredEmail}</span>
+                                    </p>
+
+                                    <div className="space-y-8 w-full mt-10">
+                                        <div className="space-y-3">
+                                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest block text-center">Verification Code</label>
+                                            <div className="relative group max-w-[280px] mx-auto">
+                                                <Input
+                                                    type="text"
+                                                    placeholder="000000"
+                                                    maxLength={6}
+                                                    value={otpCode}
+                                                    onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                                                    className="h-16 rounded-2xl bg-slate-50 border-slate-200 text-slate-900 text-center font-black tracking-[0.75em] text-2xl transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-inner"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <Button
+                                            onClick={handleVerifyOtp}
+                                            disabled={isVerifyingOtp || otpCode.length < 4}
+                                            className="w-full bg-[#003399] hover:bg-blue-800 text-white rounded-2xl shadow-lg shadow-[#003399]/25 h-14 font-black text-sm tracking-wide transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                        >
+                                            {isVerifyingOtp ? (
+                                                <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Verifying...</>
+                                            ) : (
+                                                <><ShieldCheck className="mr-2 h-5 w-5" />Verify & Sign In</>
+                                            )}
+                                        </Button>
+
+                                        <div className="text-center pt-4">
+                                            {resendTimer > 0 ? (
+                                                <p className="text-sm font-bold text-slate-500">
+                                                    Resend code in <span className="text-[#003399] font-black">{resendTimer}s</span>
+                                                </p>
+                                            ) : (
+                                                <button
+                                                    onClick={handleResendOtp}
+                                                    disabled={isResendingOtp}
+                                                    className="text-sm font-black text-[#003399] hover:underline decoration-2 underline-offset-2 disabled:opacity-50 transition-all"
+                                                >
+                                                    {isResendingOtp ? 'Resending...' : 'Resend Verification Code'}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
         </div>
     );

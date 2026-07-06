@@ -58,32 +58,33 @@ export default function UserForgotPasswordPage() {
         <div className="min-h-screen bg-slate-50 gradient-bg flex flex-col justify-center items-center p-6 relative">
             <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none z-0" />
             
+            {/* Back to Home Link */}
+            <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold text-sm z-50 transition-colors">
+                <ArrowLeft size={16} /> Home
+            </Link>
+
             {/* Ambient gradients */}
             <div className="absolute top-1/4 left-1/4 w-[350px] h-[350px] bg-blue-400/20 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 z-0" />
             <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-indigo-400/20 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2 z-0" />
 
             <div className="w-full max-w-md">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100/50 w-full relative z-10"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
                 >
                     <Link
                         href="/login"
-                        className="absolute left-6 top-8 p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center gap-1 text-xs font-bold"
+                        className="mb-8 hover:bg-slate-100 text-slate-500 transition-colors inline-flex items-center gap-1 text-xs font-bold py-2 px-3 rounded-xl -ml-3"
                     >
                         <ArrowLeft size={16} />
                         Back to Login
                     </Link>
 
-                    <div className="flex flex-col items-center mb-8 mt-4 text-center">
-                        <div className="w-16 h-16 bg-[#EFF6FF] text-[#003399] rounded-2xl flex items-center justify-center mb-6">
-                            <Key size={26} />
-                        </div>
-                        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 mb-2">Forgot Password</h2>
-                        <p className="text-slate-500 font-semibold text-xs leading-relaxed px-4">
-                            Enter your email address and we'll send you a code to reset your password
+                    <div className="mb-10 text-left">
+                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">Forgot Password</h2>
+                        <p className="text-slate-500 font-medium text-sm">
+                            Enter your email address and we'll send you a code to reset your password.
                         </p>
                     </div>
 

@@ -45,6 +45,24 @@ interface UploadImage {
     id?: string; // For existing draft images
 }
 
+const POPULAR_COLORS = [
+    'Black', 'White', 'Silver', 'Gray', 'Red', 'Blue', 'Brown', 'Green', 'Beige', 'Yellow',
+    'Gold', 'Orange', 'Purple', 'Bronze', 'Burgundy', 'Charcoal', 'Pearl White', 'Matte Black',
+    'Navy Blue', 'Sky Blue', 'Teal', 'Turquoise', 'Maroon', 'Crimson', 'Ruby Red', 'Forest Green',
+    'Olive Green', 'Lime Green', 'Champagne', 'Ivory', 'Cream', 'Tan', 'Sand', 'Espresso',
+    'Copper', 'Rust', 'Indigo', 'Violet', 'Magenta', 'Pink', 'Rose Gold', 'Metallic Silver',
+    'Metallic Gray', 'Metallic Blue', 'Metallic Red', 'Gunmetal', 'Graphite', 'Midnight Blue',
+    'Slate', 'Titanium', 'Platinum', 'Sapphire', 'Emerald', 'Topaz', 'Amethyst', 'Amber',
+    'Onyx', 'Obsidian', 'Quartz', 'Cobalt', 'Denim', 'Electric Blue', 'Ocean Blue', 'Ice Blue',
+    'Cherry Red', 'Wine Red', 'Mahogany', 'Auburn', 'Terracotta', 'Coral', 'Peach',
+    'Mint Green', 'Sage Green', 'Khaki', 'Mustard', 'Lemon', 'Neon Yellow', 'Neon Green'
+].sort();
+
+const colorOptions = [
+    ...POPULAR_COLORS.map(c => ({ label: c, value: c })),
+    { label: '+ Add Custom Color', value: 'CUSTOM_COLOR' }
+];
+
 function ListVehicleFormContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -68,6 +86,8 @@ function ListVehicleFormContent() {
     const [fuelType, setFuelType] = useState('');
     const [bodyColor, setBodyColor] = useState('');
     const [interiorColor, setInteriorColor] = useState('');
+    const [isCustomBodyColor, setIsCustomBodyColor] = useState(false);
+    const [isCustomInteriorColor, setIsCustomInteriorColor] = useState(false);
     const [registrationStatus, setRegistrationStatus] = useState('Unregistered');
     const [description, setDescription] = useState('');
     const [vin, setVin] = useState('');
@@ -119,8 +139,16 @@ function ListVehicleFormContent() {
             setCondition(bi.condition || initialListing.condition || 'Foreign Used');
             setTransmission(bi.transmission || initialListing.car?.transmission || '');
             setFuelType(bi.fuelType || initialListing.car?.fuel_type || '');
-            setBodyColor(bi.bodyColor || bi.exteriorColor || '');
-            setInteriorColor(bi.interiorColor || '');
+            
+            const fetchedBodyColor = bi.bodyColor || bi.exteriorColor || '';
+            const fetchedInteriorColor = bi.interiorColor || '';
+            
+            setBodyColor(fetchedBodyColor);
+            setIsCustomBodyColor(fetchedBodyColor && !POPULAR_COLORS.includes(fetchedBodyColor));
+
+            setInteriorColor(fetchedInteriorColor);
+            setIsCustomInteriorColor(fetchedInteriorColor && !POPULAR_COLORS.includes(fetchedInteriorColor));
+
             setRegistrationStatus(bi.registrationStatus || 'Unregistered');
             setDescription(initialListing.description || '');
             setVin(bi.vinChassisNumber || '');
@@ -487,7 +515,8 @@ function ListVehicleFormContent() {
                                                 placeholder="Enter 17-digit VIN"
                                                 value={vin}
                                                 onChange={(e) => setVin(e.target.value.toUpperCase())}
-                                                className="bg-white h-12 uppercase"
+                                                maxLength={17}
+                                                className="bg-white h-12 uppercase rounded-xl"
                                             />
                                         </div>
                                         <Button
@@ -594,21 +623,59 @@ function ListVehicleFormContent() {
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold text-slate-700 ml-1">Exterior Color</label>
-                                            <Input
-                                                placeholder="e.g. Candy Apple Red"
-                                                value={bodyColor}
-                                                onChange={(e) => setBodyColor(e.target.value)}
-                                                className="bg-slate-50 h-12"
+                                            <SearchableDropdown
+                                                options={colorOptions}
+                                                value={isCustomBodyColor ? 'CUSTOM_COLOR' : bodyColor}
+                                                onChange={(val) => {
+                                                    if (val === 'CUSTOM_COLOR') {
+                                                        setIsCustomBodyColor(true);
+                                                        setBodyColor('');
+                                                    } else {
+                                                        setIsCustomBodyColor(false);
+                                                        setBodyColor(String(val));
+                                                    }
+                                                }}
+                                                placeholder="Select Exterior Color"
                                             />
+                                            {isCustomBodyColor && (
+                                                <div className="mt-2">
+                                                    <Input
+                                                        placeholder="Enter Custom Exterior Color"
+                                                        value={bodyColor}
+                                                        onChange={(e) => setBodyColor(e.target.value)}
+                                                        className="bg-slate-50 h-12 rounded-xl"
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-xs font-bold text-slate-700 ml-1">Interior Color</label>
-                                            <Input
-                                                placeholder="e.g. Beige Leather"
-                                                value={interiorColor}
-                                                onChange={(e) => setInteriorColor(e.target.value)}
-                                                className="bg-slate-50 h-12"
+                                            <SearchableDropdown
+                                                options={colorOptions}
+                                                value={isCustomInteriorColor ? 'CUSTOM_COLOR' : interiorColor}
+                                                onChange={(val) => {
+                                                    if (val === 'CUSTOM_COLOR') {
+                                                        setIsCustomInteriorColor(true);
+                                                        setInteriorColor('');
+                                                    } else {
+                                                        setIsCustomInteriorColor(false);
+                                                        setInteriorColor(String(val));
+                                                    }
+                                                }}
+                                                placeholder="Select Interior Color"
                                             />
+                                            {isCustomInteriorColor && (
+                                                <div className="mt-2">
+                                                    <Input
+                                                        placeholder="Enter Custom Interior Color"
+                                                        value={interiorColor}
+                                                        onChange={(e) => setInteriorColor(e.target.value)}
+                                                        className="bg-slate-50 h-12 rounded-xl"
+                                                        autoFocus
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -674,27 +741,31 @@ function ListVehicleFormContent() {
                                     {features.data && (
                                         <div className="space-y-3">
                                             <label className="text-xs font-bold text-slate-700 ml-1">Key Features</label>
-                                            <div className="flex flex-wrap gap-2">
-                                                {features.data.map((feat: any) => {
-                                                    const featName = typeof feat === 'string' ? feat : feat.name || '';
-                                                    const featKey = typeof feat === 'string' ? feat : feat.id || feat.name || '';
-                                                    const isChecked = selectedFeatures.includes(featName);
-                                                    return (
+                                            <SearchableDropdown
+                                                options={features.data
+                                                    .filter((feat: any) => !selectedFeatures.includes(typeof feat === 'string' ? feat : feat.name || ''))
+                                                    .map((feat: any) => {
+                                                        const featName = typeof feat === 'string' ? feat : feat.name || '';
+                                                        return { label: featName, value: featName };
+                                                    })
+                                                }
+                                                value=""
+                                                onChange={(val) => toggleFeature(String(val))}
+                                                placeholder="Select feature to add"
+                                            />
+                                            {selectedFeatures.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mt-2 p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                                                    {selectedFeatures.map((feat) => (
                                                         <Badge
-                                                            key={featKey}
-                                                            onClick={() => toggleFeature(featName)}
-                                                            className={`cursor-pointer border px-3 py-1.5 rounded-xl text-xs font-semibold select-none transition-all ${
-                                                                isChecked 
-                                                                    ? 'bg-[#003399] text-white border-transparent' 
-                                                                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                                                            }`}
+                                                            key={feat}
+                                                            onClick={() => toggleFeature(feat)}
+                                                            className="cursor-pointer bg-[#003399] text-white hover:bg-rose-500 border-transparent px-3 py-1.5 rounded-xl text-xs font-semibold select-none transition-all flex items-center"
                                                         >
-                                                            {isChecked && <Check size={12} className="mr-1 inline-block" />}
-                                                            {featName}
+                                                            {feat} <X size={12} className="ml-1.5 opacity-70" />
                                                         </Badge>
-                                                    );
-                                                })}
-                                            </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
