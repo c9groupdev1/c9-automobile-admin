@@ -21,14 +21,18 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "C9X | Nigeria's Premier Automotive Marketplace",
+  metadataBase: new URL("https://c9x.thec9group.com"),
+  title: {
+    default: "C9X | Nigeria's Premier Automotive Marketplace",
+    template: "%s | C9X Marketplace",
+  },
   description: "The most trusted ecosystem for buying and selling cars, participating in live auctions, and finding elite automotive services in Nigeria.",
   keywords: ["Cars", "Auctions", "Nigeria", "Automotive", "Buy Cars", "Sell Cars", "C9X"],
   authors: [{ name: "C9X Protocol" }],
   openGraph: {
     title: "C9X | Nigeria's Premier Automotive Marketplace",
     description: "Connect with verified buyers and sellers in Nigeria’s most trusted automotive ecosystem.",
-    url: "https://c9x.com",
+    url: "https://c9x.thec9group.com",
     siteName: "C9X",
     images: [
       {
@@ -61,6 +65,43 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://c9x.thec9group.com/#organization",
+                  "name": "C9X",
+                  "url": "https://c9x.thec9group.com",
+                  "logo": "https://c9x.thec9group.com/c9x-logo.png",
+                  "sameAs": [
+                    "https://www.instagram.com/c9x_ng/",
+                    "https://twitter.com/c9x_ng"
+                  ]
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://c9x.thec9group.com/#website",
+                  "url": "https://c9x.thec9group.com",
+                  "name": "C9X Marketplace",
+                  "publisher": {
+                    "@id": "https://c9x.thec9group.com/#organization"
+                  },
+                  "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://c9x.thec9group.com/marketplace?q={search_term_string}",
+                    "query-input": "required name=search_term_string"
+                  }
+                }
+              ]
+            })
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
