@@ -10,10 +10,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // Note: The Authorization header is NO LONGER attached here. 
+    // The Next.js BFF proxy automatically extracts the HttpOnly 'c9_session' cookie 
+    // and attaches the real raw Authorization header backend-side, hiding it from the browser.
     return config;
   },
   (error) => Promise.reject(error)

@@ -1,5 +1,38 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import * as crypto from 'crypto';
+
+const ENCRYPTION_KEY = process.env.SESSION_SECRET || 'c9x-automobile-secret-key-32chars';
+const IV_LENGTH = 16;
+
+function encrypt(text: string) {
+    if (!text) return '';
+    try {
+        const iv = crypto.randomBytes(IV_LENGTH);
+        const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv);
+        let encrypted = cipher.update(text);
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        return iv.toString('hex') + ':' + encrypted.toString('hex');
+    } catch (e) {
+        return '';
+    }
+}
+
+function decrypt(text: string) {
+    if (!text) return '';
+    try {
+        const textParts = text.split(':');
+        if (textParts.length !== 2) return '';
+        const iv = Buffer.from(textParts.shift()!, 'hex');
+        const encryptedText = Buffer.from(textParts.join(':'), 'hex');
+        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv);
+        let decrypted = decipher.update(encryptedText);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+        return decrypted.toString();
+    } catch (e) {
+        return '';
+    }
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
     return handle(request, await params);
@@ -55,9 +88,10 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
     });
 
     // Check for authorization cookie first, then fallback to Authorization header
-    const cookieToken = request.cookies.get('token')?.value;
+    const cookieToken = request.cookies.get('c9_session')?.value || request.cookies.get('token')?.value;
     if (cookieToken) {
-        headers.set('Authorization', `Bearer ${cookieToken}`);
+        const rawToken = decrypt(cookieToken) || cookieToken; // Fallback to raw if not encrypted (for backward compatibility)
+        headers.set('Authorization', `Bearer ${rawToken}`);
     }
 
     // Clone request for body logging before it gets consumed by fetch stream forwarding
@@ -124,6 +158,31 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
                 responseHeaders.set(key, value);
             }
         });
+
+        // Intercept login to encrypt the token and set HttpOnly cookie
+        if (pathStr === 'users/login' && response.status === 200 && resBodyLog?.token) {
+            const rawToken = resBodyLog.token;
+            const encryptedToken = encrypt(rawToken);
+            
+            // Overwrite the token in the response body so frontend doesn't get the raw token
+            resBodyLog.token = encryptedToken;
+            
+            // Set the HttpOnly cookie from the server side
+            const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
+            responseHeaders.set('Set-Cookie', `c9_session=${encryptedToken}; HttpOnly; Path=/; Expires=${expires}; SameSite=Lax`);
+            
+            return new Response(JSON.stringify(resBodyLog), {
+                status: response.status,
+                statusText: response.statusText,
+                headers: responseHeaders,
+            });
+        }
+        
+        // Intercept logout to clear the HttpOnly cookie
+        if (pathStr === 'users/logout') {
+            responseHeaders.set('Set-Cookie', `c9_session=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`);
+            responseHeaders.append('Set-Cookie', `token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`);
+        }
 
         return new Response(response.body, {
             status: response.status,
