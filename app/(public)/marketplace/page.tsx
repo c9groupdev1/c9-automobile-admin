@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, Suspense } from 'react';
-import { useUserMarketplaceListings, useToggleFavorite, useRecommendedListings, useHomeExploration } from '@/hooks/useUserMarketplace';
+import { useInfiniteUserMarketplaceListings, useToggleFavorite, useRecommendedListings, useHomeExploration } from '@/hooks/useUserMarketplace';
 import { usePublicVehicleMakes, usePublicVehicleModels, useVehicleMetadata } from '@/hooks/useUserListings';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
@@ -249,7 +249,6 @@ function MarketplaceContent() {
     
     // Listing query params mapping
     const queryParams = {
-        page,
         perPage: 12,
         search: search || undefined,
         make: selectedMake || undefined,
@@ -263,7 +262,29 @@ function MarketplaceContent() {
         sortOrder: sortOrder || undefined,
     };
 
-    const { data: listingsResponse, isLoading, isPlaceholderData } = useUserMarketplaceListings(queryParams);
+    const { 
+        data: listingsResponse, 
+        isLoading, 
+        fetchNextPage, 
+        hasNextPage, 
+        isFetchingNextPage 
+    } = useInfiniteUserMarketplaceListings(queryParams);
+
+    const loadMoreRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+                    fetchNextPage();
+                }
+            },
+            { threshold: 0.1, rootMargin: '400px' }
+        );
+        const el = loadMoreRef.current;
+        if (el) observer.observe(el);
+        return () => { if (el) observer.unobserve(el); };
+    }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
     const { data: recommendedResponse, isLoading: isLoadingRecommended } = useRecommendedListings({ page: 1, perPage: 15 });
     const { data: homeExploration, isLoading: isLoadingHome } = useHomeExploration();
     const toggleFavoriteMutation = useToggleFavorite();
@@ -279,8 +300,10 @@ function MarketplaceContent() {
     const mostViewedCars = homeExploration?.mostViewedVehicles || [];
     const recentlyAddedCars = homeExploration?.recentlyAdded || [];
 
-    const listings = listingsResponse?.data?.data || [];
-    const meta = listingsResponse?.data?.meta || { last_page: 1, current_page: 1, total: 0 };
+    const listings = listingsResponse?.pages.flatMap((page: any) => 
+        page?.data?.data || page?.data || []
+    ) || [];
+    const meta = listingsResponse?.pages[0]?.data?.meta || listingsResponse?.pages[0]?.meta || { last_page: 1, current_page: 1, total: 0 };
 
     // Reset models when make changes
     useEffect(() => {
@@ -559,32 +582,10 @@ function MarketplaceContent() {
                                     ))}
                                 </div>
 
-                                {/* Pagination Controls */}
-                                {meta.last_page > 1 && (
-                                    <div className="flex items-center justify-center gap-4 pt-10">
-                                        <Button
-                                            variant="outline"
-                                            disabled={page === 1}
-                                            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                                            className="h-10 rounded-xl flex items-center gap-2 font-bold bg-white text-slate-700 border-slate-200"
-                                        >
-                                            <ChevronLeft size={16} />
-                                            Prev
-                                        </Button>
-                                        
-                                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                            Page <span className="text-slate-800">{page}</span> of {meta.last_page}
-                                        </span>
-
-                                        <Button
-                                            variant="outline"
-                                            disabled={page === meta.last_page}
-                                            onClick={() => setPage((p) => Math.min(p + 1, meta.last_page))}
-                                            className="h-10 rounded-xl flex items-center gap-2 font-bold bg-white text-slate-700 border-slate-200"
-                                        >
-                                            Next
-                                            <ChevronRight size={16} />
-                                        </Button>
+                                {/* Infinite Scroll Loader */}
+                                {(hasNextPage || isFetchingNextPage) && (
+                                    <div ref={loadMoreRef} className="flex justify-center items-center py-12">
+                                        <Loader2 className="h-8 w-8 animate-spin text-[#003399]" />
                                     </div>
                                 )}
                             </>

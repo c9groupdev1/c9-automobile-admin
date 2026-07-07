@@ -164,7 +164,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
     );
 };
 
-export const CategoryRow = ({ title, icon, items, router, handleFavoriteToggle }: { title: string; icon: React.ReactNode; items: any[]; router: any; handleFavoriteToggle: any }) => {
+export const CategoryRow = ({ title, icon, items, router, handleFavoriteToggle, viewAllLink }: { title: string; icon: React.ReactNode; items: any[]; router: any; handleFavoriteToggle: any; viewAllLink?: string }) => {
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [showLeftArrow, setShowLeftArrow] = React.useState(false);
     const [showRightArrow, setShowRightArrow] = React.useState(true);

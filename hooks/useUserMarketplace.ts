@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -25,6 +25,26 @@ export function useUserMarketplaceListings(params?: ListingQueryParams) {
             const response = await api.get('/listings', { params });
             return response.data;
         },
+    });
+}
+
+export function useInfiniteUserMarketplaceListings(params?: ListingQueryParams) {
+    return useInfiniteQuery({
+        queryKey: ['infinite-marketplace-listings', params],
+        queryFn: async ({ pageParam = 1 }) => {
+            const response = await api.get('/listings', { 
+                params: { ...params, page: pageParam } 
+            });
+            return response.data;
+        },
+        getNextPageParam: (lastPage: any) => {
+            const meta = lastPage.data?.meta || lastPage.meta;
+            if (meta && meta.current_page < meta.last_page) {
+                return meta.current_page + 1;
+            }
+            return undefined;
+        },
+        initialPageParam: 1,
     });
 }
 
