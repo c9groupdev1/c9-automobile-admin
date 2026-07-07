@@ -289,14 +289,35 @@ export default function CarDetailPage() {
     return (
         <div className="min-h-screen bg-slate-50 pb-20 pt-28">
             <div className="max-w-6xl mx-auto px-4 md:px-6">
-                {/* Back Button */}
-                <button
-                    onClick={() => router.push('/marketplace')}
-                    className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition-colors mb-6"
-                >
-                    <ChevronLeft size={16} />
-                    Back to Listings
-                </button>
+                {/* Breadcrumbs Navigation */}
+                <nav aria-label="Breadcrumb" className="mb-6">
+                    <ol className="flex items-center space-x-2 text-xs font-bold text-slate-500">
+                        <li>
+                            <Link href="/" className="hover:text-slate-800 transition-colors">Home</Link>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                            <span className="text-slate-300">/</span>
+                            <Link href="/marketplace" className="hover:text-slate-800 transition-colors">Marketplace</Link>
+                        </li>
+                        {(basicInfo.make || basicInfo.model) && (
+                            <li className="flex items-center space-x-2">
+                                <span className="text-slate-300">/</span>
+                                <Link 
+                                    href={`/marketplace?make=${basicInfo.make || ''}&model=${basicInfo.model || ''}`} 
+                                    className="hover:text-slate-800 transition-colors"
+                                >
+                                    {basicInfo.make} {basicInfo.model}
+                                </Link>
+                            </li>
+                        )}
+                        <li className="flex items-center space-x-2">
+                            <span className="text-slate-300">/</span>
+                            <span className="text-slate-900 truncate max-w-[200px] md:max-w-none" aria-current="page">
+                                {listing.title}
+                            </span>
+                        </li>
+                    </ol>
+                </nav>
 
                 <div className="grid lg:grid-cols-[1fr_360px] gap-8 items-start">
                     {/* ─── Main Column ─────────────────────────────────────── */}
