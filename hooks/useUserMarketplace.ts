@@ -134,6 +134,14 @@ export function useToggleFavorite() {
                 return oldData;
             });
 
+            queryClient.setQueriesData({ queryKey: ['marketplace-listing'] }, (oldData: any) => {
+                if (!oldData) return oldData;
+                if (oldData.id === listingId) {
+                    return { ...oldData, isFavorite: !(oldData.isFavorite || oldData.isFavorited), isFavorited: !(oldData.isFavorite || oldData.isFavorited) };
+                }
+                return oldData;
+            });
+
             return { previousListings, previousExploration };
         },
         onError: (error: any, listingId, context: any) => {

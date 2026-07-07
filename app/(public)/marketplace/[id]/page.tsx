@@ -88,7 +88,7 @@ export default function CarDetailPage() {
 
     // Queries & Mutations
     const { data: listing, isLoading, isError } = useUserMarketplaceListing(id);
-    const { data: reviewsResponse, isLoading: isLoadingReviews, refetch: refetchReviews } = useListingReviews(id);
+    const { data: reviewsResponse, isLoading: isLoadingReviews, refetch: refetchReviews } = useListingReviews(listing?.id || '');
     const toggleFavoriteMutation = useToggleFavorite();
     const postReviewMutation = usePostListingReview();
     const startConversationMutation = useStartConversation();
@@ -704,10 +704,13 @@ export default function CarDetailPage() {
                         {/* Seller / Contact Card */}
                         <Card className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                             <CardContent className="p-6 space-y-5">
-                                <div className="flex items-center gap-3 group relative cursor-pointer" onClick={() => {
-                                    const sellerId = listing.vendorId || sellerContact?.vendorId || listing.userId || sellerContact?.userId;
-                                    if (sellerId) router.push(`/vendor/${sellerId}`);
-                                }}>
+                                <div 
+                                    className={`flex items-center gap-3 relative ${listing.vendorId || sellerContact?.vendorId ? 'group cursor-pointer' : ''}`} 
+                                    onClick={() => {
+                                        const vendorId = listing.vendorId || sellerContact?.vendorId;
+                                        if (vendorId) router.push(`/vendor/${vendorId}`);
+                                    }}
+                                >
                                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#003399] flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-[#003399] group-hover:text-white transition-colors">
                                         {(sellerContact.businessName || sellerContact.contactPerson || listing.user?.name || 'S').charAt(0).toUpperCase()}
                                     </div>
