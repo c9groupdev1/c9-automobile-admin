@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserMarketplaceListings, useToggleFavorite, useRecommendedListings } from '@/hooks/useUserMarketplace';
+import { useUserMarketplaceListings, useToggleFavorite, useRecommendedListings, useHomeExploration } from '@/hooks/useUserMarketplace';
 import { usePublicVehicleMakes, usePublicVehicleModels, useVehicleMetadata } from '@/hooks/useUserListings';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
@@ -49,7 +49,217 @@ export function formatNaira(amount: number | string) {
     }).format(parsedAmount).replace('NGN', '₦');
 }
 
-export default function MarketplacePage() {
+export const getPrimaryImage = (item: any): string => {
+    if (item.primaryImage?.url) return item.primaryImage.url;
+    if (item.primaryImage?.path) return item.primaryImage.path;
+    if (item.images?.length > 0) {
+        const primary = item.images.find((m: any) => m.isPrimary || m.is_primary);
+        return primary?.path || primary?.url || item.images[0]?.path || item.images[0]?.url || '/c9x-logo.png';
+    }
+    if (item.media?.length > 0) {
+        const primary = item.media.find((m: any) => m.isPrimary || m.is_primary);
+        return primary?.path || primary?.url || item.media[0]?.path || item.media[0]?.url || '/c9x-logo.png';
+    }
+    return '/c9x-logo.png';
+};
+
+export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any; router: any; handleFavoriteToggle: any }) => {
+    const isFavorite = item.isFavorite || item.isFavorited;
+    return (
+        <motion.div
+            layout
+            key={item.id}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -8 }}
+            className="group cursor-pointer bg-white/90 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.01)] hover:shadow-[0_25px_50px_rgba(0,51,153,0.08)] transition-all duration-300 overflow-hidden relative flex flex-col h-full"
+            onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
+        >
+            <button
+                type="button"
+                onClick={(e) => handleFavoriteToggle(e, item.id)}
+                className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
+            >
+                <Heart 
+                    size={18} 
+                    className={isFavorite ? 'fill-rose-500 text-rose-500' : 'transition-colors'} 
+                />
+            </button>
+            <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
+                <img
+                    src={getPrimaryImage(item)}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/c9x-logo.png';
+                    }}
+                />
+                {item.condition && (
+                    <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${
+                        item.condition.toLowerCase().includes('brand') 
+                            ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
+                            : item.condition.toLowerCase().includes('foreign')
+                                ? 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
+                                : 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/10'
+                    }`}>
+                        {item.condition}
+                    </span>
+                )}
+                <div className="absolute right-4 bottom-4 flex items-center gap-1 bg-slate-900/60 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-md text-white text-[9px] font-bold">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Inspected</span>
+                </div>
+            </div>
+            <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
+                <div>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                            {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
+                        </span>
+                        <div className="flex items-center text-xs font-semibold text-slate-500">
+                            <MapPin size={12} className="text-slate-400 mr-1" />
+                            <span className="truncate max-w-[120px]">{item.pricingAndLocation?.location?.city || item.address || item.city || 'Lagos'}</span>
+                        </div>
+                    </div>
+                    <h3 className="text-base font-black text-slate-950 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2.5">
+                        {item.title}
+                    </h3>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 mb-4">
+                        <p className="text-xl font-black text-[#003399] tracking-tight truncate max-w-[65%]">
+                            {formatNaira(item.amount)}
+                        </p>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 whitespace-nowrap">
+                            Direct Deal
+                        </span>
+                    </div>
+                </div>
+                <div className="space-y-3 pt-4 border-t border-slate-100/80">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                            <Calendar size={12} className="text-[#003399]" />
+                            {item.car?.year || item.year || '2020'}
+                        </span>
+                        {item.car?.transmission && (
+                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                <Gauge size={12} className="text-[#003399]" />
+                                {item.car?.transmission}
+                            </span>
+                        )}
+                        {item.car?.fuelType && (
+                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                <Fuel size={12} className="text-[#003399]" />
+                                {item.car?.fuelType}
+                            </span>
+                        )}
+                    </div>
+                    <div className="pt-2 flex items-center justify-end text-xs font-black text-[#003399] transition-colors duration-300 group-hover:text-blue-700">
+                        <span className="flex items-center gap-1">
+                            View Listing
+                            <ArrowUpRight size={14} />
+                        </span>
+                    </div>
+                </div>
+            </CardContent>
+        </motion.div>
+    );
+};
+
+export const CategoryRow = ({ title, icon, items, router, handleFavoriteToggle }: { title: string; icon: React.ReactNode; items: any[]; router: any; handleFavoriteToggle: any }) => {
+    const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+    const [showLeftArrow, setShowLeftArrow] = React.useState(false);
+    const [showRightArrow, setShowRightArrow] = React.useState(true);
+
+    React.useEffect(() => {
+        const checkScroll = () => {
+            if (scrollContainerRef.current) {
+                const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+                setShowLeftArrow(scrollLeft > 0);
+                setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+            }
+        };
+        // Initial check and resize listener
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        return () => window.removeEventListener('resize', checkScroll);
+    }, [items]);
+
+    const handleScroll = () => {
+        if (!scrollContainerRef.current) return;
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+        setShowLeftArrow(scrollLeft > 0);
+        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+    };
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollContainerRef.current) {
+            const { current } = scrollContainerRef;
+            const scrollAmount = current.clientWidth * 0.8; // Scroll by 80% of container width
+            current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+    };
+
+    if (!items || items.length === 0) return null;
+    return (
+        <div className="mb-10">
+            <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2.5">
+                    <div className="p-2 bg-gradient-to-br from-[#003399]/10 to-[#003399]/5 text-[#003399] rounded-xl ring-1 ring-[#003399]/10">
+                        {icon}
+                    </div>
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">{title}</h2>
+                </div>
+                <button 
+                    onClick={() => router.push('/marketplace')}
+                    className="text-[10px] font-black uppercase tracking-widest text-[#003399] hover:underline flex items-center gap-1"
+                >
+                    View All <ArrowUpRight size={12} />
+                </button>
+            </div>
+            
+            <div className="relative group">
+                {/* Scroll Left Button */}
+                {showLeftArrow && (
+                    <button
+                        onClick={() => scroll('left')}
+                        className="absolute left-0 sm:-left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur shadow-lg border border-slate-100 text-[#003399] p-3 rounded-full hover:bg-[#003399] hover:text-white transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 hover:scale-110 active:scale-95 hidden sm:flex"
+                        aria-label="Scroll left"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
+                )}
+
+                {/* Scroll Right Button */}
+                {showRightArrow && (
+                    <button
+                        onClick={() => scroll('right')}
+                        className="absolute right-0 sm:-right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur shadow-lg border border-slate-100 text-[#003399] p-3 rounded-full hover:bg-[#003399] hover:text-white transition-all opacity-100 sm:opacity-0 group-hover:opacity-100 focus:opacity-100 hover:scale-110 active:scale-95 flex"
+                        aria-label="Scroll right"
+                    >
+                        <ChevronRight size={24} />
+                    </button>
+                )}
+
+                <div 
+                    ref={scrollContainerRef}
+                    onScroll={handleScroll}
+                    className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory gap-6 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                >
+                    {items.slice(0, 10).map((item: any) => (
+                        <div key={item.id} className="flex-none w-[85vw] sm:w-[320px] lg:w-[300px] xl:w-[320px] snap-start h-full">
+                            <VehicleCard 
+                                item={item} 
+                                router={router} 
+                                handleFavoriteToggle={handleFavoriteToggle} 
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default function Page() {
     const router = useRouter();
     const { isAuthenticated, user } = useAuthStore();
     
@@ -119,7 +329,19 @@ export default function MarketplacePage() {
 
     const { data: listingsResponse, isLoading, isPlaceholderData } = useUserMarketplaceListings(queryParams);
     const { data: recommendedResponse, isLoading: isLoadingRecommended } = useRecommendedListings({ page: 1, perPage: 15 });
+    const { data: homeExploration, isLoading: isLoadingHome } = useHomeExploration();
     const toggleFavoriteMutation = useToggleFavorite();
+
+    const hasActiveFilters = Boolean(
+        search || selectedMake || selectedModel || selectedCondition || 
+        selectedTransmission || selectedFuelType || selectedStateId || 
+        minPrice || maxPrice || sort !== 'latest' || page > 1
+    );
+
+    const featuredCars = homeExploration?.featuredVehicles || [];
+    const boostedCars = homeExploration?.boostedVehicles || [];
+    const mostViewedCars = homeExploration?.mostViewedVehicles || [];
+    const recentlyAddedCars = homeExploration?.recentlyAdded || [];
 
     const listings = listingsResponse?.data?.data || [];
     const meta = listingsResponse?.data?.meta || { last_page: 1, current_page: 1, total: 0 };
@@ -160,23 +382,6 @@ export default function MarketplacePage() {
     const makeOptions = makesData?.map((m: any) => ({ label: m.name, value: m.name })) || [];
     const modelOptions = modelsData?.map((m: any) => ({ label: m.name, value: m.name })) || [];
     const stateOptions = states.data?.map((s: any) => ({ label: s.name, value: s.id })) || [];
-
-    const getPrimaryImage = (item: any): string => {
-        // 1. Direct primaryImage object (from list API response)
-        if (item.primaryImage?.url) return item.primaryImage.url;
-        if (item.primaryImage?.path) return item.primaryImage.path;
-        // 2. images array (detail API)
-        if (item.images?.length > 0) {
-            const primary = item.images.find((m: any) => m.isPrimary || m.is_primary);
-            return primary?.path || primary?.url || item.images[0]?.path || item.images[0]?.url || '/c9x-logo.png';
-        }
-        // 3. media array
-        if (item.media?.length > 0) {
-            const primary = item.media.find((m: any) => m.isPrimary || m.is_primary);
-            return primary?.path || primary?.url || item.media[0]?.path || item.media[0]?.url || '/c9x-logo.png';
-        }
-        return '/c9x-logo.png';
-    };
 
     return (
         <div className="min-h-screen bg-slate-50/50 gradient-bg pb-24 pt-28">
@@ -250,7 +455,11 @@ export default function MarketplacePage() {
                             </div>
                             <Button 
                                 onClick={() => {
-                                    window.scrollTo({ top: 600, behavior: 'smooth' });
+                                    const params = new URLSearchParams();
+                                    if (selectedMake) params.append('make', selectedMake);
+                                    if (selectedModel) params.append('model', selectedModel);
+                                    if (selectedCondition) params.append('condition', selectedCondition);
+                                    router.push(`/marketplace?${params.toString()}`);
                                 }}
                                 className="h-12 w-full bg-[#003399] hover:bg-blue-800 text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2"
                             >
@@ -289,688 +498,34 @@ export default function MarketplacePage() {
 
                 {/* Recommendations Section */}
                 {isAuthenticated && recommendedResponse?.data?.data?.length > 0 && (
-                    <div className="mb-12">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-2 bg-[#003399]/10 text-[#003399] rounded-lg">
-                                <Sparkles size={20} />
-                            </div>
-                            <h2 className="text-2xl font-extrabold text-slate-900">Recommended for You</h2>
-                        </div>
-                        
+                    <div className="mb-4">
                         {isLoadingRecommended ? (
                             <div className="flex justify-center p-8">
                                 <Loader2 className="h-8 w-8 animate-spin text-[#003399]" />
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                                {recommendedResponse.data.data.map((vehicle: any, idx: number) => {
-                                    // Extract primary image
-                                    const images = vehicle.images?.length ? vehicle.images : vehicle.media?.length ? vehicle.media : [];
-                                    const mainImage = images[0]?.path || images[0]?.url || vehicle.primaryImage?.url || '/c9x-logo.png';
-                                    
-                                    // Get pricing
-                                    const pricing = vehicle.pricingAndLocation || vehicle;
-                                    
-                                    return (
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: idx * 0.05 }}
-                                            key={vehicle.id} 
-                                            className="group relative bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
-                                        >
-                                            <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden cursor-pointer" onClick={() => router.push(`/marketplace/${vehicle.slug || vehicle.id}`)}>
-                                                <img 
-                                                    src={mainImage} 
-                                                    alt={vehicle.title || 'Vehicle'} 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                                    onError={(e) => { e.currentTarget.src = '/c9x-logo.png'; }}
-                                                />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                                
-                                                <button 
-                                                    onClick={(e) => handleFavoriteToggle(e, vehicle.id)}
-                                                    className="absolute top-3 right-3 p-2.5 rounded-full bg-white/90 backdrop-blur shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-rose-500"
-                                                >
-                                                    <Heart size={16} className={vehicle.isFavorite || vehicle.isFavorited ? "fill-rose-500 text-rose-500" : ""} />
-                                                </button>
-                                                
-                                                <div className="absolute bottom-3 left-3 flex gap-2">
-                                                    {vehicle.isBoosted && (
-                                                        <div className="bg-amber-500 text-white font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 text-[10px] uppercase tracking-wider">
-                                                            <Zap size={10} /> Boosted
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="p-4 flex-1 flex flex-col cursor-pointer" onClick={() => router.push(`/marketplace/${vehicle.slug || vehicle.id}`)}>
-                                                <div className="flex justify-between items-start mb-2 gap-2">
-                                                    <h3 className="font-bold text-slate-900 leading-tight line-clamp-2 group-hover:text-[#003399] transition-colors">{vehicle.title}</h3>
-                                                </div>
-                                                <div className="text-lg font-black text-[#003399] mb-4">{formatNaira(pricing.price || pricing.askingPrice)}</div>
-                                                
-                                                <div className="mt-auto grid grid-cols-2 gap-2 text-xs font-semibold text-slate-500 pt-3 border-t border-slate-50">
-                                                    <div className="flex items-center gap-1.5"><Calendar size={12} className="text-slate-400" /> {vehicle.year || 'N/A'}</div>
-                                                    <div className="flex items-center gap-1.5"><Gauge size={12} className="text-slate-400" /> {vehicle.basicInfo?.mileage ? `${vehicle.basicInfo.mileage}km` : 'N/A'}</div>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    );
-                                })}
-                            </div>
+                            <CategoryRow 
+                                title="Recommended for You" 
+                                icon={<Sparkles size={20} />} 
+                                items={recommendedResponse.data.data} 
+                                router={router} 
+                                handleFavoriteToggle={handleFavoriteToggle}
+                                viewAllLink="/marketplace"
+                            />
                         )}
                     </div>
                 )}
 
-                {/* Main Content Layout Grid */}
-                <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
-                    
-                    {/* Desktop Filters Panel (Glassmorphic) */}
-                    <aside className="hidden lg:block bg-white/70 backdrop-blur-xl rounded-[2rem] p-6 border border-white/60 shadow-[0_10px_35px_rgba(0,0,0,0.02)] space-y-6 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                            <h3 className="font-extrabold text-slate-800 flex items-center gap-2 text-xs uppercase tracking-wider">
-                                <SlidersHorizontal size={14} className="text-[#003399]" />
-                                Filter Cars
-                            </h3>
-                            <button 
-                                onClick={handleResetFilters}
-                                className="text-[10px] font-black uppercase tracking-wider text-[#003399] hover:underline"
-                            >
-                                Reset All
-                            </button>
-                        </div>
-
-                        {/* Search keyword */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Keywords</label>
-                            <div className="relative">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                <Input
-                                    placeholder="e.g. Mercedes-Benz, G63"
-                                    value={search}
-                                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                                    className="pl-10 h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/80 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Brand / Make */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Brand / Make</label>
-                            <SearchableDropdown
-                                options={makeOptions}
-                                value={selectedMake}
-                                onChange={(val) => { setSelectedMake(String(val)); setPage(1); }}
-                                placeholder="Select Brand"
-                                loading={isLoadingMakes}
-                            />
-                        </div>
-
-                        {/* Model */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Model</label>
-                            <SearchableDropdown
-                                options={modelOptions}
-                                value={selectedModel}
-                                onChange={(val) => { setSelectedModel(String(val)); setPage(1); }}
-                                placeholder="Select Model"
-                                disabled={!selectedMake}
-                                loading={isLoadingModels}
-                            />
-                        </div>
-
-                        {/* Condition */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Condition</label>
-                            <select
-                                value={selectedCondition}
-                                onChange={(e) => { setSelectedCondition(e.target.value); setPage(1); }}
-                                className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
-                            >
-                                <option value="">Any Condition</option>
-                                <option value="foreign_used">Foreign Used</option>
-                                <option value="local_used">Local Used</option>
-                                <option value="brand_new">Brand New</option>
-                            </select>
-                        </div>
-
-                        {/* Transmission */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Transmission</label>
-                            <select
-                                value={selectedTransmission}
-                                onChange={(e) => { setSelectedTransmission(e.target.value); setPage(1); }}
-                                className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
-                            >
-                                <option value="">Any Transmission</option>
-                                {transmissions.data?.map((t: any) => {
-                                    const val = typeof t === 'string' ? t : t.name || '';
-                                    const key = typeof t === 'string' ? t : t.id || t.name || '';
-                                    return <option key={key} value={val}>{val}</option>;
-                                })}
-                            </select>
-                        </div>
-
-                        {/* Fuel Type */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Fuel Type</label>
-                            <select
-                                value={selectedFuelType}
-                                onChange={(e) => { setSelectedFuelType(e.target.value); setPage(1); }}
-                                className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
-                            >
-                                <option value="">Any Fuel Type</option>
-                                {fuelTypes.data?.map((f: any) => {
-                                    const val = typeof f === 'string' ? f : f.name || '';
-                                    const key = typeof f === 'string' ? f : f.id || f.name || '';
-                                    return <option key={key} value={val}>{val}</option>;
-                                })}
-                            </select>
-                        </div>
-
-                        {/* State */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">State / Location</label>
-                            <SearchableDropdown
-                                options={stateOptions}
-                                value={selectedStateId}
-                                onChange={(val) => { setSelectedStateId(val); setPage(1); }}
-                                placeholder="Select State"
-                                loading={states.isLoading}
-                            />
-                        </div>
-
-                        {/* Price Range */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Price Range (₦)</label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Input
-                                    placeholder="Min"
-                                    type="number"
-                                    value={minPrice}
-                                    onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-                                    className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/85 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
-                                />
-                                <Input
-                                    placeholder="Max"
-                                    type="number"
-                                    value={maxPrice}
-                                    onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-                                    className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/85 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
-                                />
-                            </div>
-                        </div>
-                    </aside>
-
-                    {/* Listings Catalog Grid */}
-                    <div className="space-y-10">
-                        
-                        {/* Upper sorting actions toolbar */}
-                        <div className="flex items-center justify-between gap-4 bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/50 shadow-[0_5px_15px_rgba(0,0,0,0.01)]">
-                            <div className="text-slate-500 text-xs font-bold pl-2">
-                                Showing <span className="text-slate-800 font-extrabold">{listings.length}</span> vehicles
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <select 
-                                    value={sort}
-                                    onChange={(e) => setSort(e.target.value)}
-                                    className="h-11 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#003399] transition-all shadow-sm cursor-pointer"
-                                >
-                                    <option value="latest">Latest Submissions</option>
-                                    <option value="price-asc">Price: Low to High</option>
-                                    <option value="price-desc">Price: High to Low</option>
-                                    <option value="year-desc">Year: Newest First</option>
-                                </select>
-
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowFiltersMobile(true)}
-                                    className="lg:hidden h-11 rounded-xl flex items-center gap-2 font-bold px-4 bg-white border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50"
-                                >
-                                    <SlidersHorizontal size={14} className="text-[#003399]" />
-                                    Filters
-                                </Button>
-                            </div>
-                        </div>
-
-                        {isLoading ? (
-                            <div className="flex flex-col items-center justify-center p-32">
-                                <Loader2 className="h-10 w-10 animate-spin text-[#003399] mb-4" />
-                                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Loading catalog...</p>
-                            </div>
-                        ) : listings.length === 0 ? (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="bg-white/80 backdrop-blur-md border border-slate-100 rounded-3xl p-12 text-center flex flex-col items-center justify-center shadow-md"
-                            >
-                                <div className="p-4 bg-slate-50 text-slate-400 rounded-full mb-6">
-                                    <Car size={36} />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-2">No Matching Vehicles</h3>
-                                <p className="text-slate-500 font-semibold text-sm max-w-sm mb-6">
-                                    We couldn't find any vehicles that match your exact filters. Try broadening your criteria.
-                                </p>
-                                <Button
-                                    onClick={handleResetFilters}
-                                    className="bg-[#003399] hover:bg-blue-800 text-white rounded-xl font-bold"
-                                >
-                                    Reset Filters
-                                </Button>
-                            </motion.div>
-                        ) : (
-                            <>
-                                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {listings.map((item: any) => {
-                                        const isFavorite = item.isFavorite || item.isFavorited;
-                                        return (
-                                            <motion.div
-                                                layout
-                                                key={item.id}
-                                                initial={{ opacity: 0, y: 15 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                whileHover={{ y: -8 }}
-                                                className="group cursor-pointer bg-white/90 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.01)] hover:shadow-[0_25px_50px_rgba(0,51,153,0.08)] transition-all duration-300 overflow-hidden relative flex flex-col h-full"
-                                                onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
-                                            >
-                                                {/* Favorite Toggle Button */}
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => handleFavoriteToggle(e, item.id)}
-                                                    className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
-                                                >
-                                                    <Heart 
-                                                        size={18} 
-                                                        className={isFavorite ? 'fill-rose-500 text-rose-500' : 'transition-colors'} 
-                                                    />
-                                                </button>
-
-                                                {/* Image Frame */}
-                                                <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
-                                                    <img
-                                                        src={getPrimaryImage(item)}
-                                                        alt={item.title}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = '/c9x-logo.png';
-                                                        }}
-                                                    />
-                                                    
-                                                    {/* Condition Badge with custom gradients */}
-                                                    {item.condition && (
-                                                        <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${
-                                                            item.condition.toLowerCase().includes('brand') 
-                                                                ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
-                                                                : item.condition.toLowerCase().includes('foreign')
-                                                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
-                                                                    : 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/10'
-                                                        }`}>
-                                                            {item.condition}
-                                                        </span>
-                                                    )}
-
-                                                    {/* Inspected check badge overlay */}
-                                                    <div className="absolute right-4 bottom-4 flex items-center gap-1 bg-slate-900/60 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-md text-white text-[9px] font-bold">
-                                                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                                                        <span>Inspected</span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Details Content */}
-                                                <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
-                                                    <div>
-                                                        <div className="flex items-center justify-between gap-2 mb-1.5">
-                                                            <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
-                                                                {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
-                                                            </span>
-                                                            <div className="flex items-center text-xs font-semibold text-slate-500">
-                                                                <MapPin size={12} className="text-slate-400 mr-1" />
-                                                                <span className="truncate max-w-[120px]">{item.pricingAndLocation?.location?.city || item.city || 'Lagos'}</span>
-                                                            </div>
-                                                        </div>
-                                                        <h3 className="text-base font-black text-slate-950 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2.5">
-                                                            {item.title}
-                                                        </h3>
-                                                        <div className="flex items-baseline justify-between mb-4">
-                                                            <p className="text-xl font-black text-[#003399] tracking-tight">
-                                                                {formatNaira(item.amount)}
-                                                            </p>
-                                                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                                                                Direct Deal
-                                                            </span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-3 pt-4 border-t border-slate-100/80">
-                                                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                                                                <Calendar size={12} className="text-[#003399]" />
-                                                                {item.car?.year || item.year || '2020'}
-                                                            </span>
-                                                            {item.car?.transmission && (
-                                                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                                                                    <Gauge size={12} className="text-[#003399]" />
-                                                                    {item.car?.transmission}
-                                                                </span>
-                                                            )}
-                                                            {item.car?.fuelType && (
-                                                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                                                                    <Fuel size={12} className="text-[#003399]" />
-                                                                    {item.car?.fuelType}
-                                                                </span>
-                                                            )}
-                                                        </div>
-
-                                                        {/* Quick link button that is always visible */}
-                                                        <div className="pt-2 flex items-center justify-end text-xs font-black text-[#003399] transition-colors duration-300 group-hover:text-blue-700">
-                                                            <span className="flex items-center gap-1">
-                                                                View Listing
-                                                                <ArrowUpRight size={14} />
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </motion.div>
-                                        );
-                                    })}
-                                </div>
-
-                                {/* Pagination Controls */}
-                                {meta.last_page > 1 && (
-                                    <div className="flex items-center justify-center gap-4 pt-10">
-                                        <Button
-                                            variant="outline"
-                                            disabled={page === 1}
-                                            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                                            className="h-10 rounded-xl flex items-center gap-2 font-bold bg-white text-slate-700 border-slate-200"
-                                        >
-                                            <ChevronLeft size={16} />
-                                            Prev
-                                        </Button>
-                                        
-                                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                            Page <span className="text-slate-800">{page}</span> of {meta.last_page}
-                                        </span>
-
-                                        <Button
-                                            variant="outline"
-                                            disabled={page === meta.last_page}
-                                            onClick={() => setPage((p) => Math.min(p + 1, meta.last_page))}
-                                            className="h-10 rounded-xl flex items-center gap-2 font-bold bg-white text-slate-700 border-slate-200"
-                                        >
-                                            Next
-                                            <ChevronRight size={16} />
-                                        </Button>
-                                    </div>
-                                )}
-                            </>
-                        )}
+                {/* Curated Categories */}
+                {!isLoadingHome && (
+                    <div className="space-y-8 pb-8">
+                        <CategoryRow title="Featured Vehicles" icon={<Star size={20} />} items={featuredCars} router={router} handleFavoriteToggle={handleFavoriteToggle} />
+                        <CategoryRow title="Boosted Listings" icon={<Zap size={20} />} items={boostedCars} router={router} handleFavoriteToggle={handleFavoriteToggle} />
+                        <CategoryRow title="Most Viewed" icon={<Search size={20} />} items={mostViewedCars} router={router} handleFavoriteToggle={handleFavoriteToggle} />
+                        <CategoryRow title="Recently Added" icon={<Car size={20} />} items={recentlyAddedCars} router={router} handleFavoriteToggle={handleFavoriteToggle} />
                     </div>
-                </div>
-            </div>
-
-            {/* Mobile Filters Drawer Modal (Glassmorphic) */}
-            <AnimatePresence>
-                {showFiltersMobile && (
-                    <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm md:hidden flex justify-end"
-                    >
-                        <motion.div
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ type: 'tween', duration: 0.3 }}
-                            className="w-full max-w-xs bg-white/95 backdrop-blur-xl h-full p-6 overflow-y-auto flex flex-col justify-between shadow-2xl border-l border-slate-100"
-                        >
-                            <div className="space-y-6">
-                                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                                    <h3 className="font-extrabold text-slate-900 flex items-center gap-2 text-xs uppercase tracking-wider">
-                                        <SlidersHorizontal size={16} className="text-[#003399]" />
-                                        Filters
-                                    </h3>
-                                    <button 
-                                        onClick={() => setShowFiltersMobile(false)}
-                                        className="p-1.5 text-slate-400 hover:text-slate-650 rounded-full hover:bg-slate-50 transition-colors"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
-
-                                {/* Search keyword */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Search Keywords</label>
-                                    <div className="relative">
-                                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                        <Input
-                                            placeholder="Toyota, Camry, etc..."
-                                            value={search}
-                                            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                                            className="pl-10 h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Brand / Make */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Brand / Make</label>
-                                    <SearchableDropdown
-                                        options={makeOptions}
-                                        value={selectedMake}
-                                        onChange={(val) => { setSelectedMake(String(val)); setPage(1); }}
-                                        placeholder="Select Brand"
-                                        loading={isLoadingMakes}
-                                    />
-                                </div>
-
-                                {/* Model */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Model</label>
-                                    <SearchableDropdown
-                                        options={modelOptions}
-                                        value={selectedModel}
-                                        onChange={(val) => { setSelectedModel(String(val)); setPage(1); }}
-                                        placeholder="Select Model"
-                                        disabled={!selectedMake}
-                                        loading={isLoadingModels}
-                                    />
-                                </div>
-
-                                {/* Condition */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Condition</label>
-                                    <select
-                                        value={selectedCondition}
-                                        onChange={(e) => { setSelectedCondition(e.target.value); setPage(1); }}
-                                        className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
-                                    >
-                                        <option value="">Any Condition</option>
-                                        <option value="foreign_used">Foreign Used</option>
-                                        <option value="local_used">Local Used</option>
-                                        <option value="brand_new">Brand New</option>
-                                    </select>
-                                </div>
-
-                                {/* Transmission */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Transmission</label>
-                                    <select
-                                        value={selectedTransmission}
-                                        onChange={(e) => { setSelectedTransmission(e.target.value); setPage(1); }}
-                                        className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
-                                    >
-                                        <option value="">Any Transmission</option>
-                                        {transmissions.data?.map((t: any) => {
-                                            const val = typeof t === 'string' ? t : t.name || '';
-                                            const key = typeof t === 'string' ? t : t.id || t.name || '';
-                                            return <option key={key} value={val}>{val}</option>;
-                                        })}
-                                    </select>
-                                </div>
-
-                                {/* Fuel Type */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Fuel Type</label>
-                                    <select
-                                        value={selectedFuelType}
-                                        onChange={(e) => { setSelectedFuelType(e.target.value); setPage(1); }}
-                                        className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
-                                    >
-                                        <option value="">Any Fuel Type</option>
-                                        {fuelTypes.data?.map((f: any) => {
-                                            const val = typeof f === 'string' ? f : f.name || '';
-                                            const key = typeof f === 'string' ? f : f.id || f.name || '';
-                                            return <option key={key} value={val}>{val}</option>;
-                                        })}
-                                    </select>
-                                </div>
-
-                                {/* State */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">State / Location</label>
-                                    <SearchableDropdown
-                                        options={stateOptions}
-                                        value={selectedStateId}
-                                        onChange={(val) => { setSelectedStateId(val); setPage(1); }}
-                                        placeholder="Select State"
-                                        loading={states.isLoading}
-                                    />
-                                </div>
-
-                                {/* Price Range */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Price Range (₦)</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Input
-                                            placeholder="Min"
-                                            type="number"
-                                            value={minPrice}
-                                            onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-                                            className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
-                                        />
-                                        <Input
-                                            placeholder="Max"
-                                            type="number"
-                                            value={maxPrice}
-                                            onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-                                            className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="pt-6 border-t border-slate-100 flex items-center gap-3">
-                                <Button
-                                    variant="outline"
-                                    onClick={handleResetFilters}
-                                    className="flex-1 rounded-xl font-bold h-12 border-slate-200 text-slate-700"
-                                >
-                                    Reset
-                                </Button>
-                                <Button
-                                    onClick={() => setShowFiltersMobile(false)}
-                                    className="flex-1 bg-[#003399] hover:bg-blue-800 text-white rounded-xl font-bold h-12"
-                                >
-                                    Apply
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
                 )}
-            </AnimatePresence>
-
-      <section className="py-24 bg-slate-50 border-t border-b border-slate-100 relative overflow-hidden">
-        <div className="absolute inset-0 grid-pattern opacity-5 pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-          <div className="grid lg:grid-cols-12 gap-16 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 bg-blue-50 text-[#003399] border border-blue-100 rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest">
-                <Smartphone size={14} className="animate-bounce" />
-                Now Available on iOS & Android
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight uppercase">
-                Nigeria's Premier <br className="hidden md:inline" />
-                Automotive App
-              </h2>
-              <p className="text-slate-505 text-base md:text-lg font-medium leading-relaxed max-w-xl">
-                Download the seamless C9X mobile application to access live vehicle auctions, secure instantaneous bidding, instant push alerts, and direct chats with verified sellers.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4 pt-4 max-w-md">
-                <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-                  <div className="bg-blue-50 p-2 rounded-xl text-[#003399]">
-                    <Zap size={18} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Real-time Bidding</h4>
-                    <p className="text-xs text-slate-400 font-medium">Instant live updates</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-                  <div className="bg-blue-50 p-2 rounded-xl text-[#003399]">
-                    <ShieldCheck size={18} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-900">Secure Transactions</h4>
-                    <p className="text-xs text-slate-400 font-medium">100% vetted profiles</p>
-                  </div>
-                </div>
-              </div>
             </div>
-
-            {/* Right Content */}
-            <div className="lg:col-span-5 flex flex-col items-center lg:items-start justify-center space-y-6">
-              <div className="w-full space-y-4 text-center lg:text-left">
-                <h4 className="text-xl font-bold text-slate-900 tracking-tight">Get the App Today</h4>
-                <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                  Install C9X from your official store to enjoy premium automotive services instantly.
-                </p>
-                <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 w-full justify-center lg:justify-start pt-2">
-                  {/* App Store Download */}
-                  {(deviceOS === 'ios' || deviceOS === 'desktop') && (
-                    <a
-                      href="https://apps.apple.com/ng/app/c9x/id6762285536"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3.5 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-xl w-full sm:w-auto xl:flex-1 justify-center group"
-                    >
-                      <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
-                      </svg>
-                      <div className="text-left leading-none">
-                        <p className="text-[9px] uppercase font-bold tracking-widest text-slate-400">Download on the</p>
-                        <p className="text-base font-extrabold text-white mt-1">App Store</p>
-                      </div>
-                    </a>
-                  )}
-
-                  {/* Google Play Download */}
-                  {(deviceOS === 'android' || deviceOS === 'desktop') && (
-                    <a
-                      href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3.5 bg-slate-950 hover:bg-[#003399] text-white rounded-2xl px-6 py-3.5 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg hover:shadow-xl w-full sm:w-auto xl:flex-1 justify-center group"
-                    >
-                      <svg className="w-6 h-6 fill-current text-white shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                        <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
-                      </svg>
-                      <div className="text-left leading-none">
-                        <p className="text-[9px] uppercase font-bold tracking-widest text-slate-400">Get it on</p>
-                        <p className="text-base font-extrabold text-white mt-1">Google Play</p>
-                      </div>
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
 
       <AnimatePresence>
         {showAppPopup && (

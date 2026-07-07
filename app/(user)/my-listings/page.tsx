@@ -17,10 +17,11 @@ import {
     CheckCircle2, 
     XCircle,
     Eye,
-    PlusCircle,
     Clock,
     X,
-    Pencil
+    Pencil,
+    Star,
+    PlusCircle
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,6 +38,10 @@ export default function MyListingsPage() {
     const [showBoostModal, setShowBoostModal] = useState(false);
     const [selectedPromotionId, setSelectedPromotionId] = useState<string | null>(null);
 
+    // Delete Modal State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [listingToDelete, setListingToDelete] = useState<string | null>(null);
+
 const getStatusColor = (status: string) => {
     const s = status?.toLowerCase() || '';
     if (['pending'].includes(s)) return 'bg-amber-50 text-amber-600';
@@ -51,10 +56,22 @@ const getStatusColor = (status: string) => {
         ? listingsResponse.data
         : [];
 
-    const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to permanently delete this listing? This action cannot be undone.')) {
-            await deleteMutation.mutateAsync(id);
+    const handleDelete = (id: string) => {
+        setListingToDelete(id);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (listingToDelete) {
+            await deleteMutation.mutateAsync(listingToDelete);
+            setShowDeleteModal(false);
+            setListingToDelete(null);
         }
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteModal(false);
+        setListingToDelete(null);
     };
 
     const handleStatusToggle = async (id: string, currentStatus: string) => {
@@ -188,6 +205,17 @@ const getStatusColor = (status: string) => {
                                                         Boosted
                                                     </Badge>
                                                 )}
+                                                {item.isFeatured && (
+                                                    <Badge className="bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 flex items-center gap-0.5">
+                                                        <Star size={9} className="fill-fuchsia-500 text-fuchsia-500" />
+                                                        Featured
+                                                    </Badge>
+                                                )}
+                                                {item.isC9Collection && (
+                                                    <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 flex items-center gap-0.5">
+                                                        ★ C9 Collection
+                                                    </Badge>
+                                                )}
                                             </div>
                                             <h3 className="font-extrabold text-slate-800 text-sm leading-snug truncate group-hover:text-[#003399]">
                                                 {item.title}
@@ -276,6 +304,50 @@ const getStatusColor = (status: string) => {
                             </Card>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div 
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                        onClick={cancelDelete}
+                    />
+                    <Card className="relative z-10 w-full max-w-sm bg-white border border-slate-100 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex flex-col items-center text-center p-8 pt-10">
+                            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4">
+                                <Trash2 size={28} className="text-rose-500" />
+                            </div>
+                            <h3 className="font-extrabold text-slate-800 text-lg uppercase tracking-tight mb-2">Delete Listing?</h3>
+                            <p className="text-xs font-semibold text-slate-500 leading-relaxed mb-6">
+                                Are you sure you want to permanently delete this listing? This action cannot be undone and all associated data will be lost.
+                            </p>
+                            
+                            <div className="flex gap-3 w-full">
+                                <Button
+                                    variant="outline"
+                                    onClick={cancelDelete}
+                                    disabled={deleteMutation.isPending}
+                                    className="flex-1 rounded-xl h-12 font-bold text-slate-600"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={confirmDelete}
+                                    disabled={deleteMutation.isPending}
+                                    className="flex-1 bg-rose-500 hover:bg-rose-600 text-white rounded-xl h-12 font-bold shadow-lg shadow-rose-500/10 flex items-center justify-center gap-1.5"
+                                >
+                                    {deleteMutation.isPending ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Trash2 size={14} className="fill-current opacity-70" />
+                                    )}
+                                    Delete
+                                </Button>
+                            </div>
+                        </div>
+                    </Card>
                 </div>
             )}
 

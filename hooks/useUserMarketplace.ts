@@ -15,7 +15,7 @@ export interface ListingQueryParams {
     stateId?: number | string;
     minPrice?: number | string;
     maxPrice?: number | string;
-    sort?: string;
+    sortOrder?: string;
 }
 
 export function useUserMarketplaceListings(params?: ListingQueryParams) {
@@ -128,14 +128,28 @@ export function useToggleFavorite() {
 
             queryClient.setQueriesData({ queryKey: ['home-exploration'] }, (oldData: any) => {
                 if (!oldData) return oldData;
-                if (oldData.data && oldData.data.data && Array.isArray(oldData.data.data)) {
-                    return { ...oldData, data: { ...oldData.data, data: oldData.data.data.map(updateItem) } };
-                } else if (oldData.data && Array.isArray(oldData.data)) {
-                    return { ...oldData, data: oldData.data.map(updateItem) };
-                } else if (Array.isArray(oldData)) {
-                    return oldData.map(updateItem);
+                
+                // home-exploration returns an object with arrays: featuredVehicles, boostedVehicles, mostViewedVehicles, recentlyAdded
+                const newData = { ...oldData };
+                if (Array.isArray(newData.featuredVehicles)) {
+                    newData.featuredVehicles = newData.featuredVehicles.map(updateItem);
                 }
-                return oldData;
+                if (Array.isArray(newData.boostedVehicles)) {
+                    newData.boostedVehicles = newData.boostedVehicles.map(updateItem);
+                }
+                if (Array.isArray(newData.mostViewedVehicles)) {
+                    newData.mostViewedVehicles = newData.mostViewedVehicles.map(updateItem);
+                }
+                if (Array.isArray(newData.recentlyAdded)) {
+                    newData.recentlyAdded = newData.recentlyAdded.map(updateItem);
+                }
+                
+                // Fallback for generic nested arrays if the structure changes
+                if (newData.data && Array.isArray(newData.data)) {
+                    newData.data = newData.data.map(updateItem);
+                }
+                
+                return newData;
             });
 
             queryClient.setQueriesData({ queryKey: ['recommended-listings'] }, (oldData: any) => {

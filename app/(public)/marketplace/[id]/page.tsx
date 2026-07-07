@@ -42,6 +42,7 @@ import {
     MessageSquare, 
     AlertTriangle, 
     Star, 
+    Zap,
     Check, 
     ChevronLeft, 
     Loader2, 
@@ -62,7 +63,6 @@ import {
     X,
     Gauge,
     Settings,
-    Zap,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -320,6 +320,18 @@ export default function CarDetailPage() {
                                         {listing.isC9Collection && (
                                             <Badge className="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black uppercase tracking-wider px-2 py-0.5">
                                                 ★ C9 Collection
+                                            </Badge>
+                                        )}
+                                        {listing.isFeatured && (
+                                            <Badge className="bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200 text-[10px] font-black uppercase tracking-wider px-2 py-0.5">
+                                                <Star size={10} className="fill-fuchsia-500 text-fuchsia-500 inline mr-1 -mt-0.5" />
+                                                Featured
+                                            </Badge>
+                                        )}
+                                        {listing.isBoosted && (
+                                            <Badge className="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black uppercase tracking-wider px-2 py-0.5">
+                                                <Zap size={10} className="fill-amber-500 text-amber-500 inline mr-1 -mt-0.5" />
+                                                Boosted
                                             </Badge>
                                         )}
                                     </div>
