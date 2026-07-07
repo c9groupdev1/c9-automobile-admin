@@ -166,7 +166,7 @@ const getStatusColor = (status: string) => {
                         return (
                             <Card key={item.id} className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white hover:border-slate-200 transition-colors">
                                 <CardContent className="p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                                    <Link href={`/marketplace/${item.id}`} className="flex gap-4 items-center min-w-0 w-full md:w-auto hover:opacity-80 transition-opacity">
+                                    <Link href={`/marketplace/${item.slug || item.id}`} className="flex gap-4 items-center min-w-0 w-full md:w-auto hover:opacity-80 transition-opacity">
                                         <div className="w-20 h-16 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 border border-slate-100">
                                             <img
                                                 src={getPrimaryImage(item)}
@@ -223,7 +223,7 @@ const getStatusColor = (status: string) => {
                                             </Button>
                                         </Link>
 
-                                        <Link href={`/marketplace/${item.id}`}>
+                                        <Link href={`/marketplace/${item.slug || item.id}`}>
                                             <Button
                                                 variant="outline"
                                                 size="sm"

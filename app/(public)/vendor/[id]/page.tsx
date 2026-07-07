@@ -197,7 +197,7 @@ export default function VendorProfilePage() {
                                 return (
                                     <div
                                         key={item.id}
-                                        onClick={() => router.push(`/marketplace/${item.id}`)}
+                                        onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
                                         className="group cursor-pointer bg-white rounded-3xl border border-slate-100/50 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 relative flex flex-col h-full"
                                     >
                                         {/* Favorite Button */}

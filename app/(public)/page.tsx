@@ -570,7 +570,7 @@ export default function MarketplacePage() {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 whileHover={{ y: -8 }}
                                                 className="group cursor-pointer bg-white/90 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.01)] hover:shadow-[0_25px_50px_rgba(0,51,153,0.08)] transition-all duration-300 overflow-hidden relative flex flex-col h-full"
-                                                onClick={() => router.push(`/marketplace/${item.id}`)}
+                                                onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
                                             >
                                                 {/* Favorite Toggle Button */}
                                                 <button

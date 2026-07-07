@@ -96,7 +96,7 @@ export default function FavoritesPage() {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             className="group cursor-pointer bg-white rounded-3xl border border-slate-100/50 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 relative flex flex-col h-full"
-                            onClick={() => router.push(`/marketplace/${item.id}`)}
+                            onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
                         >
                             {/* Un-favorite Toggle button */}
                             <button

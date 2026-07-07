@@ -101,7 +101,7 @@ export default function FavoritesPage() {
                     {favorites.map((item: any) => (
                         <Link 
                             key={item.id}
-                            href={`/marketplace/${item.id}`}
+                            href={`/marketplace/${item.slug || item.id}`}
                             className="group block"
                         >
                             <Card className="overflow-hidden rounded-3xl border border-slate-100 bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-350 flex flex-col h-full">

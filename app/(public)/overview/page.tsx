@@ -350,7 +350,7 @@ export default function LandingPage() {
                 return (
                   <div
                     key={item.id}
-                    onClick={() => router.push(`/marketplace/${item.id}`)}
+                    onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
                     className="group cursor-pointer bg-slate-50/50 hover:bg-white rounded-3xl border border-slate-150/40 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden relative flex flex-col h-full"
                   >
                     {/* Badge overlay */}
