@@ -70,7 +70,7 @@ export function PublicNavbar() {
                     <div className="flex justify-between items-center">
                         <Link href="/" className="flex items-center space-x-3 cursor-pointer group">
                             <div className="logo-glow">
-                                <Logo className="w-10 h-10 shadow-lg" />
+                                <Logo className="w-10 h-10" />
                             </div>
                             {/* <span className={`text-2xl font-bold tracking-tighter font-display ${scrolled ? 'text-[#0066CC]' : 'text-white'}`}>C9x</span> */}
                         </Link>
@@ -87,7 +87,7 @@ export function PublicNavbar() {
                                     <>
                                         <Link href="/marketplace" className={`text-sm font-bold transition-colors ${textClass}`}>Marketplace</Link>
                                         <Link href="/list-vehicle" className={`text-sm font-bold transition-colors ${textClass}`}>Sell Car</Link>
-                                        <Link href="/my-listings" className={`text-sm font-bold transition-colors ${textClass}`}>Listings</Link>
+                                        <Link href="/my-listings" className={`text-sm font-bold transition-colors ${textClass}`}>My Listings</Link>
                                         <Link href="/favorites" className={`text-sm font-bold transition-colors ${textClass}`}>Favorites</Link>
                                         <Link href="/messages" className={`text-sm font-bold transition-colors ${textClass}`}>Messages</Link>
                                         <Link href="/support" className={`text-sm font-bold transition-colors ${textClass}`}>Support</Link>
