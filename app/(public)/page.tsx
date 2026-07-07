@@ -279,11 +279,11 @@ export default function MarketplacePage() {
                                 </p>
                             </div>
                         </div>
-                        <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white font-bold whitespace-nowrap shadow-md">
-                            <Link href="/account/kyc">
+                        <Link href="/account/kyc">
+                            <Button className="bg-amber-600 hover:bg-amber-700 text-white font-bold whitespace-nowrap shadow-md">
                                 Complete KYC Now
-                            </Link>
-                        </Button>
+                            </Button>
+                        </Link>
                     </motion.div>
                 )}
 
