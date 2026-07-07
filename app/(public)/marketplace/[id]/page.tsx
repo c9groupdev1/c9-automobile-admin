@@ -205,7 +205,8 @@ export default function CarDetailPage() {
             listing.userId ||
             listing.vendorId ||
             sellerContact?.vendorId ||
-            sellerContact?.userId;
+            sellerContact?.userId ||
+            sellerContact?.id;
         if (!sellerId) {
             toast.error('Unable to block', { description: 'Seller identifier not found.' });
             return;
@@ -705,10 +706,10 @@ export default function CarDetailPage() {
                         <Card className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                             <CardContent className="p-6 space-y-5">
                                 <div 
-                                    className={`flex items-center gap-3 relative ${listing.vendorId || sellerContact?.vendorId ? 'group cursor-pointer' : ''}`} 
+                                    className="flex items-center gap-3 relative group cursor-pointer" 
                                     onClick={() => {
-                                        const vendorId = listing.vendorId || sellerContact?.vendorId;
-                                        if (vendorId) router.push(`/vendor/${vendorId}`);
+                                        const sellerId = listing.vendorId || sellerContact?.vendorId || listing.userId || sellerContact?.userId || sellerContact?.id;
+                                        if (sellerId) router.push(`/vendor/${sellerId}`);
                                     }}
                                 >
                                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#003399] flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-[#003399] group-hover:text-white transition-colors">

@@ -288,7 +288,7 @@ export default function MarketplacePage() {
                 )}
 
                 {/* Recommendations Section */}
-                {isAuthenticated && recommendedResponse?.data?.length > 0 && (
+                {isAuthenticated && recommendedResponse?.data?.data?.length > 0 && (
                     <div className="mb-12">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-2 bg-[#003399]/10 text-[#003399] rounded-lg">
@@ -303,7 +303,7 @@ export default function MarketplacePage() {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                                {recommendedResponse.data.map((vehicle: any, idx: number) => {
+                                {recommendedResponse.data.data.map((vehicle: any, idx: number) => {
                                     // Extract primary image
                                     const images = vehicle.images?.length ? vehicle.images : vehicle.media?.length ? vehicle.media : [];
                                     const mainImage = images[0]?.path || images[0]?.url || vehicle.primaryImage?.url || '/c9x-logo.png';

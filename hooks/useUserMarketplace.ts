@@ -116,7 +116,9 @@ export function useToggleFavorite() {
 
             queryClient.setQueriesData({ queryKey: ['marketplace-listings'] }, (oldData: any) => {
                 if (!oldData) return oldData;
-                if (oldData.data && Array.isArray(oldData.data)) {
+                if (oldData.data && oldData.data.data && Array.isArray(oldData.data.data)) {
+                    return { ...oldData, data: { ...oldData.data, data: oldData.data.data.map(updateItem) } };
+                } else if (oldData.data && Array.isArray(oldData.data)) {
                     return { ...oldData, data: oldData.data.map(updateItem) };
                 } else if (Array.isArray(oldData)) {
                     return oldData.map(updateItem);
@@ -126,7 +128,21 @@ export function useToggleFavorite() {
 
             queryClient.setQueriesData({ queryKey: ['home-exploration'] }, (oldData: any) => {
                 if (!oldData) return oldData;
-                if (oldData.data && Array.isArray(oldData.data)) {
+                if (oldData.data && oldData.data.data && Array.isArray(oldData.data.data)) {
+                    return { ...oldData, data: { ...oldData.data, data: oldData.data.data.map(updateItem) } };
+                } else if (oldData.data && Array.isArray(oldData.data)) {
+                    return { ...oldData, data: oldData.data.map(updateItem) };
+                } else if (Array.isArray(oldData)) {
+                    return oldData.map(updateItem);
+                }
+                return oldData;
+            });
+
+            queryClient.setQueriesData({ queryKey: ['recommended-listings'] }, (oldData: any) => {
+                if (!oldData) return oldData;
+                if (oldData.data && oldData.data.data && Array.isArray(oldData.data.data)) {
+                    return { ...oldData, data: { ...oldData.data, data: oldData.data.data.map(updateItem) } };
+                } else if (oldData.data && Array.isArray(oldData.data)) {
                     return { ...oldData, data: oldData.data.map(updateItem) };
                 } else if (Array.isArray(oldData)) {
                     return oldData.map(updateItem);

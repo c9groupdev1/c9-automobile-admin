@@ -66,11 +66,11 @@ export default function VendorProfilePage() {
         );
     }
 
-    const vendor = vendorData.vendor || {};
+    const vendor = vendorData.profile || {};
     const listings = vendorData.listings?.data || [];
     const meta = vendorData.listings?.meta || { last_page: 1, current_page: 1, total: 0 };
     const kyc = vendor.kyc || {};
-    const vp = vendor.vendorProfile || {};
+    const vp = vendor.profile || {};
 
     const handleFavoriteToggle = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
@@ -111,8 +111,8 @@ export default function VendorProfilePage() {
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-8 text-center md:text-left">
                             {/* Avatar */}
                             <div className="w-28 h-28 rounded-[2rem] bg-gradient-to-tr from-[#003399] to-[#0066CC] text-white flex items-center justify-center font-bold text-3xl shadow-xl flex-shrink-0">
-                                {vp.picture ? (
-                                    <img src={vp.picture} alt={vendor.name} className="w-full h-full object-cover rounded-[2rem]" />
+                                {vp.profilePicture ? (
+                                    <img src={vp.profilePicture} alt={vendor.name} className="w-full h-full object-cover rounded-[2rem]" />
                                 ) : (
                                     vendor.name?.charAt(0)
                                 )}
@@ -122,9 +122,9 @@ export default function VendorProfilePage() {
                                 <div className="space-y-2">
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
                                         <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
-                                            {vendor.businessName || vendor.name}
+                                            {vendor.businessName || kyc.businessName || vendor.name}
                                         </h1>
-                                        {vendor.kycVerified && (
+                                        {vendor.hasVerifiedBadge && (
                                             <Badge className="bg-emerald-50 text-emerald-600 border-0 flex items-center gap-1 text-[10px] font-black tracking-wider uppercase px-2 py-0.5">
                                                 <ShieldCheck size={11} className="fill-emerald-50" />
                                                 Verified Dealer
@@ -133,8 +133,8 @@ export default function VendorProfilePage() {
                                     </div>
                                     
                                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 text-slate-550 text-xs font-semibold">
-                                        {vendor.address && (
-                                            <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400" />{vendor.address}</span>
+                                        {(vp.businessAddress || vendor.address) && (
+                                            <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400" />{vp.businessAddress || vendor.address}</span>
                                         )}
                                         {vp.yearsInBusiness && (
                                             <span className="flex items-center gap-1.5"><Briefcase size={14} className="text-slate-400" />{vp.yearsInBusiness} Years Experience</span>
