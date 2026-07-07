@@ -6,9 +6,10 @@ import { Search, ChevronDown, Check, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 
-interface Option {
+export interface Option {
     label: string;
     value: string | number;
+    icon?: React.ReactNode;
 }
 
 interface SearchableDropdownProps {
@@ -74,7 +75,8 @@ export function SearchableDropdown({
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-all hover:bg-slate-50/80 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
-                <span className={cn('truncate', !selectedOption && 'text-slate-400 font-normal')}>
+                <span className={cn('truncate flex items-center gap-2', !selectedOption && 'text-slate-400 font-normal')}>
+                    {selectedOption?.icon}
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
                 <ChevronDown className={cn('h-4 w-4 text-slate-400 transition-transform duration-200', isOpen && 'rotate-180')} />
@@ -128,7 +130,10 @@ export function SearchableDropdown({
                                             isSelected && 'bg-slate-50 text-[#003399] font-black'
                                         )}
                                     >
-                                        <span className="truncate">{option.label}</span>
+                                        <span className="truncate flex items-center gap-2">
+                                            {option.icon}
+                                            {option.label}
+                                        </span>
                                         {isSelected && <Check className="h-4 w-4 text-[#003399]" />}
                                     </button>
                                 );

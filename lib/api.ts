@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: '/api/app',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -10,10 +10,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    // Note: The Authorization header is NO LONGER attached here. 
+    // The Next.js BFF proxy automatically extracts the HttpOnly 'c9_session' cookie 
+    // and attaches the real raw Authorization header backend-side, hiding it from the browser.
     return config;
   },
   (error) => Promise.reject(error)
@@ -24,7 +23,10 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
-      window.location.href = '/secured-admin/login';
+      if (typeof window !== 'undefined') {
+        const isSecuredAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/secured-admin');
+        window.location.href = isSecuredAdmin ? '/secured-admin/login' : '/login';
+      }
     }
     return Promise.reject(error);
   }

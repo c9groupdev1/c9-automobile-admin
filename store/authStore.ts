@@ -28,16 +28,12 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: false,
             _hasHydrated: false,
             setAuth: (user, token) => {
-                localStorage.setItem('token', token);
-                // Set cookie for middleware (expires in 7 days)
-                const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
-                document.cookie = `token=${token}; path=/; expires=${expires}; SameSite=Lax`;
+                // The frontend no longer manages the cookie. 
+                // The BFF server intercepts the login response and sets an HttpOnly 'c9_session' cookie.
                 set({ user, token, isAuthenticated: true });
             },
             logout: () => {
-                localStorage.removeItem('token');
-                // Remove cookie
-                document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+                // The BFF server will clear the HttpOnly 'c9_session' cookie when /users/logout is called.
                 set({ user: null, token: null, isAuthenticated: false });
             },
             setHasHydrated: (state) => {
