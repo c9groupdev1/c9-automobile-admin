@@ -6,6 +6,7 @@ import { useUserMarketplaceListings, useToggleFavorite, useRecommendedListings, 
 import { usePublicVehicleMakes, usePublicVehicleModels, useVehicleMetadata } from '@/hooks/useUserListings';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
+import Image from 'next/image';
 import { SearchableDropdown } from '@/components/ui/searchable-dropdown';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -86,12 +87,15 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                 />
             </button>
             <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
-                <img
-                    src={getPrimaryImage(item)}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                <Image
+                    src={getPrimaryImage(item) || '/c9x-logo.png'}
+                    alt={item.title || 'Vehicle'}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 350px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/c9x-logo.png';
+                        (e.currentTarget as HTMLImageElement).srcset = '';
+                        (e.currentTarget as HTMLImageElement).src = '/c9x-logo.png';
                     }}
                 />
                 {item.condition && (
