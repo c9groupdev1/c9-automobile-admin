@@ -81,8 +81,9 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
     // Set headers
     const headers = new Headers();
     request.headers.forEach((value, key) => {
-        // Exclude Host & Connection to prevent issues on the proxy side
-        if (key.toLowerCase() !== 'host' && key.toLowerCase() !== 'connection') {
+        // Exclude Host, Connection, and Content-Length to prevent issues on the proxy side
+        const lowerKey = key.toLowerCase();
+        if (lowerKey !== 'host' && lowerKey !== 'connection' && lowerKey !== 'content-length') {
             headers.set(key, value);
         }
     });
@@ -94,19 +95,28 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
         headers.set('Authorization', `Bearer ${rawToken}`);
     }
 
-    // Clone request for body logging before it gets consumed by fetch stream forwarding
     let reqBodyLog: any = null;
+    let bodyBuffer: ArrayBuffer | null = null;
+    
+    // Read the body into an ArrayBuffer
     if (request.method !== 'GET' && request.method !== 'HEAD') {
-        const contentType = request.headers.get('content-type') || '';
-        if (contentType.includes('application/json')) {
-            try {
-                const clonedReq = request.clone();
-                reqBodyLog = await clonedReq.json();
-            } catch (e) {
-                reqBodyLog = '[Unparsable JSON Request Body]';
+        try {
+            bodyBuffer = await request.arrayBuffer();
+            
+            const contentType = request.headers.get('content-type') || '';
+            if (contentType.includes('application/json') && bodyBuffer.byteLength > 0) {
+                try {
+                    const textDecoder = new TextDecoder('utf-8');
+                    const text = textDecoder.decode(bodyBuffer);
+                    reqBodyLog = JSON.parse(text);
+                } catch (e) {
+                    reqBodyLog = '[Unparsable JSON Request Body]';
+                }
+            } else {
+                reqBodyLog = `[Non-JSON Request Content Type: ${contentType}, length: ${bodyBuffer.byteLength}]`;
             }
-        } else {
-            reqBodyLog = `[Non-JSON Request Content Type: ${contentType}]`;
+        } catch (e) {
+            console.error('[BFF ERROR] Failed to read request body:', e);
         }
     }
 
@@ -122,12 +132,9 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
             headers,
         };
 
-        // Forward request body stream if request is not GET or HEAD
-        if (request.method !== 'GET' && request.method !== 'HEAD') {
-            fetchOptions.body = request.body;
-            // Next.js Route Handlers require duplex to be set when body is a stream
-            // @ts-ignore
-            fetchOptions.duplex = 'half';
+        // Forward request body if request is not GET or HEAD
+        if (request.method !== 'GET' && request.method !== 'HEAD' && bodyBuffer) {
+            fetchOptions.body = bodyBuffer;
         }
 
         const response = await fetch(targetUrl, fetchOptions);
