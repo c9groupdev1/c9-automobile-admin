@@ -88,12 +88,37 @@ export default async function ListingLayout(
     }
   } : null;
 
+  const breadcrumbsLd = listing ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://c9x.thec9group.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Marketplace",
+        "item": "https://c9x.thec9group.com/marketplace"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": listing.title || "Vehicle",
+        "item": `https://c9x.thec9group.com/marketplace/${params.id}`
+      }
+    ]
+  } : null;
+
   return (
     <>
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumbsLd]) }}
         />
       )}
       {children}
