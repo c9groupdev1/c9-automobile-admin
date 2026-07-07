@@ -758,14 +758,14 @@ export default function CarDetailPage() {
 
                                         <div className="flex gap-2">
                                             <Dialog open={showReportForm} onOpenChange={setShowReportForm}>
-                                                <DialogTrigger asChild>
+                                                <DialogTrigger render={
                                                     <Button
                                                         variant="outline"
                                                         className="flex-1 rounded-xl h-10 border-slate-200 text-slate-600 text-xs font-bold"
-                                                    >
-                                                        <AlertTriangle size={13} className="mr-1.5 text-amber-500" />
-                                                        Report
-                                                    </Button>
+                                                    />
+                                                }>
+                                                    <AlertTriangle size={13} className="mr-1.5 text-amber-500" />
+                                                    Report
                                                 </DialogTrigger>
                                                 <DialogContent className="sm:max-w-[425px] rounded-3xl p-6">
                                                     <DialogHeader>
