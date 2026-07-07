@@ -97,12 +97,12 @@ export function PublicNavbar() {
                             
                             {isAuthenticated ? (
                                 <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button className={`rounded-xl px-4 font-bold h-11 transition-all flex items-center gap-2 ${actionBtnClass}`}>
-                                            <User size={16} />
-                                            {user?.name?.split(' ')[0] || 'Account'}
-                                            <ChevronDown size={14} className="opacity-70" />
-                                        </Button>
+                                    <DropdownMenuTrigger render={
+                                        <Button className={`rounded-xl px-4 font-bold h-11 transition-all flex items-center gap-2 ${actionBtnClass}`} />
+                                    }>
+                                        <User size={16} />
+                                        {user?.name?.split(' ')[0] || 'Account'}
+                                        <ChevronDown size={14} className="opacity-70" />
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-56 rounded-2xl border-slate-100 p-2 shadow-xl">
                                         <DropdownMenuLabel className="font-black text-slate-800 text-xs uppercase tracking-widest px-3 py-2">
@@ -111,26 +111,20 @@ export function PublicNavbar() {
                                         <DropdownMenuSeparator className="bg-slate-100 mb-2" />
                                         
                                         {user?.roles?.some(r => !['user', 'verified_user'].includes(r.toLowerCase())) && (
-                                            <DropdownMenuItem asChild className="rounded-xl cursor-pointer font-semibold text-slate-600 focus:bg-[#003399]/5 focus:text-[#003399] py-2.5">
-                                                <Link href="/admin/dashboard" className="flex items-center">
-                                                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                                                    Admin Dashboard
-                                                </Link>
+                                            <DropdownMenuItem render={<Link href="/admin/dashboard" className="flex items-center" />} className="rounded-xl cursor-pointer font-semibold text-slate-600 focus:bg-[#003399]/5 focus:text-[#003399] py-2.5">
+                                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                                Admin Dashboard
                                             </DropdownMenuItem>
                                         )}
                                         
-                                        <DropdownMenuItem asChild className="rounded-xl cursor-pointer font-semibold text-slate-600 focus:bg-[#003399]/5 focus:text-[#003399] py-2.5">
-                                            <Link href="/account" className="flex items-center">
-                                                <User className="mr-2 h-4 w-4" />
-                                                Profile Settings
-                                            </Link>
+                                        <DropdownMenuItem render={<Link href="/account" className="flex items-center" />} className="rounded-xl cursor-pointer font-semibold text-slate-600 focus:bg-[#003399]/5 focus:text-[#003399] py-2.5">
+                                            <User className="mr-2 h-4 w-4" />
+                                            Profile Settings
                                         </DropdownMenuItem>
 
-                                        <DropdownMenuItem asChild className="rounded-xl cursor-pointer font-semibold text-slate-600 focus:bg-[#003399]/5 focus:text-[#003399] py-2.5">
-                                            <Link href="/my-listings" className="flex items-center">
-                                                <Car className="mr-2 h-4 w-4" />
-                                                My Listings
-                                            </Link>
+                                        <DropdownMenuItem render={<Link href="/my-listings" className="flex items-center" />} className="rounded-xl cursor-pointer font-semibold text-slate-600 focus:bg-[#003399]/5 focus:text-[#003399] py-2.5">
+                                            <Car className="mr-2 h-4 w-4" />
+                                            My Listings
                                         </DropdownMenuItem>
                                         
                                         <DropdownMenuSeparator className="bg-slate-100 my-2" />
