@@ -117,6 +117,13 @@ export function useToggleFavorite() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (listingId: string) => {
+            if (listingId.startsWith('mock-')) {
+                toast.error('Preview Only', {
+                    description: 'This is a sample listing and cannot be saved to favorites.'
+                });
+                // Throw error to trigger rollback in onError
+                throw new Error('Cannot favorite mock listing');
+            }
             const response = await api.post(`/user/listings/${listingId}/favorite`);
             return response.data;
         },
