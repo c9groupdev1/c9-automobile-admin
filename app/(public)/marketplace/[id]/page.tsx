@@ -184,12 +184,19 @@ export default function CarDetailPage() {
         }
 
         try {
-            await startConversationMutation.mutateAsync({
+            const result = await startConversationMutation.mutateAsync({
                 listingId: listing.id,
                 message: `Hi, I am interested in your listing: ${listing.title}. Is it still available?`
             });
             toast.success('Conversation started!');
-            router.push('/messages');
+            
+            // The API response usually wraps in 'data'
+            const convId = result?.data?.id || result?.id;
+            if (convId) {
+                router.push(`/messages?id=${convId}`);
+            } else {
+                router.push('/messages');
+            }
         } catch (error) {}
     };
 

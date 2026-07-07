@@ -144,6 +144,7 @@ export default function MarketplacePage() {
     };
 
     const handleFavoriteToggle = async (e: React.MouseEvent, id: string) => {
+        e.preventDefault();
         e.stopPropagation();
         if (!isAuthenticated) {
             toast.error('Authentication Required', {

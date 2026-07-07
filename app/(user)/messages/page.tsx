@@ -178,6 +178,7 @@ function MessagesDashboardContent() {
     const [searchQuery, setSearchQuery] = useState('');
     const [messageText, setMessageText] = useState('');
     const [wsStatus, setWsStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'failed' | null>(null);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
 
     // Queries
     const { data: convData, isLoading: isLoadingConvs, refetch: refetchConvs } = useConversations();
@@ -192,6 +193,56 @@ function MessagesDashboardContent() {
     const messages = Array.isArray(activeConversation?.messages) 
         ? activeConversation.messages 
         : activeConversation?.messages?.data || [];
+
+    // Smart Auto-complete & Reply Logic
+    const AUTO_COMPLETE_MAP: Record<string, string[]> = {
+        'Is it': ['still available?', 'taxed?', 'registered?', 'negotiable?'],
+        'What is': ['the lowest price?', 'the mileage?', 'the condition?', 'the reason for sale?'],
+        'Can I': ['inspect it?', 'pay in installments?', 'bring a mechanic?', 'test drive?'],
+        'Where': ['is the location?', 'can we meet?', 'is the car parked?'],
+        'How': ['much is the last price?', 'long have you had it?', 'many keys?'],
+        'I am': ['interested in this car.', 'ready to buy.', 'on my way.', 'stuck in traffic.'],
+        'The': ['price is okay.', 'location is far.', 'condition looks good.'],
+        'Does it': ['have any issues?', 'have a service history?', 'come with a spare tire?'],
+    };
+
+    const CONTEXT_REPLIES: Record<string, string[]> = {
+        'price': ['Can we do a bit lower?', 'I can offer ₦', 'That works for me.'],
+        'location': ['See you there.', 'Send the address.', 'I am nearby.'],
+        'available': ['Yes, I am interested.', 'When can I see it?', 'What is the location?'],
+        'hi': ['Hello, I am interested in this car.', 'Hi, is this available?'],
+    };
+
+    useEffect(() => {
+        if (!activeConversation) return;
+        const trimmed = messageText.trim();
+        const lastSellerMsg = [...messages].reverse().find((m: any) => m.sender_id !== user?.id)?.message?.toLowerCase() || '';
+
+        let newSuggestions: string[] = [];
+
+        if (trimmed.length > 1) {
+            const matchKey = Object.keys(AUTO_COMPLETE_MAP).find(key =>
+                trimmed.toLowerCase().startsWith(key.toLowerCase())
+            );
+            if (matchKey) {
+                newSuggestions = AUTO_COMPLETE_MAP[matchKey].filter(s =>
+                    !(trimmed.toLowerCase().includes(s.toLowerCase()))
+                );
+            }
+        } else if (lastSellerMsg) {
+            if (lastSellerMsg.includes('price') || lastSellerMsg.includes('amount')) {
+                newSuggestions = CONTEXT_REPLIES['price'];
+            } else if (lastSellerMsg.includes('where') || lastSellerMsg.includes('location') || lastSellerMsg.includes('address')) {
+                newSuggestions = CONTEXT_REPLIES['location'];
+            } else if (lastSellerMsg.includes('available') || lastSellerMsg.includes('still')) {
+                newSuggestions = CONTEXT_REPLIES['available'];
+            } else {
+                newSuggestions = CONTEXT_REPLIES['hi'];
+            }
+        }
+
+        setSuggestions(newSuggestions.slice(0, 3));
+    }, [messageText, messages, activeConversation, user?.id]);
 
     // Debug activeConversation payload in browser console
     useEffect(() => {
@@ -470,6 +521,45 @@ function MessagesDashboardContent() {
                                 })
                             )}
                             <div ref={messagesEndRef} />
+                        </div>
+
+                        {/* Auto-complete & Quick Action Chips */}
+                        <div className="bg-slate-50/20 px-4 pb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+                            {suggestions.length > 0 ? (
+                                suggestions.map((suggestion, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => {
+                                            if (messageText.trim().length > 1) {
+                                                const matchKey = Object.keys(AUTO_COMPLETE_MAP).find(key =>
+                                                    messageText.trim().toLowerCase().startsWith(key.toLowerCase())
+                                                );
+                                                if (matchKey) {
+                                                    setMessageText(messageText.trim() + ' ' + suggestion);
+                                                } else {
+                                                    setMessageText(suggestion);
+                                                }
+                                            } else {
+                                                setMessageText(suggestion);
+                                            }
+                                        }}
+                                        className="whitespace-nowrap bg-white hover:bg-blue-50 text-[#003399] border border-blue-100 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors shadow-sm"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))
+                            ) : (
+                                !messages.length && activeConversation?.listing?.title && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMessageText(`Hi, is the ${activeConversation.listing.title} still available?`)}
+                                        className="whitespace-nowrap bg-white hover:bg-blue-50 text-[#003399] border border-blue-100 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors shadow-sm"
+                                    >
+                                        👋 Is it available?
+                                    </button>
+                                )
+                            )}
                         </div>
 
                         {/* Text Input Panel */}

@@ -100,16 +100,58 @@ export function useToggleFavorite() {
             const response = await api.post(`/user/listings/${listingId}/favorite`);
             return response.data;
         },
-        onSuccess: (data, listingId) => {
+        onMutate: async (listingId) => {
+            await queryClient.cancelQueries({ queryKey: ['marketplace-listings'] });
+            await queryClient.cancelQueries({ queryKey: ['home-exploration'] });
+
+            const previousListings = queryClient.getQueryData(['marketplace-listings']);
+            const previousExploration = queryClient.getQueryData(['home-exploration']);
+
+            const updateItem = (item: any) => {
+                if (item.id === listingId) {
+                    return { ...item, isFavorite: !(item.isFavorite || item.isFavorited), isFavorited: !(item.isFavorite || item.isFavorited) };
+                }
+                return item;
+            };
+
+            queryClient.setQueriesData({ queryKey: ['marketplace-listings'] }, (oldData: any) => {
+                if (!oldData) return oldData;
+                if (oldData.data && Array.isArray(oldData.data)) {
+                    return { ...oldData, data: oldData.data.map(updateItem) };
+                } else if (Array.isArray(oldData)) {
+                    return oldData.map(updateItem);
+                }
+                return oldData;
+            });
+
+            queryClient.setQueriesData({ queryKey: ['home-exploration'] }, (oldData: any) => {
+                if (!oldData) return oldData;
+                if (oldData.data && Array.isArray(oldData.data)) {
+                    return { ...oldData, data: oldData.data.map(updateItem) };
+                } else if (Array.isArray(oldData)) {
+                    return oldData.map(updateItem);
+                }
+                return oldData;
+            });
+
+            return { previousListings, previousExploration };
+        },
+        onError: (error: any, listingId, context: any) => {
+            if (context?.previousListings) {
+                queryClient.setQueriesData({ queryKey: ['marketplace-listings'] }, context.previousListings);
+            }
+            if (context?.previousExploration) {
+                queryClient.setQueriesData({ queryKey: ['home-exploration'] }, context.previousExploration);
+            }
+            toast.error('Favorite Toggle Failed', {
+                description: error.response?.data?.message || 'Could not update your bookmarks.'
+            });
+        },
+        onSettled: (data, error, listingId) => {
             queryClient.invalidateQueries({ queryKey: ['marketplace-listings'] });
             queryClient.invalidateQueries({ queryKey: ['marketplace-listing', listingId] });
             queryClient.invalidateQueries({ queryKey: ['favorite-listings'] });
             queryClient.invalidateQueries({ queryKey: ['home-exploration'] });
-        },
-        onError: (error: any) => {
-            toast.error('Favorite Toggle Failed', {
-                description: error.response?.data?.message || 'Could not update your bookmarks.'
-            });
         }
     });
 }
