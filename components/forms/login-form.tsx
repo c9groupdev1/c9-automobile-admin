@@ -57,7 +57,8 @@ export function LoginForm() {
                 !['user', 'verified_user'].includes(role.toLowerCase())
             );
             
-            const target = hasStaffRole ? '/admin/dashboard' : '/account';
+            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
             
             // Use window.location.href instead of router.push to force a full page reload 
             // and ensure React Query cache is cleared and new headers are applied.

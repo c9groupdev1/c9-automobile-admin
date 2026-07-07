@@ -58,8 +58,9 @@ function UserLoginFormContent() {
                 !['user', 'verified_user'].includes(role.toLowerCase())
             );
 
-            // Customer logins should direct to /account if no redirect is active
-            const target = hasStaffRole ? '/admin/dashboard' : '/account';
+            // Customer logins should direct to /account if verified, or /marketplace if not
+            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
 
             window.location.href = redirect || target;
         } catch (error: any) {

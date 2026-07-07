@@ -14,8 +14,23 @@ import { useStartConversation } from '@/hooks/useUserMessaging';
 import { useAuthStore } from '@/store/authStore';
 import { formatNaira } from '../../page';
 import { Button } from '@/components/ui/button';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -153,10 +168,10 @@ export default function CarDetailPage() {
             toast.error('Authentication Required', {
                 description: 'Please sign in to save vehicles to your favorites.'
             });
-            router.push('/login');
+            router.push('/login?redirect=/marketplace');
             return;
         }
-        await toggleFavoriteMutation.mutateAsync(id);
+        await toggleFavoriteMutation.mutateAsync(listing.id);
     };
 
     const handleContactSeller = async () => {
@@ -164,13 +179,13 @@ export default function CarDetailPage() {
             toast.error('Authentication Required', {
                 description: 'Please sign in to chat with the seller.'
             });
-            router.push('/login');
+            router.push('/login?redirect=/marketplace');
             return;
         }
 
         try {
             await startConversationMutation.mutateAsync({
-                listingId: id,
+                listingId: listing.id,
                 message: `Hi, I am interested in your listing: ${listing.title}. Is it still available?`
             });
             toast.success('Conversation started!');
@@ -208,7 +223,7 @@ export default function CarDetailPage() {
         setIsReporting(true);
         try {
             await reportListingMutation.mutateAsync({
-                listingId: id,
+                listingId: listing.id,
                 reason: reportReason,
                 description: reportDesc
             });
@@ -226,7 +241,7 @@ export default function CarDetailPage() {
         if (!reviewComment.trim()) return;
         try {
             await postReviewMutation.mutateAsync({
-                listingId: id,
+                listingId: listing.id,
                 rating: reviewRating,
                 comment: reviewComment.trim()
             });
@@ -682,13 +697,16 @@ export default function CarDetailPage() {
                         {/* Seller / Contact Card */}
                         <Card className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                             <CardContent className="p-6 space-y-5">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#003399] flex items-center justify-center font-bold text-lg shadow-sm">
+                                <div className="flex items-center gap-3 group relative cursor-pointer" onClick={() => {
+                                    const sellerId = listing.userId || listing.vendorId || sellerContact?.vendorId || sellerContact?.userId;
+                                    if (sellerId) router.push(`/vendor/${sellerId}`);
+                                }}>
+                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-[#003399] flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-[#003399] group-hover:text-white transition-colors">
                                         {(sellerContact.businessName || sellerContact.contactPerson || listing.user?.name || 'S').charAt(0).toUpperCase()}
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-1.5">
-                                            <h3 className="font-bold text-slate-900 text-sm">
+                                            <h3 className="font-bold text-slate-900 text-sm group-hover:text-[#003399] transition-colors">
                                                 {sellerContact.businessName || sellerContact.contactPerson || listing.user?.name || 'Seller'}
                                             </h3>
                                             {(sellerContact.isVerified || sellerContact.hasVerifiedBadge) && (
@@ -699,10 +717,19 @@ export default function CarDetailPage() {
                                             {sellerContact.sellerType || 'Private Seller'}
                                         </p>
                                         {sellerContact.phone && (
-                                            <p className="text-[11px] font-semibold text-slate-500 mt-0.5 flex items-center gap-1">
+                                            <div 
+                                                className="flex items-center gap-1 mt-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigator.clipboard.writeText(sellerContact.phone);
+                                                    toast.success('Phone number copied to clipboard!');
+                                                }}
+                                                title="Copy Phone Number"
+                                            >
                                                 <Phone size={10} />
                                                 {sellerContact.phone}
-                                            </p>
+                                                <span className="text-[9px] bg-slate-100 rounded px-1 py-0.5 ml-1 border border-slate-200">Copy</span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -723,14 +750,57 @@ export default function CarDetailPage() {
                                         </Button>
 
                                         <div className="flex gap-2">
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => setShowReportForm(!showReportForm)}
-                                                className="flex-1 rounded-xl h-10 border-slate-200 text-slate-600 text-xs font-bold"
-                                            >
-                                                <AlertTriangle size={13} className="mr-1.5 text-amber-500" />
-                                                Report
-                                            </Button>
+                                            <Dialog open={showReportForm} onOpenChange={setShowReportForm}>
+                                                <DialogTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="flex-1 rounded-xl h-10 border-slate-200 text-slate-600 text-xs font-bold"
+                                                    >
+                                                        <AlertTriangle size={13} className="mr-1.5 text-amber-500" />
+                                                        Report
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent className="sm:max-w-[425px] rounded-3xl p-6">
+                                                    <DialogHeader>
+                                                        <DialogTitle className="text-lg font-bold text-slate-900">Report Listing</DialogTitle>
+                                                    </DialogHeader>
+                                                    <form onSubmit={handleReportSubmit} className="space-y-4 mt-2">
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Reason</label>
+                                                            <select
+                                                                value={reportReason}
+                                                                onChange={(e) => setReportReason(e.target.value)}
+                                                                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#003399]"
+                                                            >
+                                                                <option value="">Select a reason</option>
+                                                                <option value="Misleading Information">Misleading Info</option>
+                                                                <option value="Suspicious Activity">Suspicious / Scam</option>
+                                                                <option value="Item Unavailable">Sold or Unavailable</option>
+                                                                <option value="Inappropriate Content">Inappropriate Content</option>
+                                                            </select>
+                                                        </div>
+                
+                                                        <div className="space-y-1">
+                                                            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Description</label>
+                                                            <Textarea
+                                                                placeholder="Provide details about the issue..."
+                                                                value={reportDesc}
+                                                                onChange={(e) => setReportDesc(e.target.value)}
+                                                                className="h-24 bg-slate-50 rounded-xl focus:bg-white focus:border-[#003399]"
+                                                            />
+                                                        </div>
+                
+                                                        <Button
+                                                            type="submit"
+                                                            disabled={isReporting}
+                                                            className="w-full bg-[#003399] hover:bg-blue-800 text-white rounded-xl h-11 font-bold text-sm shadow-md"
+                                                        >
+                                                            {isReporting ? 'Submitting...' : 'Submit Report'}
+                                                        </Button>
+                                                    </form>
+                                                </DialogContent>
+                                            </Dialog>
+                                            
                                             <Button
                                                 variant="outline"
                                                 onClick={handleBlockSeller}
@@ -793,58 +863,7 @@ export default function CarDetailPage() {
                             </CardContent>
                         </Card>
 
-                        {/* Report Form */}
-                        {showReportForm && (
-                            <Card className="bg-white rounded-3xl border border-slate-100 shadow-sm">
-                                <CardContent className="p-6">
-                                    <form onSubmit={handleReportSubmit} className="space-y-4">
-                                        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                                            <h3 className="font-bold text-slate-900 text-xs uppercase tracking-wider">Report Listing</h3>
-                                            <button 
-                                                type="button"
-                                                onClick={() => setShowReportForm(false)}
-                                                className="text-xs text-slate-400 font-bold hover:underline"
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                        
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Reason</label>
-                                            <select
-                                                value={reportReason}
-                                                onChange={(e) => setReportReason(e.target.value)}
-                                                className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800"
-                                            >
-                                                <option value="">Select a reason</option>
-                                                <option value="Misleading Information">Misleading Info</option>
-                                                <option value="Suspicious Activity">Suspicious / Scam</option>
-                                                <option value="Item Unavailable">Sold or Unavailable</option>
-                                                <option value="Inappropriate Content">Inappropriate Content</option>
-                                            </select>
-                                        </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Description</label>
-                                            <Textarea
-                                                placeholder="Provide details about the issue..."
-                                                value={reportDesc}
-                                                onChange={(e) => setReportDesc(e.target.value)}
-                                                className="h-24 bg-slate-50 rounded-xl"
-                                            />
-                                        </div>
-
-                                        <Button
-                                            type="submit"
-                                            disabled={isReporting}
-                                            className="w-full bg-[#003399] hover:bg-blue-800 text-white rounded-xl h-11 font-bold text-xs"
-                                        >
-                                            {isReporting ? 'Submitting...' : 'Submit Report'}
-                                        </Button>
-                                    </form>
-                                </CardContent>
-                            </Card>
-                        )}
 
                         {/* Safety Tips */}
                         <Card className="bg-amber-50/50 rounded-3xl border border-amber-100/50 shadow-sm">

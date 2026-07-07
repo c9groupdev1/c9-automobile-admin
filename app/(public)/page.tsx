@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUserMarketplaceListings, useToggleFavorite } from '@/hooks/useUserMarketplace';
+import { useUserMarketplaceListings, useToggleFavorite, useRecommendedListings } from '@/hooks/useUserMarketplace';
 import { usePublicVehicleMakes, usePublicVehicleModels, useVehicleMetadata } from '@/hooks/useUserListings';
 import { useAuthStore } from '@/store/authStore';
+import Link from 'next/link';
 import { SearchableDropdown } from '@/components/ui/searchable-dropdown';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -50,7 +51,7 @@ export function formatNaira(amount: number | string) {
 
 export default function MarketplacePage() {
     const router = useRouter();
-    const { isAuthenticated } = useAuthStore();
+    const { isAuthenticated, user } = useAuthStore();
     
     // Query Parameters State
     const [page, setPage] = useState(1);
@@ -117,6 +118,7 @@ export default function MarketplacePage() {
     };
 
     const { data: listingsResponse, isLoading, isPlaceholderData } = useUserMarketplaceListings(queryParams);
+    const { data: recommendedResponse, isLoading: isLoadingRecommended } = useRecommendedListings({ page: 1, perPage: 15 });
     const toggleFavoriteMutation = useToggleFavorite();
 
     const listings = listingsResponse?.data?.data || [];
@@ -258,6 +260,107 @@ export default function MarketplacePage() {
                     </div>
                 </div>
 
+                {/* KYC Prompt Banner for Unverified Users */}
+                {isAuthenticated && user && (user.kycStatus === 'pending' || !user.kycStatus || user.kycStatus === 'rejected') && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-amber-100 text-amber-600 rounded-full hidden sm:block">
+                                <ShieldCheck size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-amber-900 font-bold text-lg">Verify your identity</h3>
+                                <p className="text-amber-700/80 font-medium text-sm mt-1 max-w-2xl">
+                                    You are currently unverified. Complete your KYC verification to unlock full access to the C9X Marketplace, including posting vehicles and messaging sellers securely.
+                                </p>
+                            </div>
+                        </div>
+                        <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white font-bold whitespace-nowrap shadow-md">
+                            <Link href="/account/kyc">
+                                Complete KYC Now
+                            </Link>
+                        </Button>
+                    </motion.div>
+                )}
+
+                {/* Recommendations Section */}
+                {isAuthenticated && recommendedResponse?.data?.length > 0 && (
+                    <div className="mb-12">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-[#003399]/10 text-[#003399] rounded-lg">
+                                <Sparkles size={20} />
+                            </div>
+                            <h2 className="text-2xl font-extrabold text-slate-900">Recommended for You</h2>
+                        </div>
+                        
+                        {isLoadingRecommended ? (
+                            <div className="flex justify-center p-8">
+                                <Loader2 className="h-8 w-8 animate-spin text-[#003399]" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                                {recommendedResponse.data.map((vehicle: any, idx: number) => {
+                                    // Extract primary image
+                                    const images = vehicle.images?.length ? vehicle.images : vehicle.media?.length ? vehicle.media : [];
+                                    const mainImage = images[0]?.path || images[0]?.url || vehicle.primaryImage?.url || '/c9x-logo.png';
+                                    
+                                    // Get pricing
+                                    const pricing = vehicle.pricingAndLocation || vehicle;
+                                    
+                                    return (
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.05 }}
+                                            key={vehicle.id} 
+                                            className="group relative bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                                        >
+                                            <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden cursor-pointer" onClick={() => router.push(`/marketplace/${vehicle.slug || vehicle.id}`)}>
+                                                <img 
+                                                    src={mainImage} 
+                                                    alt={vehicle.title || 'Vehicle'} 
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                    onError={(e) => { e.currentTarget.src = '/c9x-logo.png'; }}
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                                
+                                                <button 
+                                                    onClick={(e) => handleFavoriteToggle(e, vehicle.id)}
+                                                    className="absolute top-3 right-3 p-2.5 rounded-full bg-white/90 backdrop-blur shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-rose-500"
+                                                >
+                                                    <Heart size={16} className={vehicle.isFavorite || vehicle.isFavorited ? "fill-rose-500 text-rose-500" : ""} />
+                                                </button>
+                                                
+                                                <div className="absolute bottom-3 left-3 flex gap-2">
+                                                    {vehicle.isBoosted && (
+                                                        <div className="bg-amber-500 text-white font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 text-[10px] uppercase tracking-wider">
+                                                            <Zap size={10} /> Boosted
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="p-4 flex-1 flex flex-col cursor-pointer" onClick={() => router.push(`/marketplace/${vehicle.slug || vehicle.id}`)}>
+                                                <div className="flex justify-between items-start mb-2 gap-2">
+                                                    <h3 className="font-bold text-slate-900 leading-tight line-clamp-2 group-hover:text-[#003399] transition-colors">{vehicle.title}</h3>
+                                                </div>
+                                                <div className="text-lg font-black text-[#003399] mb-4">{formatNaira(pricing.price || pricing.askingPrice)}</div>
+                                                
+                                                <div className="mt-auto grid grid-cols-2 gap-2 text-xs font-semibold text-slate-500 pt-3 border-t border-slate-50">
+                                                    <div className="flex items-center gap-1.5"><Calendar size={12} className="text-slate-400" /> {vehicle.year || 'N/A'}</div>
+                                                    <div className="flex items-center gap-1.5"><Gauge size={12} className="text-slate-400" /> {vehicle.basicInfo?.mileage ? `${vehicle.basicInfo.mileage}km` : 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Main Content Layout Grid */}
                 <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
                     
@@ -324,9 +427,9 @@ export default function MarketplacePage() {
                                 className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none transition-all shadow-sm focus:border-[#003399]"
                             >
                                 <option value="">Any Condition</option>
-                                <option value="Foreign Used">Foreign Used</option>
-                                <option value="Local Used">Local Used</option>
-                                <option value="Brand New">Brand New</option>
+                                <option value="foreign_used">Foreign Used</option>
+                                <option value="local_used">Local Used</option>
+                                <option value="brand_new">Brand New</option>
                             </select>
                         </div>
 
@@ -413,9 +516,9 @@ export default function MarketplacePage() {
                                     className="h-11 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#003399] transition-all shadow-sm cursor-pointer"
                                 >
                                     <option value="latest">Latest Submissions</option>
-                                    <option value="price_asc">Price: Low to High</option>
-                                    <option value="price_desc">Price: High to Low</option>
-                                    <option value="year_desc">Year: Newest First</option>
+                                    <option value="price-asc">Price: Low to High</option>
+                                    <option value="price-desc">Price: High to Low</option>
+                                    <option value="year-desc">Year: Newest First</option>
                                 </select>
 
                                 <Button
@@ -683,9 +786,9 @@ export default function MarketplacePage() {
                                         className="h-12 w-full rounded-xl border border-slate-100 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"
                                     >
                                         <option value="">Any Condition</option>
-                                        <option value="Foreign Used">Foreign Used</option>
-                                        <option value="Local Used">Local Used</option>
-                                        <option value="Brand New">Brand New</option>
+                                        <option value="foreign_used">Foreign Used</option>
+                                        <option value="local_used">Local Used</option>
+                                        <option value="brand_new">Brand New</option>
                                     </select>
                                 </div>
 

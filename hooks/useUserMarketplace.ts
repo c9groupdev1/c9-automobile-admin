@@ -28,15 +28,26 @@ export function useUserMarketplaceListings(params?: ListingQueryParams) {
     });
 }
 
-export function useUserMarketplaceListing(id: string) {
+export function useUserMarketplaceListing(slugOrId: string) {
     return useQuery({
-        queryKey: ['marketplace-listing', id],
+        queryKey: ['marketplace-listing', slugOrId],
         queryFn: async () => {
-            if (!id) return null;
-            const response = await api.get(`/listings/${id}`);
+            if (!slugOrId) return null;
+            // The backend expects the slug
+            const response = await api.get(`/listings/slug/${slugOrId}`);
             return response.data.data;
         },
-        enabled: !!id,
+        enabled: !!slugOrId,
+    });
+}
+
+export function useRecommendedListings(params?: { page?: number; perPage?: number }) {
+    return useQuery({
+        queryKey: ['recommended-listings', params],
+        queryFn: async () => {
+            const response = await api.get('/listings/recommended', { params });
+            return response.data;
+        },
     });
 }
 
