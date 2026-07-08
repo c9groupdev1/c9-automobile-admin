@@ -237,7 +237,7 @@ export default function VendorProfilePage() {
                                                 <div className="flex items-center gap-3 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                     <span className="flex items-center gap-1">
                                                         <Calendar size={10} />
-                                                        {item.car?.year || item.year || '2020'}
+                                                        {item.car?.year || item.year}
                                                     </span>
                                                     {item.car?.transmission && <span>{item.car.transmission}</span>}
                                                 </div>
