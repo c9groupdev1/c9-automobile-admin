@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-    const token = request.cookies.get('token')?.value;
+    const token = request.cookies.get('c9_session')?.value || request.cookies.get('token')?.value;
     const { pathname } = request.nextUrl;
 
     // Protect all routes under /admin

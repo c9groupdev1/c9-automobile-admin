@@ -22,6 +22,8 @@ import { Loader2, Mail, Lock, User, Check, ArrowRight, Ticket, ShieldCheck, Key,
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { useAuthStore } from '@/store/authStore';
 
 const formSchema = z.object({
     name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -45,6 +47,7 @@ export default function UserRegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const setAuth = useAuthStore((state) => state.setAuth);
     
     // OTP State
     const [otpCode, setOtpCode] = useState('');
@@ -144,7 +147,35 @@ export default function UserRegisterPage() {
         }
     }
 
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        if (!credentialResponse.credential) return;
+        setIsLoading(true);
+        try {
+            const response = await api.post('/users/social/google', {
+                provider: 'google',
+                idToken: credentialResponse.credential,
+            });
+            const { user, token } = response.data;
+            setAuth(user, token);
+            toast.success('Google authentication successful!');
+            
+            const hasStaffRole = user.roles?.some((role: string) =>
+                !['user', 'verified_user'].includes(role.toLowerCase())
+            );
+
+            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
+            window.location.href = target;
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Google authentication failed. Please try again.';
+            toast.error(message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
         <div className="min-h-screen w-full flex bg-slate-50 font-sans">
             {/* Left Side: Brand / Hero Graphic */}
             <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-[#003399] flex-col justify-between p-12 xl:p-20 text-white">
@@ -385,6 +416,27 @@ export default function UserRegisterPage() {
                                             )}
                                         </Button>
 
+                                        <div className="relative my-6">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <span className="w-full border-t border-slate-200" />
+                                            </div>
+                                            <div className="relative flex justify-center text-xs uppercase">
+                                                <span className="bg-slate-50 px-2 text-slate-500 font-bold tracking-wider">Or continue with</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-center w-full">
+                                            <GoogleLogin
+                                                onSuccess={handleGoogleSuccess}
+                                                onError={() => toast.error('Google Sign-In failed')}
+                                                useOneTap
+                                                size="large"
+                                                width="100%"
+                                                shape="pill"
+                                                text="signup_with"
+                                            />
+                                        </div>
+
                                         <div className="text-center text-sm font-bold text-slate-500 mt-8 pt-6">
                                             Already have an account?{' '}
                                             <Link href="/login" className="text-[#003399] hover:underline decoration-2 underline-offset-2">
@@ -466,5 +518,6 @@ export default function UserRegisterPage() {
                 </div>
             </div>
         </div>
+        </GoogleOAuthProvider>
     );
 }

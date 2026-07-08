@@ -23,6 +23,7 @@ import { Loader2, Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { motion } from 'framer-motion';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -71,7 +72,35 @@ function UserLoginFormContent() {
         }
     }
 
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        if (!credentialResponse.credential) return;
+        setIsLoading(true);
+        try {
+            const response = await api.post('/users/social/google', {
+                provider: 'google',
+                idToken: credentialResponse.credential,
+            });
+            const { user, token } = response.data;
+            setAuth(user, token);
+            toast.success('Google Login successful!');
+
+            const hasStaffRole = user.roles?.some((role: string) =>
+                !['user', 'verified_user'].includes(role.toLowerCase())
+            );
+
+            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
+            window.location.href = redirect || target;
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'Google Login failed. Please try again.';
+            toast.error(message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
         <div className="w-full max-w-md">
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -171,6 +200,26 @@ function UserLoginFormContent() {
                             )}
                         </Button>
 
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-slate-200" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-slate-50 px-2 text-slate-500 font-bold tracking-wider">Or continue with</span>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-center w-full">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={() => toast.error('Google Sign-In failed')}
+                                useOneTap
+                                size="large"
+                                width="100%"
+                                shape="pill"
+                            />
+                        </div>
+
                         <div className="text-center text-xs font-bold text-slate-400 mt-6 pt-6 border-t border-slate-100">
                             Don't have an account?{' '}
                             <Link href="/register" className="text-[#003399] hover:underline">
@@ -181,6 +230,7 @@ function UserLoginFormContent() {
                 </Form>
             </motion.div>
         </div>
+        </GoogleOAuthProvider>
     );
 }
 
