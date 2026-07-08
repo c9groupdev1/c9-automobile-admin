@@ -153,7 +153,7 @@ export default function UserRegisterPage() {
         try {
             const response = await api.post('/users/social/google', {
                 provider: 'google',
-                idToken: credentialResponse.credential,
+                token: credentialResponse.credential,
             });
             const { user, token } = response.data;
             setAuth(user, token);
