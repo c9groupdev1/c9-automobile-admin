@@ -66,6 +66,17 @@ export const getPrimaryImage = (item: any): string => {
 
 export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any; router: any; handleFavoriteToggle: any }) => {
     const isFavorite = item.isFavorite || item.isFavorited;
+    
+    // Extract year from title if not explicitly provided
+    let displayYear = item.car?.year || item.year;
+    if (!displayYear && item.title) {
+        const yearMatch = item.title.match(/\b(19|20)\d{2}\b/);
+        if (yearMatch) displayYear = yearMatch[0];
+    }
+    displayYear = displayYear || 'N/A';
+
+    const location = item.pricingAndLocation?.location?.city || item.address || item.city;
+
     return (
         <motion.div
             layout
@@ -120,10 +131,12 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                         <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
                             {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
                         </span>
-                        <div className="flex items-center text-xs font-semibold text-slate-500">
-                            <MapPin size={12} className="text-slate-400 mr-1" />
-                            <span className="truncate max-w-[120px]">{item.pricingAndLocation?.location?.city || item.address || item.city || 'Lagos'}</span>
-                        </div>
+                        {location && (
+                            <div className="flex items-center text-xs font-semibold text-slate-500">
+                                <MapPin size={12} className="text-slate-400 mr-1" />
+                                <span className="truncate max-w-[120px]">{location}</span>
+                            </div>
+                        )}
                     </div>
                     <h3 className="text-base font-black text-slate-950 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2.5">
                         {item.title}
@@ -141,7 +154,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                     <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                         <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
                             <Calendar size={12} className="text-[#003399]" />
-                            {item.car?.year || item.year || '2020'}
+                            {displayYear}
                         </span>
                         {item.car?.transmission && (
                             <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
@@ -501,7 +514,7 @@ export default function Page() {
                 )}
 
                 {/* Recommendations Section */}
-                {isAuthenticated && recommendedResponse?.data?.data?.length > 0 && (
+                {recommendedResponse?.data?.data?.length > 0 && (
                     <div className="mb-4">
                         {isLoadingRecommended ? (
                             <div className="flex justify-center p-8">

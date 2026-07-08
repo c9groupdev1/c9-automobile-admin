@@ -146,10 +146,11 @@ export default function CarDetailPage() {
     const isFavorite = listing.isFavorite || listing.isFavorited;
     
     // Check ownership
-    const isOwner =
-        user?.id === listing.userId ||
-        user?.id === listing.vendorId ||
-        user?.email === listing.user?.email;
+    const isOwner = isAuthenticated && user && (
+        (user.id && user.id === listing.userId) ||
+        (user.id && user.id === listing.vendorId) ||
+        (user.email && user.email === listing.user?.email)
+    );
 
     // Condition label helper
     const conditionLabel = (val?: string | null) => {

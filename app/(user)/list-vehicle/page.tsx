@@ -12,6 +12,7 @@ import {
     useSubmitListingStep3 
 } from '@/hooks/useUserListings';
 import { useUserMarketplaceListing } from '@/hooks/useUserMarketplace';
+import { useAuthStore } from '@/store/authStore';
 import { SearchableDropdown } from '@/components/ui/searchable-dropdown';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -1171,6 +1172,43 @@ function ListVehicleFormContent() {
 }
 
 export default function ListVehiclePage() {
+    const { user, _hasHydrated } = useAuthStore();
+
+    if (_hasHydrated && user && (user.kycStatus === 'pending' || !user.kycStatus || user.kycStatus === 'rejected')) {
+        return (
+            <div className="min-h-screen bg-slate-50 gradient-bg pb-20 pt-28">
+                <div className="max-w-3xl mx-auto px-6">
+                    <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-xl text-center space-y-6 mt-10">
+                        <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
+                            <ShieldAlert size={40} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900 mb-2">KYC Verification Required</h2>
+                            <p className="text-slate-500 font-medium">
+                                You must complete your KYC verification to list vehicles on the marketplace. This ensures the safety and security of all our users.
+                            </p>
+                        </div>
+                        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                            <Button 
+                                onClick={() => window.location.href = '/account/kyc'}
+                                className="bg-[#003399] hover:bg-blue-800 text-white px-8 h-12 rounded-xl font-bold w-full sm:w-auto"
+                            >
+                                Complete KYC Now
+                            </Button>
+                            <Button 
+                                onClick={() => window.location.href = '/account'}
+                                variant="outline"
+                                className="px-8 h-12 rounded-xl font-bold w-full sm:w-auto border-slate-200 hover:bg-slate-50 text-slate-600"
+                            >
+                                Do KYC Later
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 gradient-bg pb-20 pt-28">
             <div className="max-w-4xl mx-auto px-6">
