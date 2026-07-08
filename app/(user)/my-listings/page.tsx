@@ -21,12 +21,15 @@ import {
     X,
     Pencil,
     Star,
-    PlusCircle
+    PlusCircle,
+    ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
 
 export default function MyListingsPage() {
     const router = useRouter();
+    const { user, _hasHydrated } = useAuthStore();
     const { data: listingsResponse, isLoading, isError, refetch } = useMyListings();
     const deleteMutation = useDeleteListing();
     const updateStatusMutation = useUpdateListingStatus();
@@ -49,6 +52,43 @@ const getStatusColor = (status: string) => {
     if (['available', 'successful', 'success', 'approved', 'active'].includes(s)) return 'bg-emerald-50 text-emerald-700';
     return 'bg-slate-50 text-slate-600';
 };
+
+    if (_hasHydrated && user && (user.kycStatus === 'pending' || !user.kycStatus || user.kycStatus === 'rejected')) {
+        return (
+            <div className="max-w-7xl mx-auto space-y-8">
+                <div>
+                    <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">My Listings</h1>
+                    <p className="text-slate-500 font-semibold text-sm mt-1">Manage your vehicle listings and promotions</p>
+                </div>
+                <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-xl text-center space-y-6 mt-10 max-w-3xl mx-auto">
+                    <div className="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
+                        <ShieldAlert size={40} />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-black text-slate-900 mb-2">KYC Verification Required</h2>
+                        <p className="text-slate-500 font-medium">
+                            You must complete your KYC verification to manage and create vehicle listings on the marketplace.
+                        </p>
+                    </div>
+                    <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <Button 
+                            onClick={() => router.push('/account/kyc')}
+                            className="bg-[#003399] hover:bg-blue-800 text-white px-8 h-12 rounded-xl font-bold w-full sm:w-auto"
+                        >
+                            Complete KYC Now
+                        </Button>
+                        <Button 
+                            onClick={() => router.push('/account')}
+                            variant="outline"
+                            className="px-8 h-12 rounded-xl font-bold w-full sm:w-auto border-slate-200 hover:bg-slate-50 text-slate-600"
+                        >
+                            Do KYC Later
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const listings = Array.isArray(listingsResponse?.data?.data) 
         ? listingsResponse.data.data 
