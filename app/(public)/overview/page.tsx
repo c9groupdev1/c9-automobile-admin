@@ -381,7 +381,7 @@ export default function LandingPage() {
                         <p className="text-base font-black text-[#003399] mb-3">{formatNaira(item.amount)}</p>
                       </div>
                       <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-3 border-t border-slate-100">
-                        <span className="flex items-center gap-1"><Calendar size={11} />{item.car?.year || item.year || '2020'}</span>
+                        {(item.car?.year || item.year) && <span className="flex items-center gap-1"><Calendar size={11} />{item.car?.year || item.year}</span>}
                         <span className="truncate max-w-[100px] flex items-center gap-1"><MapPin size={11} />{item.pricingAndLocation?.location?.city || item.city || 'Lagos'}</span>
                       </div>
                     </div>

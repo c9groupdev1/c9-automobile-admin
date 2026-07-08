@@ -38,7 +38,8 @@ export function usePromotions() {
 export function useSubscribeToPlan() {
     return useMutation({
         mutationFn: async (planId: number | string) => {
-            const response = await api.post('/user/subscribe', { plan_id: planId });
+            const callback_url = typeof window !== 'undefined' ? `${window.location.origin}/account/verify` : undefined;
+            const response = await api.post('/user/subscribe', { plan_id: planId, callback_url });
             return response.data;
         },
         onSuccess: (data) => {
@@ -84,7 +85,8 @@ export function usePurchaseBadge() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async () => {
-            const response = await api.post('/user/purchase-badge');
+            const callback_url = typeof window !== 'undefined' ? `${window.location.origin}/account/verify` : undefined;
+            const response = await api.post('/user/purchase-badge', { callback_url });
             return response.data;
         },
         onSuccess: (data) => {
@@ -107,7 +109,8 @@ export function usePurchaseBadge() {
 export function usePromoteListing() {
     return useMutation({
         mutationFn: async ({ listingId, promotionId }: { listingId: string; promotionId: string }) => {
-            const response = await api.post(`/user/listings/${listingId}/promote`, { promotion_id: promotionId });
+            const callback_url = typeof window !== 'undefined' ? `${window.location.origin}/account/verify` : undefined;
+            const response = await api.post(`/user/listings/${listingId}/promote`, { promotion_id: promotionId, callback_url });
             return response.data;
         },
         onSuccess: (data) => {
