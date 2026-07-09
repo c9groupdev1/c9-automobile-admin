@@ -53,8 +53,9 @@ export function useUserMarketplaceListing(slugOrId: string) {
         queryKey: ['marketplace-listing', slugOrId],
         queryFn: async () => {
             if (!slugOrId) return null;
-            // The backend expects the slug
-            const response = await api.get(`/listings/slug/${slugOrId}`);
+            const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(slugOrId);
+            const endpoint = isUUID ? `/listings/${slugOrId}` : `/listings/slug/${slugOrId}`;
+            const response = await api.get(endpoint);
             return response.data.data;
         },
         enabled: !!slugOrId,

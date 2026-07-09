@@ -1,17 +1,23 @@
 import type { Metadata, ResolvingMetadata } from "next";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ id: string }>;
   children: React.ReactNode;
 };
 
+function isUUID(str: string) {
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  return uuidRegex.test(str);
+}
+
 async function getListingMetadata(id: string) {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    // Remove the '/api/app' since we must hit the real backend from the server SSR
-    // The backend URL format should be standard. 
-    // Assuming the backend has a public endpoint to get listing by id/slug
-    const res = await fetch(`${backendUrl}/listings/${id}`, { next: { revalidate: 3600 } });
+    const isIdUuid = isUUID(id);
+    const endpoint = isIdUuid ? `${backendUrl}/listings/${id}` : `${backendUrl}/listings/slug/${id}`;
+    
+    const res = await fetch(endpoint, { next: { revalidate: 3600 } });
     
     if (!res.ok) return null;
     const data = await res.json();
@@ -69,7 +75,12 @@ export default async function ListingLayout(
   const params = await props.params;
   const { children } = props;
   const listingData = await getListingMetadata(params.id);
-  const listing = listingData?.data;
+  
+  if (!listingData || !listingData.data) {
+    notFound();
+  }
+  
+  const listing = listingData.data;
 
   // JSON-LD for AI & Search Engines
   const jsonLd = listing ? {
