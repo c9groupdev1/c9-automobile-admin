@@ -42,9 +42,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return staticPages;
   }
 
+  const cleanBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+
   try {
     // Fetch listings to populate sitemap dynamically
-    const res = await fetch(`${backendUrl}/listings?perPage=100`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${cleanBackendUrl}/listings?perPage=100`, { next: { revalidate: 3600 } });
     if (!res.ok) return staticPages;
 
     const responseData = await res.json();

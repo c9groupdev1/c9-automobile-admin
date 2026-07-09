@@ -665,6 +665,18 @@ export default function Page() {
                                         </a>
                                     )}
                                 </div>
+                                
+                                <div className="pt-2">
+                                    <button
+                                        onClick={() => {
+                                            setShowAppPopup(false);
+                                            sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                                        }}
+                                        className="w-full py-3 text-slate-400 hover:text-white text-sm font-bold transition-colors uppercase tracking-wider"
+                                    >
+                                        Continue to Mobile Web
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
