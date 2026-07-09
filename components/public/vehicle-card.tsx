@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Gauge, Fuel, ArrowUpRight, Heart, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export const formatNaira = (amount: number | string) => {
     if (!amount) return '₦0';
@@ -40,11 +41,16 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any,
             className="group relative bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
         >
             <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden cursor-pointer" onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}>
-                <img 
+                <Image 
                     src={getPrimaryImage(item)}
                     alt={item.title || 'Vehicle'} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    onError={(e) => { e.currentTarget.src = '/c9x-logo.png'; }}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 350px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    onError={(e) => { 
+                        (e.currentTarget as HTMLImageElement).srcset = '';
+                        (e.currentTarget as HTMLImageElement).src = '/c9x-logo.png'; 
+                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
