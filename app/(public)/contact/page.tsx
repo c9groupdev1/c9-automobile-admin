@@ -84,7 +84,7 @@ export default function ContactPage() {
               <h3 className="text-xl font-bold mb-6">Contact Info</h3>
               <div className="space-y-6">
                 {[
-                  { icon: Mail, label: 'Email Us', value: 'support@c9x.com' },
+                  { icon: Mail, label: 'Email Us', value: 'support@thec9group.com' },
                   { icon: Phone, label: 'Call Us', value: '+234 800 C9X AUTO' },
                   { icon: MapPin, label: 'Headquarters', value: 'Abuja, Nigeria' },
                 ].map((item, i) => (
@@ -158,7 +158,7 @@ export default function ContactPage() {
                 ></textarea>
                 {errors.message && <p className="text-xs font-bold text-rose-600 ml-1">{errors.message.message}</p>}
               </div>
-              
+
               <div className="md:col-span-2 space-y-2">
                 <label className="text-sm font-bold text-slate-500 uppercase tracking-widest ml-1">Attachment (Max 500KB)</label>
                 <div className="flex items-center gap-4">
