@@ -37,6 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  if (!backendUrl) {
+    console.warn('NEXT_PUBLIC_API_URL is not set. Sitemap will only contain static pages.');
+    return staticPages;
+  }
+
   try {
     // Fetch listings to populate sitemap dynamically
     const res = await fetch(`${backendUrl}/listings?perPage=100`, { next: { revalidate: 3600 } });
