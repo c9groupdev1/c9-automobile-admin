@@ -796,13 +796,20 @@ function MarketplaceContent() {
 
       <AnimatePresence>
         {showAppPopup && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm">
+          <div 
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm"
+            onClick={() => {
+              setShowAppPopup(false);
+              sessionStorage.setItem('c9x_app_popup_seen', 'true');
+            }}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', duration: 0.5 }}
               className="relative w-full max-w-lg overflow-hidden bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Dynamic light glows */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
@@ -814,7 +821,7 @@ function MarketplaceContent() {
                   setShowAppPopup(false);
                   sessionStorage.setItem('c9x_app_popup_seen', 'true');
                 }}
-                className="absolute right-4 top-4 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                className="absolute right-4 top-4 z-50 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
               >
                 <X size={20} />
               </button>
