@@ -416,15 +416,18 @@ export default function Page() {
                 <div className="relative pt-20 pb-28 px-6 md:px-16 mb-12">
                     {/* Background Container (with rounded corners and hidden overflow) */}
                     <div className="absolute inset-0 rounded-2xl md:rounded-[2rem] bg-slate-900 overflow-hidden shadow-md z-0">
-                        {/* Background Image */}
-                        <div
-                            className="absolute inset-0 z-0 opacity-40 mix-blend-overlay"
-                            style={{
-                                backgroundImage: "url('https://images.unsplash.com/photo-1503376712391-496dc4db5b3e?auto=format&fit=crop&q=80&w=2000')",
-                                backgroundPosition: "center",
-                                backgroundSize: "cover"
-                            }}
-                        />
+                        {/* Background Image Optimized for LCP */}
+                        <div className="absolute inset-0 z-0 opacity-40 mix-blend-overlay">
+                            <Image 
+                                src="https://images.unsplash.com/photo-1503376712391-496dc4db5b3e?auto=format&fit=crop&q=80&w=2000"
+                                alt="C9X Marketplace Hero"
+                                fill
+                                priority
+                                fetchPriority="high"
+                                className="object-cover object-center"
+                                sizes="100vw"
+                            />
+                        </div>
                         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-transparent z-0" />
                     </div>
 
