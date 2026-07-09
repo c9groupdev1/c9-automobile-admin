@@ -13,9 +13,12 @@ function isUUID(str: string) {
 
 async function getListingMetadata(id: string) {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const backendUrl = process.env.API_SECRET_URL || process.env.NEXT_PUBLIC_API_URL;
+    if (!backendUrl) return null;
+    const cleanBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+    
     const isIdUuid = isUUID(id);
-    const endpoint = isIdUuid ? `${backendUrl}/listings/${id}` : `${backendUrl}/listings/slug/${id}`;
+    const endpoint = isIdUuid ? `${cleanBackendUrl}/listings/${id}` : `${cleanBackendUrl}/listings/slug/${id}`;
     
     const res = await fetch(endpoint, { next: { revalidate: 3600 } });
     
