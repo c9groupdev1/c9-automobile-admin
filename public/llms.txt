@@ -12,11 +12,11 @@ This is the official C9X marketplace frontend. Users can browse available cars, 
 - **Mobile Experience**: C9X is best experienced on our official iOS and Android apps.
 
 ## Key URLs
-- Homepage: `https://c9x.thec9group.com/`
-- Marketplace: `https://c9x.thec9group.com/marketplace`
-- Sell a Car: `https://c9x.thec9group.com/list-vehicle`
-- About Us: `https://c9x.thec9group.com/about`
-- Contact: `https://c9x.thec9group.com/contact`
+- [Homepage](https://c9x.thec9group.com/)
+- [Marketplace](https://c9x.thec9group.com/marketplace)
+- [Sell a Car](https://c9x.thec9group.com/list-vehicle)
+- [About Us](https://c9x.thec9group.com/about)
+- [Contact](https://c9x.thec9group.com/contact)
 
 ## Technical Details
 This site is built with Next.js using Server-Side Rendering (SSR) for optimal SEO and performance. It relies on a BFF (Backend-for-Frontend) architecture to communicate securely with the C9X Laravel API.

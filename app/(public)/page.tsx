@@ -472,6 +472,7 @@ export default function Page() {
                             <div className="space-y-1.5 text-left">
                                 <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide ml-1">Condition</label>
                                 <select
+                                    aria-label="Vehicle condition"
                                     value={selectedCondition}
                                     onChange={(e) => { setSelectedCondition(e.target.value); setPage(1); }}
                                     className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-semibold text-slate-700 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-[#003399]/20 focus:border-[#003399] transition-colors"
