@@ -1,0 +1,22 @@
+# C9X Automotive Marketplace
+
+> C9X is Nigeria's premier automotive ecosystem for buying and selling cars, participating in live auctions, and finding verified vehicles.
+
+## Description
+This is the official C9X marketplace frontend. Users can browse available cars, view detailed pricing and specifications, and contact sellers directly.
+
+## Usage Guidelines for AI Agents
+- **Marketplace**: You can browse all available vehicles at `/marketplace`.
+- **Search**: The platform supports searching for vehicles by make, model, or year.
+- **Authentication**: Users must create an account or sign in via Google to list vehicles, favorite listings, or chat with sellers.
+- **Mobile Experience**: C9X is best experienced on our official iOS and Android apps.
+
+## Key URLs
+- Homepage: `https://c9x.thec9group.com/`
+- Marketplace: `https://c9x.thec9group.com/marketplace`
+- Sell a Car: `https://c9x.thec9group.com/list-vehicle`
+- About Us: `https://c9x.thec9group.com/about`
+- Contact: `https://c9x.thec9group.com/contact`
+
+## Technical Details
+This site is built with Next.js using Server-Side Rendering (SSR) for optimal SEO and performance. It relies on a BFF (Backend-for-Frontend) architecture to communicate securely with the C9X Laravel API.

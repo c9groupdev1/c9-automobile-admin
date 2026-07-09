@@ -57,6 +57,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any,
                 <button 
                     onClick={onFavoriteClick}
                     className="absolute top-3 right-3 p-2.5 rounded-full bg-white/90 backdrop-blur shadow-sm hover:scale-110 active:scale-95 transition-all text-slate-400 hover:text-rose-500 z-10"
+                    aria-label="Toggle favorite"
                 >
                     <Heart size={16} className={isFav ? "fill-rose-500 text-rose-500" : ""} />
                 </button>
@@ -75,7 +76,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any,
             <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
                 <div>
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                             {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
                         </span>
                         <div className="flex items-center text-xs font-semibold text-slate-500">
@@ -90,7 +91,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any,
                         <p className="text-xl font-black text-[#003399] tracking-tight truncate max-w-[65%]">
                             {formatNaira(item.amount)}
                         </p>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 whitespace-nowrap">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200 whitespace-nowrap">
                             Direct Deal
                         </span>
                     </div>
