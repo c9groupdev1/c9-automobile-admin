@@ -79,6 +79,7 @@ export function PublicNavbar() {
                             <div className={isAuthenticated ? "hidden lg:flex items-center space-x-6 mr-6" : "flex items-center space-x-12 mr-8"}>
                                 {!isAuthenticated ? (
                                     <>
+                                        <Link href="/marketplace" className={`text-sm font-bold transition-colors ${textClass}`}>Marketplace</Link>
                                         <Link href="/about" className={`text-sm font-bold transition-colors ${textClass}`}>About Us</Link>
                                         <Link href="/contact" className={`text-sm font-bold transition-colors ${textClass}`}>Contact Us</Link>
                                         <Link href="/faq" className={`text-sm font-bold transition-colors ${textClass}`}>FAQ</Link>
@@ -189,6 +190,7 @@ export function PublicNavbar() {
                         <div className="flex flex-col space-y-8">
                             {!isAuthenticated ? (
                                 <>
+                                    <Link href="/marketplace" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">Marketplace</Link>
                                     <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">About Us</Link>
                                     <Link href="/contact" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">Contact Us</Link>
                                     <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-slate-900">FAQ</Link>
