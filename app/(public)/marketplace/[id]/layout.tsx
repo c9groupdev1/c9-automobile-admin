@@ -41,8 +41,13 @@ export async function generateMetadata(
   }
 
   const listing = listingData.data;
-  const title = `${listing.title || 'Vehicle'} - ₦${Number(listing.amount).toLocaleString()} | C9X`;
-  const description = listing.description?.substring(0, 160) || `Buy this ${listing.title} on C9X Marketplace today.`;
+  const conditionStr = listing.condition ? `${listing.condition} ` : '';
+  const city = listing.pricingAndLocation?.location?.city || listing.city;
+  const locationStr = city ? ` in ${city}` : '';
+  const formattedPrice = Number(listing.amount) > 0 ? ` - ₦${Number(listing.amount).toLocaleString()}` : '';
+  
+  const title = `Buy ${conditionStr}${listing.title || 'Vehicle'}${locationStr}${formattedPrice} | C9X`;
+  const description = `Find specifications, photos, and contact info for this ${conditionStr}${listing.title || 'Vehicle'} for sale${locationStr}. Click to view details on C9X, Nigeria's premier auto portal.`;
   
   const images = [];
   if (listing.car?.images && listing.car.images.length > 0) {
