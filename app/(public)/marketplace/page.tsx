@@ -11,14 +11,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { 
-    Search, 
-    Heart, 
-    MapPin, 
-    Calendar, 
-    SlidersHorizontal, 
-    Sparkles, 
-    ChevronLeft, 
+import {
+    Search,
+    Heart,
+    MapPin,
+    Calendar,
+    SlidersHorizontal,
+    Sparkles,
+    ChevronLeft,
     ChevronRight,
     Loader2,
     Car,
@@ -37,12 +37,12 @@ import { toast } from 'sonner';
 
 export function formatNaira(amount: number | string) {
     if (amount === null || amount === undefined) return '₦0';
-    
+
     // Strip commas if amount is a string to check parsed value
     const parsedAmount = typeof amount === 'string' ? parseFloat(amount.replace(/,/g, '')) : amount;
-    
+
     if (isNaN(parsedAmount)) return '₦0';
-    
+
     return new Intl.NumberFormat('en-NG', {
         style: 'currency',
         currency: 'NGN',
@@ -83,9 +83,9 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                 className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
                 aria-label="Toggle favorite"
             >
-                <Heart 
-                    size={18} 
-                    className={isFavorite ? 'fill-rose-500 text-rose-500' : 'transition-colors'} 
+                <Heart
+                    size={18}
+                    className={isFavorite ? 'fill-rose-500 text-rose-500' : 'transition-colors'}
                 />
             </button>
             <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
@@ -101,13 +101,12 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                     }}
                 />
                 {item.condition && (
-                    <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${
-                        item.condition.toLowerCase().includes('brand') 
+                    <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${item.condition.toLowerCase().includes('brand')
                             ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
                             : item.condition.toLowerCase().includes('foreign')
                                 ? 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
                                 : 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/10'
-                    }`}>
+                        }`}>
                         {item.condition}
                     </span>
                 )}
@@ -190,10 +189,10 @@ export const CategoryRow = ({ title, icon, items, router, handleFavoriteToggle }
             <div className="flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory gap-6 pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {items.slice(0, 10).map((item: any) => (
                     <div key={item.id} className="flex-none w-[85vw] sm:w-[320px] lg:w-[300px] xl:w-[320px] snap-start h-full">
-                        <VehicleCard 
-                            item={item} 
-                            router={router} 
-                            handleFavoriteToggle={handleFavoriteToggle} 
+                        <VehicleCard
+                            item={item}
+                            router={router}
+                            handleFavoriteToggle={handleFavoriteToggle}
                         />
                     </div>
                 ))}
@@ -206,7 +205,7 @@ function MarketplaceContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { isAuthenticated, user } = useAuthStore();
-    
+
     // Query Parameters State
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState(searchParams.get('search') || '');
@@ -220,7 +219,7 @@ function MarketplaceContent() {
     const [maxPrice, setMaxPrice] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<string>('desc');
     const [hideKycBanner, setHideKycBanner] = useState(false);
-    
+
     // Drawer/Filters visibility on mobile
     const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
@@ -259,7 +258,7 @@ function MarketplaceContent() {
         makesData?.find((m: any) => m.name === selectedMake)?.id
     );
     const { states, fuelTypes, transmissions } = useVehicleMetadata();
-    
+
     // Listing query params mapping
     const queryParams = {
         perPage: 12,
@@ -275,12 +274,12 @@ function MarketplaceContent() {
         sortOrder: sortOrder || undefined,
     };
 
-    const { 
-        data: listingsResponse, 
-        isLoading, 
-        fetchNextPage, 
-        hasNextPage, 
-        isFetchingNextPage 
+    const {
+        data: listingsResponse,
+        isLoading,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
     } = useInfiniteUserMarketplaceListings(queryParams);
 
     const loadMoreRef = React.useRef<HTMLDivElement>(null);
@@ -303,8 +302,8 @@ function MarketplaceContent() {
     const toggleFavoriteMutation = useToggleFavorite();
 
     const hasActiveFilters = Boolean(
-        search || selectedMake || selectedModel || selectedCondition || 
-        selectedTransmission || selectedFuelType || selectedStateId || 
+        search || selectedMake || selectedModel || selectedCondition ||
+        selectedTransmission || selectedFuelType || selectedStateId ||
         minPrice || maxPrice || sortOrder !== 'desc' || page > 1
     );
 
@@ -313,7 +312,7 @@ function MarketplaceContent() {
     const mostViewedCars = homeExploration?.mostViewedVehicles || [];
     const recentlyAddedCars = homeExploration?.recentlyAdded || [];
 
-    const listings = listingsResponse?.pages.flatMap((page: any) => 
+    const listings = listingsResponse?.pages.flatMap((page: any) =>
         page?.data?.data || page?.data || []
     ) || [];
     const meta = listingsResponse?.pages[0]?.data?.meta || listingsResponse?.pages[0]?.meta || { last_page: 1, current_page: 1, total: 0 };
@@ -358,13 +357,13 @@ function MarketplaceContent() {
     return (
         <div className="min-h-screen bg-slate-50/50 gradient-bg pb-24 pt-28">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
-                
+
                 {/* Marketplace Header */}
                 <h1 className="text-3xl font-extrabold text-slate-900 mb-8 mt-4 px-2">Marketplace</h1>
-                
+
                 {/* KYC Prompt Banner for Unverified Users */}
                 {isAuthenticated && user && (user.kycStatus === 'pending' || !user.kycStatus || user.kycStatus === 'rejected') && !hideKycBanner && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden"
@@ -384,8 +383,8 @@ function MarketplaceContent() {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 relative z-10">
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 className="border-amber-200 text-amber-700 hover:bg-amber-100 hover:text-amber-800 bg-transparent font-bold whitespace-nowrap"
                                 onClick={() => {
                                     sessionStorage.setItem('c9x_hide_kyc_banner', 'true');
@@ -405,7 +404,7 @@ function MarketplaceContent() {
 
                 {/* Main Content Layout Grid */}
                 <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
-                    
+
                     {/* Desktop Filters Panel (Glassmorphic) */}
                     <aside className="hidden lg:block bg-white/70 backdrop-blur-xl rounded-[2rem] p-6 border border-white/60 shadow-[0_10px_35px_rgba(0,0,0,0.02)] space-y-6 sticky top-28 self-start max-h-[calc(100vh-120px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -413,7 +412,7 @@ function MarketplaceContent() {
                                 <SlidersHorizontal size={14} className="text-[#003399]" />
                                 Filter Cars
                             </h3>
-                            <button 
+                            <button
                                 onClick={handleResetFilters}
                                 className="text-[10px] font-black uppercase tracking-wider text-[#003399] hover:underline"
                             >
@@ -545,14 +544,14 @@ function MarketplaceContent() {
 
                     {/* Listings Catalog Grid */}
                     <div className="space-y-10">
-                        
+
                         {/* Upper sorting actions toolbar */}
                         <div className="flex items-center justify-between gap-4 bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/50 shadow-[0_5px_15px_rgba(0,0,0,0.01)]">
                             <div className="text-slate-500 text-xs font-bold pl-2">
-                                Showing <span className="text-slate-800 font-extrabold">{listings.length}</span> vehicles
+                                {/* Showing <span className="text-slate-800 font-extrabold">{listings.length}</span> vehicles */}
                             </div>
                             <div className="flex items-center gap-3">
-                                <select 
+                                <select
                                     value={sortOrder}
                                     onChange={(e) => setSortOrder(e.target.value)}
                                     className="h-11 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-[#003399] transition-all shadow-sm cursor-pointer"
@@ -601,11 +600,11 @@ function MarketplaceContent() {
                             <>
                                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                                     {listings.map((item: any) => (
-                                        <VehicleCard 
-                                            key={item.id} 
-                                            item={item} 
-                                            router={router} 
-                                            handleFavoriteToggle={handleFavoriteToggle} 
+                                        <VehicleCard
+                                            key={item.id}
+                                            item={item}
+                                            router={router}
+                                            handleFavoriteToggle={handleFavoriteToggle}
                                         />
                                     ))}
                                 </div>
@@ -625,7 +624,7 @@ function MarketplaceContent() {
             {/* Mobile Filters Drawer Modal (Glassmorphic) */}
             <AnimatePresence>
                 {showFiltersMobile && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -644,7 +643,7 @@ function MarketplaceContent() {
                                         <SlidersHorizontal size={16} className="text-[#003399]" />
                                         Filters
                                     </h3>
-                                    <button 
+                                    <button
                                         onClick={() => setShowFiltersMobile(false)}
                                         className="p-1.5 text-slate-400 hover:text-slate-650 rounded-full hover:bg-slate-50 transition-colors"
                                     >
@@ -795,109 +794,109 @@ function MarketplaceContent() {
             </AnimatePresence>
 
 
-      <AnimatePresence>
-        {showAppPopup && (
-          <div 
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm"
-            onClick={() => {
-              setShowAppPopup(false);
-              sessionStorage.setItem('c9x_app_popup_seen', 'true');
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', duration: 0.5 }}
-              className="relative w-full max-w-lg overflow-hidden bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Dynamic light glows */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none" />
-
-              {/* Close Button */}
-              <button
-                onClick={() => {
-                  setShowAppPopup(false);
-                  sessionStorage.setItem('c9x_app_popup_seen', 'true');
-                }}
-                className="absolute right-4 top-4 z-50 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="relative z-10 space-y-6">
-                {/* Header Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-xs font-black uppercase tracking-wider">
-                  <Star size={12} className="fill-blue-400" />
-                  <span>C9X Mobile Experience</span>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight">
-                    Get a Better <br />
-                    Experience on Mobile
-                  </h3>
-                  <p className="text-slate-400 font-semibold text-sm leading-relaxed">
-                    Unlock instant push notifications, real-time trackers, and direct chat rooms with vetted sellers.
-                  </p>
-                </div>
-
-                {/* Mobile Mockup representation inside details */}
-                <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
-                    <Smartphone size={24} />
-                  </div>
-                  <div>
-                    <h5 className="text-sm font-bold">Official App Store Verified</h5>
-                    <p className="text-xs text-slate-500 font-medium">Safe & secure download under 30MB</p>
-                  </div>
-                </div>
-
-                {/* Download Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  {(deviceOS === 'ios' || deviceOS === 'desktop') && (
-                    <a
-                      href="https://apps.apple.com/ng/app/c9x/id6762285536"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setShowAppPopup(false);
-                        sessionStorage.setItem('c9x_app_popup_seen', 'true');
-                      }}
-                      className="flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-950 px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg font-black text-sm w-full"
+            <AnimatePresence>
+                {showAppPopup && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm"
+                        onClick={() => {
+                            setShowAppPopup(false);
+                            sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                        }}
                     >
-                      <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
-                      </svg>
-                      <span>iOS App Store</span>
-                    </a>
-                  )}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            transition={{ type: 'spring', duration: 0.5 }}
+                            className="relative w-full max-w-lg overflow-hidden bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Dynamic light glows */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none" />
 
-                  {(deviceOS === 'android' || deviceOS === 'desktop') && (
-                    <a
-                      href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        setShowAppPopup(false);
-                        sessionStorage.setItem('c9x_app_popup_seen', 'true');
-                      }}
-                      className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/15 text-white px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 border border-white/10 font-black text-sm w-full"
-                    >
-                      <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
-                        <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
-                      </svg>
-                      <span>Google Play Store</span>
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                            {/* Close Button */}
+                            <button
+                                onClick={() => {
+                                    setShowAppPopup(false);
+                                    sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                                }}
+                                className="absolute right-4 top-4 z-50 p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                            >
+                                <X size={20} />
+                            </button>
+
+                            <div className="relative z-10 space-y-6">
+                                {/* Header Badge */}
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-400 text-xs font-black uppercase tracking-wider">
+                                    <Star size={12} className="fill-blue-400" />
+                                    <span>C9X Mobile Experience</span>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h3 className="text-2xl sm:text-3xl font-black tracking-tight uppercase leading-tight">
+                                        Get a Better <br />
+                                        Experience on Mobile
+                                    </h3>
+                                    <p className="text-slate-400 font-semibold text-sm leading-relaxed">
+                                        Unlock instant push notifications, real-time trackers, and direct chat rooms with vetted sellers.
+                                    </p>
+                                </div>
+
+                                {/* Mobile Mockup representation inside details */}
+                                <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
+                                    <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
+                                        <Smartphone size={24} />
+                                    </div>
+                                    <div>
+                                        <h5 className="text-sm font-bold">Official App Store Verified</h5>
+                                        <p className="text-xs text-slate-500 font-medium">Safe & secure download under 30MB</p>
+                                    </div>
+                                </div>
+
+                                {/* Download Actions */}
+                                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                                    {(deviceOS === 'ios' || deviceOS === 'desktop') && (
+                                        <a
+                                            href="https://apps.apple.com/ng/app/c9x/id6762285536"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={() => {
+                                                setShowAppPopup(false);
+                                                sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                                            }}
+                                            className="flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-950 px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg font-black text-sm w-full"
+                                        >
+                                            <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.21.67-2.93 1.49-.62.69-1.16 1.84-1.01 2.96 1.12.09 2.27-.58 2.95-1.39z" />
+                                            </svg>
+                                            <span>iOS App Store</span>
+                                        </a>
+                                    )}
+
+                                    {(deviceOS === 'android' || deviceOS === 'desktop') && (
+                                        <a
+                                            href="https://play.google.com/store/apps/details?id=com.c9x.automobile&pli=1"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={() => {
+                                                setShowAppPopup(false);
+                                                sessionStorage.setItem('c9x_app_popup_seen', 'true');
+                                            }}
+                                            className="flex items-center justify-center gap-3 bg-white/10 hover:bg-white/15 text-white px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:translate-y-0 border border-white/10 font-black text-sm w-full"
+                                        >
+                                            <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                                                <path d="M5.25 3.375c-.247 0-.495.068-.712.203l11.437 11.438 2.625-1.5c.712-.412 1.15-1.125 1.15-1.938s-.438-1.525-1.15-1.938L6.47 3.633c-.368-.21-.8-.328-1.22-.328zm-1.5 1.125C3.275 4.8 3 5.4 3 6.1v11.8c0 .7.275 1.3.75 1.6l8.25-8.25-8.25-8.25zm9.5 9.5l-2.25-2.25-8.25 8.25c.212.075.45.125.7.125.287 0 .563-.075.812-.212l8.988-5.138z" />
+                                            </svg>
+                                            <span>Google Play Store</span>
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
