@@ -170,7 +170,7 @@ export function PublicNavbar() {
                                     </Button>
                                 </Link>
                             )}
-                            <button className={toggleColorClass} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            <button className={toggleColorClass} onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
                                 {isMenuOpen ? <X size={26} /> : <Menu size={26} />}
                             </button>
                         </div>

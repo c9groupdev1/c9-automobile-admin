@@ -81,6 +81,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                 type="button"
                 onClick={(e) => handleFavoriteToggle(e, item.id)}
                 className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
+                aria-label="Toggle favorite"
             >
                 <Heart 
                     size={18} 
@@ -118,7 +119,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
             <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
                 <div>
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                             {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
                         </span>
                         <div className="flex items-center text-xs font-semibold text-slate-500">
@@ -133,7 +134,7 @@ export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any;
                         <p className="text-xl font-black text-[#003399] tracking-tight truncate max-w-[65%]">
                             {formatNaira(item.amount)}
                         </p>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 whitespace-nowrap">
+                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200 whitespace-nowrap">
                             Direct Deal
                         </span>
                     </div>
