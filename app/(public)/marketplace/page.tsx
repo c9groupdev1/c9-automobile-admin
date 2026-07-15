@@ -68,106 +68,107 @@ export const getPrimaryImage = (item: any): string => {
 export const VehicleCard = ({ item, router, handleFavoriteToggle }: { item: any; router: any; handleFavoriteToggle: any }) => {
     const isFavorite = item.isFavorite || item.isFavorited;
     return (
-        <motion.div
-            layout
-            key={item.id}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -8 }}
-            className="group cursor-pointer bg-white/90 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.01)] hover:shadow-[0_25px_50px_rgba(0,51,153,0.08)] transition-all duration-300 overflow-hidden relative flex flex-col h-full"
-            onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
-        >
-            <button
-                type="button"
-                onClick={(e) => handleFavoriteToggle(e, item.id)}
-                className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
-                aria-label="Toggle favorite"
+        <Link href={`/marketplace/${item.slug || item.id}`} className="block h-full">
+            <motion.div
+                layout
+                key={item.id}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -8 }}
+                className="group cursor-pointer bg-white/90 backdrop-blur-sm rounded-[2rem] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.01)] hover:shadow-[0_25px_50px_rgba(0,51,153,0.08)] transition-all duration-300 overflow-hidden relative flex flex-col h-full"
             >
-                <Heart
-                    size={18}
-                    className={isFavorite ? 'fill-rose-500 text-rose-500' : 'transition-colors'}
-                />
-            </button>
-            <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
-                <Image
-                    src={getPrimaryImage(item) || '/c9x-logo.png'}
-                    alt={item.title || 'Vehicle'}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 350px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).srcset = '';
-                        (e.currentTarget as HTMLImageElement).src = '/c9x-logo.png';
-                    }}
-                />
-                {item.condition && (
-                    <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${item.condition.toLowerCase().includes('brand')
-                            ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
-                            : item.condition.toLowerCase().includes('foreign')
-                                ? 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
-                                : 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/10'
-                        }`}>
-                        {item.condition}
-                    </span>
-                )}
-                <div className="absolute right-4 bottom-4 flex items-center gap-1 bg-slate-900/60 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-md text-white text-[9px] font-bold">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Inspected</span>
-                </div>
-            </div>
-            <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
-                <div>
-                    <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-                            {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
+                <button
+                    type="button"
+                    onClick={(e) => handleFavoriteToggle(e, item.id)}
+                    className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-150/40 shadow-sm text-slate-600 hover:text-rose-500 hover:scale-110 active:scale-95 transition-all"
+                    aria-label="Toggle favorite"
+                >
+                    <Heart
+                        size={18}
+                        className={isFavorite ? 'fill-rose-500 text-rose-500' : 'transition-colors'}
+                    />
+                </button>
+                <div className="h-52 overflow-hidden bg-slate-100 relative z-0">
+                    <Image
+                        src={getPrimaryImage(item) || '/c9x-logo.png'}
+                        alt={item.title || 'Vehicle'}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 350px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).srcset = '';
+                            (e.currentTarget as HTMLImageElement).src = '/c9x-logo.png';
+                        }}
+                    />
+                    {item.condition && (
+                        <span className={`absolute left-4 bottom-4 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-sm backdrop-blur-md text-white border-0 ${item.condition.toLowerCase().includes('brand')
+                                ? 'bg-gradient-to-r from-amber-500 to-yellow-600 shadow-amber-500/10'
+                                : item.condition.toLowerCase().includes('foreign')
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-700 shadow-blue-500/10'
+                                    : 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/10'
+                            }`}>
+                            {item.condition}
                         </span>
-                        <div className="flex items-center text-xs font-semibold text-slate-500">
-                            <MapPin size={12} className="text-slate-400 mr-1" />
-                            <span className="truncate max-w-[120px]">{item.pricingAndLocation?.location?.city || item.address || item.city || 'Lagos'}</span>
+                    )}
+                    <div className="absolute right-4 bottom-4 flex items-center gap-1 bg-slate-900/60 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-md text-white text-[9px] font-bold">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Inspected</span>
+                    </div>
+                </div>
+                <CardContent className="p-6 flex-1 flex flex-col justify-between bg-gradient-to-b from-transparent to-slate-50/20">
+                    <div>
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <span className="text-[9px] font-black uppercase tracking-wider text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                                {item.pricingAndLocation?.sellerContact?.businessName || 'Private Seller'}
+                            </span>
+                            <div className="flex items-center text-xs font-semibold text-slate-500">
+                                <MapPin size={12} className="text-slate-400 mr-1" />
+                                <span className="truncate max-w-[120px]">{item.pricingAndLocation?.location?.city || item.address || item.city || 'Lagos'}</span>
+                            </div>
+                        </div>
+                        <h3 className="text-base font-black text-slate-950 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2.5">
+                            {item.title}
+                        </h3>
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 mb-4">
+                            <p className="text-xl font-black text-[#003399] tracking-tight truncate max-w-[65%]">
+                                {formatNaira(item.amount)}
+                            </p>
+                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200 whitespace-nowrap">
+                                Direct Deal
+                            </span>
                         </div>
                     </div>
-                    <h3 className="text-base font-black text-slate-950 line-clamp-1 group-hover:text-[#003399] transition-colors mb-2.5">
-                        {item.title}
-                    </h3>
-                    <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 mb-4">
-                        <p className="text-xl font-black text-[#003399] tracking-tight truncate max-w-[65%]">
-                            {formatNaira(item.amount)}
-                        </p>
-                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200 whitespace-nowrap">
-                            Direct Deal
-                        </span>
-                    </div>
-                </div>
-                <div className="space-y-3 pt-4 border-t border-slate-100/80">
-                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                        {(item.car?.year || item.year) && (
-                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                                <Calendar size={12} className="text-[#003399]" />
-                                {item.car?.year || item.year}
+                    <div className="space-y-3 pt-4 border-t border-slate-100/80">
+                        <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            {(item.car?.year || item.year) && (
+                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                    <Calendar size={12} className="text-[#003399]" />
+                                    {item.car?.year || item.year}
+                                </span>
+                            )}
+                            {item.car?.transmission && (
+                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                    <Gauge size={12} className="text-[#003399]" />
+                                    {item.car?.transmission}
+                                </span>
+                            )}
+                            {item.car?.fuelType && (
+                                <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                                    <Fuel size={12} className="text-[#003399]" />
+                                    {item.car?.fuelType}
+                                </span>
+                            )}
+                        </div>
+                        <div className="pt-2 flex items-center justify-end text-xs font-black text-[#003399] transition-colors duration-300 group-hover:text-blue-700">
+                            <span className="flex items-center gap-1">
+                                View Listing
+                                <ArrowUpRight size={14} />
                             </span>
-                        )}
-                        {item.car?.transmission && (
-                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                                <Gauge size={12} className="text-[#003399]" />
-                                {item.car?.transmission}
-                            </span>
-                        )}
-                        {item.car?.fuelType && (
-                            <span className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-                                <Fuel size={12} className="text-[#003399]" />
-                                {item.car?.fuelType}
-                            </span>
-                        )}
+                        </div>
                     </div>
-                    <div className="pt-2 flex items-center justify-end text-xs font-black text-[#003399] transition-colors duration-300 group-hover:text-blue-700">
-                        <span className="flex items-center gap-1">
-                            View Listing
-                            <ArrowUpRight size={14} />
-                        </span>
-                    </div>
-                </div>
-            </CardContent>
-        </motion.div>
+                </CardContent>
+            </motion.div>
+        </Link>
     );
 };
 
