@@ -245,18 +245,18 @@ export default function UserRegisterPage() {
 
                                 <Form {...form}>
                                     <form onSubmit={form.handleSubmit(onRegisterSubmit)} className="space-y-5">
-                                        {/* Full Name */}
+                                        {/* Name / Business Name */}
                                         <FormField
                                             control={form.control}
                                             name="name"
                                             render={({ field }) => (
                                                 <FormItem className="space-y-1.5">
-                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Full Name</FormLabel>
+                                                    <FormLabel className="text-xs font-black text-slate-700 ml-1 uppercase tracking-widest">Name / Business Name</FormLabel>
                                                     <FormControl>
                                                         <div className="relative group">
                                                             <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-[#003399] transition-colors" />
                                                             <Input
-                                                                placeholder="Alice Johnson"
+                                                                placeholder="e.g. John Doe or Acme Motors Ltd."
                                                                 {...field}
                                                                 className="h-14 rounded-2xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 pl-12 font-semibold transition-all focus:bg-white focus:border-[#003399] focus:ring-2 focus:ring-[#003399]/20 shadow-sm hover:border-slate-300"
                                                             />

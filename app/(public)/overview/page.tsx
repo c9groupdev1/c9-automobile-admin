@@ -348,10 +348,10 @@ export default function LandingPage() {
                 };
 
                 return (
-                  <div
+                  <Link
                     key={item.id}
-                    onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
-                    className="group cursor-pointer bg-slate-50/50 hover:bg-white rounded-3xl border border-slate-150/40 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden relative flex flex-col h-full"
+                    href={`/marketplace/${item.slug || item.id}`}
+                    className="group block cursor-pointer bg-slate-50/50 hover:bg-white rounded-3xl border border-slate-150/40 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden relative flex flex-col h-full"
                   >
                     {/* Badge overlay */}
                     <span className={`absolute top-4 left-4 z-10 text-[9px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg text-white ${
@@ -385,7 +385,7 @@ export default function LandingPage() {
                         <span className="truncate max-w-[100px] flex items-center gap-1"><MapPin size={11} />{item.pricingAndLocation?.location?.city || item.city || 'Lagos'}</span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

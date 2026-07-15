@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useVendorProfile, useToggleFavorite } from '@/hooks/useUserMarketplace';
 import { useAuthStore } from '@/store/authStore';
 import { formatNaira } from '../../page';
@@ -195,10 +196,10 @@ export default function VendorProfilePage() {
                             {listings.map((item: any) => {
                                 const isFavorite = item.isFavorite || item.isFavorited;
                                 return (
-                                    <div
+                                    <Link
                                         key={item.id}
-                                        onClick={() => router.push(`/marketplace/${item.slug || item.id}`)}
-                                        className="group cursor-pointer bg-white rounded-3xl border border-slate-100/50 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 relative flex flex-col h-full"
+                                        href={`/marketplace/${item.slug || item.id}`}
+                                        className="group block cursor-pointer bg-white rounded-3xl border border-slate-100/50 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 relative flex flex-col h-full"
                                     >
                                         {/* Favorite Button */}
                                         <button
@@ -243,7 +244,7 @@ export default function VendorProfilePage() {
                                                 </div>
                                             </div>
                                         </CardContent>
-                                    </div>
+                                    </Link>
                                 );
                             })}
                         </div>
