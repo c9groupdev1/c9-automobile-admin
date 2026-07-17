@@ -47,7 +47,12 @@ export async function generateMetadata(
   const conditionStr = listing.condition ? `${listing.condition} ` : '';
   const city = listing.pricingAndLocation?.location?.city || listing.city;
   const locationStr = city ? ` in ${city}` : '';
-  const formattedPrice = Number(listing.amount) > 0 ? ` - ₦${Number(listing.amount).toLocaleString()}` : '';
+  
+  const rawAmount = listing.amount;
+  const cleanPrice = rawAmount 
+    ? (typeof rawAmount === 'string' ? parseFloat(rawAmount.replace(/,/g, '')) : parseFloat(rawAmount))
+    : 0;
+  const formattedPrice = !isNaN(cleanPrice) && cleanPrice > 0 ? ` - ₦${cleanPrice.toLocaleString()}` : '';
   
   const title = `Buy ${conditionStr}${listing.title || 'Vehicle'}${locationStr}${formattedPrice} | C9X`;
   const description = `Find specifications, photos, and contact info for this ${conditionStr}${listing.title || 'Vehicle'} for sale${locationStr}. Click to view details on C9X, Nigeria's premier auto portal.`;
@@ -89,6 +94,10 @@ export default async function ListingLayout(
   }
   
   const listing = listingData.data;
+  const rawAmount = listing.amount;
+  const cleanPrice = rawAmount 
+    ? (typeof rawAmount === 'string' ? parseFloat(rawAmount.replace(/,/g, '')) : parseFloat(rawAmount))
+    : 0;
 
   // JSON-LD for AI & Search Engines
   const jsonLd = listing ? {
@@ -101,7 +110,7 @@ export default async function ListingLayout(
       "@type": "Offer",
       "url": `https://c9x.thec9group.com/marketplace/${params.id}`,
       "priceCurrency": "NGN",
-      "price": listing.amount,
+      "price": !isNaN(cleanPrice) ? cleanPrice : 0,
       "availability": listing.status === 'available' ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": listing.condition?.toLowerCase().includes('new') ? "https://schema.org/NewCondition" : "https://schema.org/UsedCondition"
     }

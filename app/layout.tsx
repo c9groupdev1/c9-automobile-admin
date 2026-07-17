@@ -105,6 +105,30 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
+        <noscript>
+          <style dangerouslySetInnerHTML={{ __html: `
+            * {
+              opacity: 1 !important;
+              transform: none !important;
+              transition: none !important;
+            }
+            .noscript-banner {
+              background-color: #FFF3CD;
+              color: #856404;
+              padding: 12px 24px;
+              text-align: center;
+              font-family: system-ui, -apple-system, sans-serif;
+              font-size: 14px;
+              font-weight: 600;
+              border-bottom: 1px solid #FFEBAA;
+              position: relative;
+              z-index: 99999;
+            }
+          `}} />
+          <div className="noscript-banner">
+            ⚠️ JavaScript is disabled. Some interactive features of C9X may be limited, but you can still browse vehicles.
+          </div>
+        </noscript>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
