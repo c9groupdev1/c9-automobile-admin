@@ -29,8 +29,7 @@ import {
     ShieldCheck,
     Smartphone,
     Star,
-    Zap,
-    ShieldAlert
+    Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -301,14 +300,6 @@ export default function Page() {
     // App Download Popup State
     const [deviceOS, setDeviceOS] = useState<'ios' | 'android' | 'desktop'>('desktop');
     const [showAppPopup, setShowAppPopup] = useState(false);
-    const [hideKycBanner, setHideKycBanner] = useState(false);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const hidden = sessionStorage.getItem('c9x_hide_kyc_banner');
-            if (hidden) setHideKycBanner(true);
-        }
-    }, []);
 
     useEffect(() => {
         const hasSeenPopup = sessionStorage.getItem('c9x_app_popup_seen');
@@ -501,46 +492,6 @@ export default function Page() {
                     </div>
                 </div>
 
-                {/* KYC Banner for Unverified Users */}
-                {isAuthenticated && user?.kycStatus !== 'verified' && !hideKycBanner && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                            <ShieldAlert size={120} />
-                        </div>
-                        <div className="flex items-center gap-4 relative z-10">
-                            <div className="bg-amber-100 p-3 rounded-full">
-                                <ShieldAlert className="w-8 h-8 text-amber-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-amber-900 font-bold text-lg">Verify your identity</h3>
-                                <p className="text-amber-700/80 font-medium text-sm mt-1 max-w-2xl">
-                                    You are currently unverified. Complete your KYC verification to unlock full access to the C9X Marketplace, including posting vehicles and messaging sellers securely.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 relative z-10">
-                            <Button
-                                variant="outline"
-                                className="border-amber-200 text-amber-700 hover:bg-amber-100 hover:text-amber-800 bg-transparent font-bold whitespace-nowrap"
-                                onClick={() => {
-                                    sessionStorage.setItem('c9x_hide_kyc_banner', 'true');
-                                    setHideKycBanner(true);
-                                }}
-                            >
-                                Do KYC Later
-                            </Button>
-                            <Link href="/account/kyc">
-                                <Button className="bg-amber-600 hover:bg-amber-700 text-white font-bold whitespace-nowrap shadow-md">
-                                    Complete KYC Now
-                                </Button>
-                            </Link>
-                        </div>
-                    </motion.div>
-                )}
 
                 {/* Recommendations Section */}
                 {recommendedResponse?.data?.data?.length > 0 && (

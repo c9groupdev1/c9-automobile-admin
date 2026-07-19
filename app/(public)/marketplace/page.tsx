@@ -29,8 +29,7 @@ import {
     ShieldCheck,
     Smartphone,
     Star,
-    Zap,
-    ShieldAlert
+    Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -219,7 +218,6 @@ function MarketplaceContent() {
     const [minPrice, setMinPrice] = useState<string>('');
     const [maxPrice, setMaxPrice] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<string>('desc');
-    const [hideKycBanner, setHideKycBanner] = useState(false);
 
     // Drawer/Filters visibility on mobile
     const [showFiltersMobile, setShowFiltersMobile] = useState(false);
@@ -229,10 +227,6 @@ function MarketplaceContent() {
     const [showAppPopup, setShowAppPopup] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const hidden = sessionStorage.getItem('c9x_hide_kyc_banner');
-            if (hidden) setHideKycBanner(true);
-        }
         const hasSeenPopup = sessionStorage.getItem('c9x_app_popup_seen');
         if (!hasSeenPopup) {
             const timer = setTimeout(() => {
@@ -362,46 +356,7 @@ function MarketplaceContent() {
                 {/* Marketplace Header */}
                 <h1 className="text-3xl font-extrabold text-slate-900 mb-8 mt-4 px-2">Marketplace</h1>
 
-                {/* KYC Prompt Banner for Unverified Users */}
-                {isAuthenticated && user && (user.kycStatus === 'pending' || !user.kycStatus || user.kycStatus === 'rejected') && !hideKycBanner && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-                            <ShieldAlert size={120} />
-                        </div>
-                        <div className="flex items-center gap-4 relative z-10">
-                            <div className="p-3 bg-amber-100 text-amber-600 rounded-full hidden sm:block">
-                                <ShieldCheck size={24} />
-                            </div>
-                            <div>
-                                <h3 className="text-amber-900 font-bold text-lg">Verify your identity</h3>
-                                <p className="text-amber-700/80 font-medium text-sm mt-1 max-w-2xl">
-                                    You are currently unverified. Complete your KYC verification to unlock full access to the C9X Marketplace, including posting vehicles and messaging sellers securely.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 relative z-10">
-                            <Button
-                                variant="outline"
-                                className="border-amber-200 text-amber-700 hover:bg-amber-100 hover:text-amber-800 bg-transparent font-bold whitespace-nowrap"
-                                onClick={() => {
-                                    sessionStorage.setItem('c9x_hide_kyc_banner', 'true');
-                                    setHideKycBanner(true);
-                                }}
-                            >
-                                Do KYC Later
-                            </Button>
-                            <Link href="/account/kyc">
-                                <Button className="bg-amber-600 hover:bg-amber-700 text-white font-bold whitespace-nowrap shadow-md">
-                                    Complete KYC Now
-                                </Button>
-                            </Link>
-                        </div>
-                    </motion.div>
-                )}
+
 
                 {/* Main Content Layout Grid */}
                 <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
