@@ -43,6 +43,13 @@ export const useAuthStore = create<AuthState>()(
         {
             name: 'auth-storage',
             storage: createJSONStorage(() => sessionStorage),
+            partialize: (state) => ({
+                // Token intentionally excluded — the BFF proxy reads the
+                // HttpOnly c9_session cookie server-side. Raw token should
+                // never be stored where DevTools can inspect it.
+                user: state.user,
+                isAuthenticated: state.isAuthenticated,
+            }),
             onRehydrateStorage: () => (state) => {
                 state?.setHasHydrated(true);
             },
