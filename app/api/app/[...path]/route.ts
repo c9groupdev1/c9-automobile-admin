@@ -162,9 +162,12 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
         }
 
         // Clean headers to return to client (prevent transfer-encoding or other issues)
+        // Also strip content-encoding — Node's fetch already decompresses gzip/brotli,
+        // so forwarding the header causes ERR_CONTENT_DECODING_FAILED in the browser.
         const responseHeaders = new Headers();
         response.headers.forEach((value, key) => {
-            if (key.toLowerCase() !== 'transfer-encoding') {
+            const lowerKey = key.toLowerCase();
+            if (lowerKey !== 'transfer-encoding' && lowerKey !== 'content-encoding') {
                 responseHeaders.set(key, value);
             }
         });

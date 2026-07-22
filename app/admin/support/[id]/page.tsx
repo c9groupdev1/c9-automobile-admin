@@ -12,8 +12,13 @@ import {
     Clock,
     XCircle,
     MessageSquare,
-    Save
+    Save,
+    X,
+    Download,
+    FileText
 } from 'lucide-react';
+
+const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL ?? '';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +46,7 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
     
     const [status, setStatus] = useState<string | null>(null);
     const [message, setMessage] = useState<string>('');
+    const [attachmentModal, setAttachmentModal] = useState(false);
 
     // Update local status state when enquiry data is loaded
     if (enquiry && !status) {
@@ -146,24 +152,104 @@ export default function SupportDetailPage({ params: paramsPromise }: { params: P
                                 </p>
                             </div>
 
-                            {enquiry.attachment_path && (
-                                <div className="pt-8 border-t border-slate-50">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Attached Document</h4>
-                                    <a 
-                                        href={enquiry.attachment_path} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className={cn(
-                                            buttonVariants({ variant: "outline" }),
-                                            "h-14 rounded-2xl border-slate-200 bg-slate-50 hover:bg-white hover:border-[#003399] hover:text-[#003399] transition-all px-6 gap-3 group flex items-center"
+                            {enquiry.attachment_path && (() => {
+                                const fullUrl = enquiry.attachment_path.startsWith('http')
+                                    ? enquiry.attachment_path
+                                    : `${STORAGE_URL}${enquiry.attachment_path}`;
+                                const isImage = /\.(png|jpe?g|gif|webp|svg)$/i.test(fullUrl);
+                                return (
+                                    <div className="pt-8 border-t border-slate-50">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Attached Document</h4>
+                                        <button
+                                            onClick={() => setAttachmentModal(true)}
+                                            className={cn(
+                                                buttonVariants({ variant: "outline" }),
+                                                "h-14 rounded-2xl border-slate-200 bg-slate-50 hover:bg-white hover:border-[#003399] hover:text-[#003399] transition-all px-6 gap-3 group flex items-center cursor-pointer"
+                                            )}
+                                        >
+                                            <Paperclip size={20} className="text-slate-400 group-hover:text-[#003399]" />
+                                            <span className="font-bold">View Attachment</span>
+                                            <Badge variant="secondary" className="bg-slate-200 text-slate-600 text-[9px] font-black ml-2 uppercase">
+                                                {isImage ? 'Image' : 'File'}
+                                            </Badge>
+                                        </button>
+
+                                        {/* Attachment Modal */}
+                                        {attachmentModal && (
+                                            <div
+                                                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                                                onClick={() => setAttachmentModal(false)}
+                                            >
+                                                <div
+                                                    className="relative bg-white rounded-[2rem] shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    {/* Modal Header */}
+                                                    <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100">
+                                                        <div className="flex items-center gap-3">
+                                                            <Paperclip size={18} className="text-[#003399]" />
+                                                            <span className="font-black text-slate-900 text-sm">Attachment</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <a
+                                                                href={fullUrl}
+                                                                download
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={cn(
+                                                                    buttonVariants({ variant: 'outline' }),
+                                                                    'h-9 rounded-xl text-xs font-bold gap-2 border-slate-200'
+                                                                )}
+                                                            >
+                                                                <Download size={14} /> Download
+                                                            </a>
+                                                            <button
+                                                                onClick={() => setAttachmentModal(false)}
+                                                                className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                                                            >
+                                                                <X size={18} className="text-slate-600" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Modal Body */}
+                                                    <div className="flex-1 overflow-auto flex items-center justify-center p-8 bg-slate-50">
+                                                        {isImage ? (
+                                                            <img
+                                                                src={fullUrl}
+                                                                alt="Support attachment"
+                                                                className="max-w-full max-h-[65vh] object-contain rounded-2xl shadow-lg"
+                                                            />
+                                                        ) : (
+                                                            <div className="flex flex-col items-center gap-6 py-12">
+                                                                <div className="w-20 h-20 rounded-3xl bg-blue-50 flex items-center justify-center">
+                                                                    <FileText size={40} className="text-[#003399]" />
+                                                                </div>
+                                                                <div className="text-center space-y-2">
+                                                                    <p className="font-black text-slate-900">Document Attached</p>
+                                                                    <p className="text-slate-500 text-sm font-medium">This file cannot be previewed directly.</p>
+                                                                </div>
+                                                                <a
+                                                                    href={fullUrl}
+                                                                    download
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className={cn(
+                                                                        buttonVariants({ variant: 'default' }),
+                                                                        'h-12 rounded-2xl bg-[#003399] hover:bg-blue-800 font-bold px-8 gap-2'
+                                                                    )}
+                                                                >
+                                                                    <Download size={16} /> Open / Download File
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
-                                    >
-                                        <Paperclip size={20} className="text-slate-400 group-hover:text-[#003399]" />
-                                        <span className="font-bold">View Attachment</span>
-                                        <Badge variant="secondary" className="bg-slate-200 text-slate-600 text-[9px] font-black ml-2 uppercase">File</Badge>
-                                    </a>
-                                </div>
-                            )}
+                                    </div>
+                                );
+                            })()}
 
                             {enquiry.admin_note && (
                                 <div className="pt-8 border-t border-slate-50 space-y-4">
