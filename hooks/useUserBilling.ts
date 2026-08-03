@@ -129,3 +129,73 @@ export function usePromoteListing() {
         }
     });
 }
+
+export interface PaymentRecord {
+    id: number | string;
+    amount: string;
+    formattedAmount: string;
+    reference: string;
+    transactionId: string;
+    status: string;
+    gateway: string;
+    date: string;
+    description: string;
+}
+
+export interface PaymentHistoryParams {
+    page?: number;
+    perPage?: number;
+    status?: string;
+    fromDate?: string;
+    toDate?: string;
+}
+
+export function usePaymentHistory(params: PaymentHistoryParams = {}) {
+    const { page = 1, perPage, status, fromDate, toDate } = params;
+    return useQuery({
+        queryKey: ['payment-history', page, perPage, status, fromDate, toDate],
+        queryFn: async () => {
+            const queryParams = new URLSearchParams();
+            queryParams.append('page', page.toString());
+            if (perPage) queryParams.append('perPage', perPage.toString());
+            if (status && status !== 'all') queryParams.append('status', status);
+            if (fromDate) queryParams.append('fromDate', fromDate);
+            if (toDate) queryParams.append('toDate', toDate);
+
+            const response = await api.get<{
+                success: boolean;
+                data: PaymentRecord[];
+                meta: {
+                    current_page: number;
+                    last_page: number;
+                    per_page: number;
+                    total: number;
+                    from?: number;
+                    to?: number;
+                };
+            }>(`/user/payments?${queryParams.toString()}`);
+            return response.data;
+        },
+    });
+}
+
+export function usePaymentDetails(id: string | number | null) {
+    return useQuery({
+        queryKey: ['payment-details', id],
+        queryFn: async () => {
+            if (!id) return null;
+            const response = await api.get<{
+                success: boolean;
+                data: PaymentRecord & {
+                    charges: number | string;
+                    total: number | string;
+                    formattedCharges: string;
+                    formattedTotal: string;
+                    paidAt: string | null;
+                };
+            }>(`/user/payments/${id}`);
+            return response.data.data;
+        },
+        enabled: !!id,
+    });
+}

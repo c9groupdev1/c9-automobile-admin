@@ -2,28 +2,28 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { 
-    useConversations, 
-    useConversationDetail, 
-    useSendMessage 
+import {
+    useConversations,
+    useConversationDetail,
+    useSendMessage
 } from '@/hooks/useUserMessaging';
 import { useAuthStore } from '@/store/authStore';
 import { formatNaira } from '@/app/(public)/page';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
-    MessageSquare, 
-    Send, 
-    Search, 
-    User, 
-    Car, 
-    ArrowLeft, 
-    Loader2, 
-    Wifi, 
-    WifiOff, 
+import {
+    MessageSquare,
+    Send,
+    Search,
+    User,
+    Car,
+    ArrowLeft,
+    Loader2,
+    Wifi,
+    WifiOff,
     ShieldCheck,
-    AlertCircle 
+    AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQueryClient } from '@tanstack/react-query';
@@ -31,8 +31,8 @@ import axios from 'axios';
 
 // Laravel Reverb WebSocket connection helper (ported from mobile pusherService.ts)
 function subscribeToReverbChannel(
-    conversationId: string, 
-    token: string, 
+    conversationId: string,
+    token: string,
     onNewMessage: (msg: any) => void,
     onStatusChange: (status: 'connecting' | 'connected' | 'disconnected' | 'failed') => void
 ) {
@@ -42,10 +42,10 @@ function subscribeToReverbChannel(
     if (!apiKey || !host) {
         console.error('[Reverb ERROR] NEXT_PUBLIC_REVERB_KEY or NEXT_PUBLIC_REVERB_HOST environment variable is missing!');
         onStatusChange('failed');
-        return () => {};
+        return () => { };
     }
 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'https://c9x-staging.thec9group.com';
+    const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, '');
     const wsUrl = `wss://${host}/reverb/app/${apiKey}`;
     const authEndpoint = `${apiBase}/broadcasting/auth`;
 
@@ -64,7 +64,7 @@ function subscribeToReverbChannel(
         ws.onmessage = async (event) => {
             try {
                 const payload = JSON.parse(event.data);
-                
+
                 // Connection established -> Auth private channel
                 if (payload.event === 'pusher:connection_established') {
                     const connData = typeof payload.data === 'string' ? JSON.parse(payload.data) : payload.data;
@@ -88,7 +88,7 @@ function subscribeToReverbChannel(
 
                         // Subscribe to channels
                         const publicChannel = `conversation.${conversationId}`;
-                        
+
                         ws?.send(JSON.stringify({
                             event: 'pusher:subscribe',
                             data: { channel: publicChannel }
@@ -116,7 +116,7 @@ function subscribeToReverbChannel(
                         onStatusChange('failed');
                         ws?.close();
                     }
-                } 
+                }
                 else if (payload.event === 'pusher:ping') {
                     ws?.send(JSON.stringify({ event: 'pusher:pong', data: {} }));
                 }
@@ -137,9 +137,9 @@ function subscribeToReverbChannel(
                         if (msg && msg.id && String(msg.conversation_id) === String(conversationId)) {
                             onNewMessage(msg);
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
 
         ws.onerror = () => {
@@ -172,7 +172,7 @@ function MessagesDashboardContent() {
     const searchParams = useSearchParams();
     const queryClient = useQueryClient();
     const { user, token } = useAuthStore();
-    
+
     // Conversation selection states
     const [selectedId, setSelectedId] = useState<string | null>(searchParams.get('id'));
     const [searchQuery, setSearchQuery] = useState('');
@@ -190,8 +190,8 @@ function MessagesDashboardContent() {
     const conversations = convData?.data || [];
 
     // Messages are embedded inside the conversation object
-    const messages = Array.isArray(activeConversation?.messages) 
-        ? activeConversation.messages 
+    const messages = Array.isArray(activeConversation?.messages)
+        ? activeConversation.messages
         : activeConversation?.messages?.data || [];
 
     // Smart Auto-complete & Reply Logic
@@ -254,7 +254,7 @@ function MessagesDashboardContent() {
             }
         }
     }, [activeConversation]);
-    
+
     // Scroll ref for chat window auto-scroll to bottom
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -274,35 +274,35 @@ function MessagesDashboardContent() {
                 // Instantly append new message into React Query cache
                 queryClient.setQueryData(['conversation-detail', selectedId], (oldData: any) => {
                     if (!oldData || !oldData.data) return oldData;
-                    
+
                     const dataCopy = { ...oldData };
                     const convData = { ...dataCopy.data };
-                    
+
                     let messagesList: any[] = [];
                     let isNested = false;
-                    
+
                     if (Array.isArray(convData.messages)) {
                         messagesList = [...convData.messages];
                     } else if (convData.messages?.data) {
                         messagesList = [...convData.messages.data];
                         isNested = true;
                     }
-                    
+
                     // Check duplicate
                     if (!messagesList.find((m: any) => String(m.id) === String(newMsg.id))) {
                         messagesList.push(newMsg);
                     }
-                    
+
                     if (isNested) {
                         convData.messages = { ...convData.messages, data: messagesList };
                     } else {
                         convData.messages = messagesList;
                     }
-                    
+
                     dataCopy.data = convData;
                     return dataCopy;
                 });
-                
+
                 // Refresh threads preview
                 refetchConvs();
             },
@@ -329,7 +329,7 @@ function MessagesDashboardContent() {
                 conversationId: selectedId,
                 message: text
             });
-        } catch (error) {}
+        } catch (error) { }
     };
 
     const getRelativeTime = (dateStr: string) => {
@@ -346,7 +346,7 @@ function MessagesDashboardContent() {
         const partnerName = partner?.name || 'Unknown User';
         const listingTitle = item.listing?.title || 'Unknown Listing';
         return partnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               listingTitle.toLowerCase().includes(searchQuery.toLowerCase());
+            listingTitle.toLowerCase().includes(searchQuery.toLowerCase());
     });
 
     return (
@@ -392,9 +392,8 @@ function MessagesDashboardContent() {
                                 <div
                                     key={item.id}
                                     onClick={() => setSelectedId(item.id)}
-                                    className={`p-4 cursor-pointer hover:bg-slate-50/50 transition-colors flex gap-3 relative items-start ${
-                                        isSelected ? 'bg-slate-50/50' : ''
-                                    }`}
+                                    className={`p-4 cursor-pointer hover:bg-slate-50/50 transition-colors flex gap-3 relative items-start ${isSelected ? 'bg-slate-50/50' : ''
+                                        }`}
                                 >
                                     <div className="w-10 h-10 rounded-full bg-blue-50 text-[#003399] flex items-center justify-center font-bold text-sm flex-shrink-0">
                                         {partnerName.charAt(0)}
@@ -435,7 +434,7 @@ function MessagesDashboardContent() {
                                 >
                                     <ArrowLeft size={20} />
                                 </button>
-                                
+
                                 <div className="w-10 h-10 rounded-full bg-blue-50 text-[#003399] flex items-center justify-center font-bold text-sm">
                                     {(activeConversation.sender?.id === user?.id ? activeConversation.receiver : activeConversation.sender)?.name?.charAt(0)}
                                 </div>
@@ -500,19 +499,17 @@ function MessagesDashboardContent() {
                                 messages.map((msg: any) => {
                                     const isMe = msg.sender_id === user?.id;
                                     return (
-                                        <div 
-                                            key={msg.id} 
+                                        <div
+                                            key={msg.id}
                                             className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                                         >
-                                            <div className={`max-w-[75%] p-3.5 rounded-2xl text-xs font-semibold shadow-sm leading-relaxed ${
-                                                isMe 
-                                                    ? 'bg-[#003399] text-white rounded-tr-none' 
+                                            <div className={`max-w-[75%] p-3.5 rounded-2xl text-xs font-semibold shadow-sm leading-relaxed ${isMe
+                                                    ? 'bg-[#003399] text-white rounded-tr-none'
                                                     : 'bg-white text-slate-800 border border-slate-100/50 rounded-tl-none'
-                                            }`}>
-                                                <p>{msg.message}</p>
-                                                <span className={`text-[9px] font-medium block mt-1 text-right ${
-                                                    isMe ? 'text-blue-200' : 'text-slate-400'
                                                 }`}>
+                                                <p>{msg.message}</p>
+                                                <span className={`text-[9px] font-medium block mt-1 text-right ${isMe ? 'text-blue-200' : 'text-slate-400'
+                                                    }`}>
                                                     {getRelativeTime(msg.created_at || msg.createdAt)}
                                                 </span>
                                             </div>
