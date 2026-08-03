@@ -306,7 +306,7 @@ export function BillingSettings() {
                                                 <div className="flex flex-col">
                                                     <span className="text-sm font-bold text-slate-900 leading-tight">{payment.description || 'General Fiscal Event'}</span>
                                                     <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider font-mono">
-                                                        Ref: {payment.reference}
+                                                        Ref: {payment.transactionId}
                                                     </span>
                                                 </div>
                                             </td>
