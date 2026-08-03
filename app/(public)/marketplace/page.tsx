@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, Suspense } from 'react';
+import { cn } from '@/lib/utils';
 import { useInfiniteUserMarketplaceListings, useToggleFavorite, useRecommendedListings, useHomeExploration } from '@/hooks/useUserMarketplace';
 import { usePublicVehicleMakes, usePublicVehicleModels, useVehicleMetadata } from '@/hooks/useUserListings';
 import { useAuthStore } from '@/store/authStore';
@@ -217,7 +218,32 @@ function MarketplaceContent() {
     const [selectedStateId, setSelectedStateId] = useState<string | number>('');
     const [minPrice, setMinPrice] = useState<string>('');
     const [maxPrice, setMaxPrice] = useState<string>('');
+    const [localMinPrice, setLocalMinPrice] = useState<string>('');
+    const [localMaxPrice, setLocalMaxPrice] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<string>('desc');
+
+    // Debounce price filters to avoid multiple network calls during dragging/typing
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localMinPrice !== minPrice || localMaxPrice !== maxPrice) {
+                setMinPrice(localMinPrice);
+                setMaxPrice(localMaxPrice);
+                setPage(1);
+            }
+        }, 500); // 500ms delay
+
+        return () => clearTimeout(timer);
+    }, [localMinPrice, localMaxPrice, minPrice, maxPrice]);
+
+    // Sync local inputs when the main price state is cleared/reset (e.g. from the reset button)
+    useEffect(() => {
+        if (minPrice === '' && localMinPrice !== '') {
+            setLocalMinPrice('');
+        }
+        if (maxPrice === '' && localMaxPrice !== '') {
+            setLocalMaxPrice('');
+        }
+    }, [minPrice, maxPrice]);
 
     // Drawer/Filters visibility on mobile
     const [showFiltersMobile, setShowFiltersMobile] = useState(false);
@@ -477,23 +503,146 @@ function MarketplaceContent() {
                         </div>
 
                         {/* Price Range */}
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Price Range (₦)</label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Input
-                                    placeholder="Min"
-                                    type="number"
-                                    value={minPrice}
-                                    onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-                                    className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/85 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Price Range</label>
+                                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                                    ₦{localMinPrice ? (parseInt(localMinPrice) / 1000000).toFixed(0) + 'M' : '0M'} - {localMaxPrice ? (parseInt(localMaxPrice) / 1000000).toFixed(0) + 'M' : '100M+'}
+                                </span>
+                            </div>
+
+                            <style dangerouslySetInnerHTML={{ __html: `
+                                .price-slider-container {
+                                    position: relative;
+                                    width: 100%;
+                                    height: 20px;
+                                }
+                                .price-slider-thumb {
+                                    -webkit-appearance: none;
+                                    -webkit-tap-highlight-color: transparent;
+                                    pointer-events: none;
+                                    position: absolute;
+                                    height: 0;
+                                    width: 100%;
+                                    outline: none;
+                                    z-index: 3;
+                                    background: transparent;
+                                }
+                                .price-slider-thumb::-webkit-slider-thumb {
+                                    -webkit-appearance: none;
+                                    background-color: #003399;
+                                    border: 3px solid #ffffff;
+                                    border-radius: 50%;
+                                    box-shadow: 0 2px 6px rgba(0, 51, 153, 0.3);
+                                    cursor: pointer;
+                                    height: 18px;
+                                    width: 18px;
+                                    pointer-events: all;
+                                    position: relative;
+                                    transition: transform 0.1s ease, background-color 0.1s ease;
+                                }
+                                .price-slider-thumb::-webkit-slider-thumb:hover {
+                                    background-color: #002266;
+                                    transform: scale(1.1);
+                                }
+                                .price-slider-thumb::-webkit-slider-thumb:active {
+                                    transform: scale(1.2);
+                                }
+                                .price-slider-thumb::-moz-range-thumb {
+                                    background-color: #003399;
+                                    border: 3px solid #ffffff;
+                                    border-radius: 50%;
+                                    box-shadow: 0 2px 6px rgba(0, 51, 153, 0.3);
+                                    cursor: pointer;
+                                    height: 18px;
+                                    width: 18px;
+                                    pointer-events: all;
+                                    position: relative;
+                                    transition: transform 0.1s ease, background-color 0.1s ease;
+                                }
+                                .price-slider-thumb::-moz-range-thumb:hover {
+                                    background-color: #002266;
+                                    transform: scale(1.1);
+                                }
+                            `}} />
+
+                            {/* Slider */}
+                            <div className="price-slider-container flex items-center px-1">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100000000"
+                                    step="1000000"
+                                    value={localMinPrice ? parseInt(localMinPrice) : 0}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        const maxVal = localMaxPrice ? parseInt(localMaxPrice) : 100000000;
+                                        const safeVal = Math.min(val, maxVal - 1000000);
+                                        setLocalMinPrice(safeVal === 0 ? '' : safeVal.toString());
+                                    }}
+                                    className="price-slider-thumb"
+                                    style={{ zIndex: (localMinPrice ? parseInt(localMinPrice) : 0) > 95000000 ? 5 : 3 }}
                                 />
-                                <Input
-                                    placeholder="Max"
-                                    type="number"
-                                    value={maxPrice}
-                                    onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-                                    className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100/85 focus:bg-white transition-all shadow-sm focus:border-[#003399]"
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100000000"
+                                    step="1000000"
+                                    value={localMaxPrice ? parseInt(localMaxPrice) : 100000000}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        const minVal = localMinPrice ? parseInt(localMinPrice) : 0;
+                                        const safeVal = Math.max(val, minVal + 1000000);
+                                        setLocalMaxPrice(safeVal === 100000000 ? '' : safeVal.toString());
+                                    }}
+                                    className="price-slider-thumb"
+                                    style={{ zIndex: 4 }}
                                 />
+                                <div className="relative w-full h-1 bg-slate-100 rounded-full">
+                                    <div 
+                                        className="absolute h-full bg-[#003399] rounded-full"
+                                        style={{
+                                            left: `${((localMinPrice ? parseInt(localMinPrice) : 0) / 100000000) * 100}%`,
+                                            right: `${100 - ((localMaxPrice ? parseInt(localMaxPrice) : 100000000) / 100000000) * 100}%`
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            
+
+                            {/* Preset Quick Chips */}
+                            <div className="grid grid-cols-2 gap-2 pt-1">
+                                {[
+                                    { label: 'Under 5M', min: '', max: '5000000' },
+                                    { label: '5M - 15M', min: '5000000', max: '15000000' },
+                                    { label: '15M - 35M', min: '15000000', max: '35000000' },
+                                    { label: '35M+', min: '35000000', max: '' },
+                                ].map((preset, idx) => {
+                                    const isActive = localMinPrice === preset.min && localMaxPrice === preset.max;
+                                    return (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => {
+                                                if (isActive) {
+                                                    setLocalMinPrice('');
+                                                    setLocalMaxPrice('');
+                                                } else {
+                                                    setLocalMinPrice(preset.min);
+                                                    setLocalMaxPrice(preset.max);
+                                                }
+                                            }}
+                                            className={cn(
+                                                "py-2 px-3 text-[10px] font-extrabold rounded-xl border text-center transition-all cursor-pointer select-none",
+                                                isActive
+                                                    ? "bg-[#003399] border-[#003399] text-white shadow-md shadow-blue-900/10"
+                                                    : "bg-white hover:bg-slate-50 border-slate-100 text-slate-600 hover:border-slate-200"
+                                            )}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     </aside>
@@ -708,23 +857,91 @@ function MarketplaceContent() {
                                 </div>
 
                                 {/* Price Range */}
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1">Price Range (₦)</label>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Input
-                                            placeholder="Min"
-                                            type="number"
-                                            value={minPrice}
-                                            onChange={(e) => { setMinPrice(e.target.value); setPage(1); }}
-                                            className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Price Range</label>
+                                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                                            ₦{localMinPrice ? (parseInt(localMinPrice) / 1000000).toFixed(0) + 'M' : '0M'} - {localMaxPrice ? (parseInt(localMaxPrice) / 1000000).toFixed(0) + 'M' : '100M+'}
+                                        </span>
+                                    </div>
+
+                                    {/* Slider */}
+                                    <div className="price-slider-container flex items-center px-1">
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="100000000"
+                                            step="1000000"
+                                            value={localMinPrice ? parseInt(localMinPrice) : 0}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value);
+                                                const maxVal = localMaxPrice ? parseInt(localMaxPrice) : 100000000;
+                                                const safeVal = Math.min(val, maxVal - 1000000);
+                                                setLocalMinPrice(safeVal === 0 ? '' : safeVal.toString());
+                                            }}
+                                            className="price-slider-thumb"
+                                            style={{ zIndex: (localMinPrice ? parseInt(localMinPrice) : 0) > 95000000 ? 5 : 3 }}
                                         />
-                                        <Input
-                                            placeholder="Max"
-                                            type="number"
-                                            value={maxPrice}
-                                            onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-                                            className="h-12 text-xs font-semibold rounded-xl bg-slate-50 border-slate-100"
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="100000000"
+                                            step="1000000"
+                                            value={localMaxPrice ? parseInt(localMaxPrice) : 100000000}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value);
+                                                const minVal = localMinPrice ? parseInt(localMinPrice) : 0;
+                                                const safeVal = Math.max(val, minVal + 1000000);
+                                                setLocalMaxPrice(safeVal === 100000000 ? '' : safeVal.toString());
+                                            }}
+                                            className="price-slider-thumb"
+                                            style={{ zIndex: 4 }}
                                         />
+                                        <div className="relative w-full h-1 bg-slate-100 rounded-full">
+                                            <div 
+                                                className="absolute h-full bg-[#003399] rounded-full"
+                                                style={{
+                                                    left: `${((localMinPrice ? parseInt(localMinPrice) : 0) / 100000000) * 100}%`,
+                                                    right: `${100 - ((localMaxPrice ? parseInt(localMaxPrice) : 100000000) / 100000000) * 100}%`
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    
+
+                                    {/* Preset Quick Chips */}
+                                    <div className="grid grid-cols-2 gap-2 pt-1">
+                                        {[
+                                            { label: 'Under 5M', min: '', max: '5000000' },
+                                            { label: '5M - 15M', min: '5000000', max: '15000000' },
+                                            { label: '15M - 35M', min: '15000000', max: '35000000' },
+                                            { label: '35M+', min: '35000000', max: '' },
+                                        ].map((preset, idx) => {
+                                            const isActive = localMinPrice === preset.min && localMaxPrice === preset.max;
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (isActive) {
+                                                            setLocalMinPrice('');
+                                                            setLocalMaxPrice('');
+                                                        } else {
+                                                            setLocalMinPrice(preset.min);
+                                                            setLocalMaxPrice(preset.max);
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "py-2 px-3 text-[10px] font-extrabold rounded-xl border text-center transition-all cursor-pointer select-none",
+                                                        isActive
+                                                            ? "bg-[#003399] border-[#003399] text-white shadow-md shadow-blue-900/10"
+                                                            : "bg-white hover:bg-slate-50 border-slate-100 text-slate-600 hover:border-slate-200"
+                                                    )}
+                                                >
+                                                    {preset.label}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>

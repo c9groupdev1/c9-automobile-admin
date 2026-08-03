@@ -116,12 +116,13 @@ export default function UsersPage() {
     };
 
     const handleToggleStatus = async (id: string, currentStatus: string) => {
-        const newStatus = currentStatus === 'Active' ? 'Suspended' : 'Active';
+        const isCurrentlyActive = currentStatus?.toLowerCase() === 'active';
+        const newStatus = isCurrentlyActive ? 'suspended' : 'active';
         try {
             await updateStatus.mutateAsync({ id, status: newStatus });
-            toast.success(`User ${newStatus.toLowerCase()} successfully`);
-        } catch (error) {
-            toast.error(`Failed to ${newStatus.toLowerCase()} user`);
+            toast.success(`User status updated to ${newStatus}`);
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to update status');
         }
     };
 
