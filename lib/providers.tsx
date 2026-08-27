@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
+import { OfflineBanner } from '@/components/offline-banner';
 
 export default function Providers({ children }: { children: ReactNode }) {
     const [queryClient] = useState(() => new QueryClient({
@@ -10,6 +11,10 @@ export default function Providers({ children }: { children: ReactNode }) {
             queries: {
                 staleTime: 60 * 1000,
                 retry: 1,
+                networkMode: 'offlineFirst',
+            },
+            mutations: {
+                networkMode: 'offlineFirst',
             },
         },
     }));
@@ -17,6 +22,7 @@ export default function Providers({ children }: { children: ReactNode }) {
     return (
         <QueryClientProvider client={queryClient}>
             {children}
+            <OfflineBanner />
             <Toaster position="top-right" richColors />
         </QueryClientProvider>
     );

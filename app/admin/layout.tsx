@@ -24,16 +24,17 @@ export default function DashboardLayout({
     useEffect(() => {
         // Only redirect if hydration is complete
         if (_hasHydrated) {
+            const isOffline = typeof window !== 'undefined' && !window.navigator.onLine;
             const authStorageStr = sessionStorage.getItem('auth-storage');
             const hasSessionToken = authStorageStr && authStorageStr.includes('"token":"');
-            if (!isAuthenticated && !hasSessionToken) {
+            if (!isAuthenticated && !hasSessionToken && !isOffline) {
                 console.log('Redirecting to login: Not authenticated and no session token');
                 router.push('/secured-admin/login');
                 return;
             }
 
             // RBAC: Check if user has administrative roles
-            if (user) {
+            if (user && !isOffline) {
                 const hasStaffRole = user.roles.some(role =>
                     !['user', 'verified_user'].includes(role.toLowerCase())
                 );

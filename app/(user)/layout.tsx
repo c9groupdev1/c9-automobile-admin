@@ -35,7 +35,10 @@ export default function UserLayout({
 
     useEffect(() => {
         if (_hasHydrated && !isAuthenticated) {
-            router.push('/login');
+            const isOffline = typeof window !== 'undefined' && !window.navigator.onLine;
+            if (!isOffline) {
+                router.push('/login');
+            }
         }
     }, [_hasHydrated, isAuthenticated, router]);
 

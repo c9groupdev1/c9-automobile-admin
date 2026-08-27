@@ -18,12 +18,29 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+import { toast } from 'sonner';
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const isBrowser = typeof window !== 'undefined';
+    const isOffline = isBrowser && !window.navigator.onLine;
+    const isNetworkError = error.code === 'ERR_NETWORK' || error.message === 'Network Error' || !error.response;
+    const isProxyServerError = error.response?.status >= 500 && error.response?.status <= 504;
+
+    if (isOffline || isNetworkError || isProxyServerError) {
+      if (isBrowser && isOffline) {
+        toast.error('Network Unavailable', {
+          description: 'No internet connection detected. Your session has been preserved.',
+          id: 'offline-api-error',
+        });
+      }
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
-      if (typeof window !== 'undefined') {
+      if (isBrowser) {
         const isSecuredAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/secured-admin');
         window.location.href = isSecuredAdmin ? '/secured-admin/login' : '/login';
       }
