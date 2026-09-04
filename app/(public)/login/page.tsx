@@ -50,20 +50,44 @@ function UserLoginFormContent() {
         setIsLoading(true);
         try {
             const response = await api.post('/users/login', values);
-            const { user, token } = response.data;
+            const rawData = response.data;
 
-            setAuth(user, token);
-            toast.success('Login successful!');
+            let user: any = null;
+            let token: string = '';
 
-            const hasStaffRole = user.roles?.some((role: string) =>
-                !['user', 'verified_user'].includes(role.toLowerCase())
-            );
+            if (rawData) {
+                if (rawData.data?.user) {
+                    user = rawData.data.user;
+                } else if (rawData.user) {
+                    user = rawData.user;
+                } else if (rawData.data?.email || rawData.data?.id) {
+                    user = rawData.data;
+                } else if (rawData.email || rawData.id) {
+                    user = rawData;
+                }
 
-            // Customer logins should direct to /account if verified, or /marketplace if not
-            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
-            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
+                token = rawData.token || rawData.data?.token || rawData.access_token || rawData.data?.access_token || '';
+            }
 
-            window.location.href = redirect || target;
+            if (user) {
+                setAuth(user, token);
+                toast.success('Login successful!');
+
+                const roles = Array.isArray(user.roles) ? user.roles : [];
+                const hasStaffRole = roles.some((role: string) =>
+                    !['user', 'verified_user'].includes(role.toLowerCase())
+                );
+
+                const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+                const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
+
+                const isLoginRedirect = redirect && (redirect.includes('/login') || redirect.includes('/secured-admin'));
+                const finalTarget = (redirect && !isLoginRedirect) ? redirect : target;
+
+                window.location.href = finalTarget;
+            } else {
+                toast.error('Invalid server response format.');
+            }
         } catch (error: any) {
             const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
             toast.error(message);
@@ -80,17 +104,44 @@ function UserLoginFormContent() {
                 provider: 'google',
                 token: credentialResponse.credential,
             });
-            const { user, token } = response.data;
-            setAuth(user, token);
-            toast.success('Google Login successful!');
+            const rawData = response.data;
 
-            const hasStaffRole = user.roles?.some((role: string) =>
-                !['user', 'verified_user'].includes(role.toLowerCase())
-            );
+            let user: any = null;
+            let token: string = '';
 
-            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
-            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
-            window.location.href = redirect || target;
+            if (rawData) {
+                if (rawData.data?.user) {
+                    user = rawData.data.user;
+                } else if (rawData.user) {
+                    user = rawData.user;
+                } else if (rawData.data?.email || rawData.data?.id) {
+                    user = rawData.data;
+                } else if (rawData.email || rawData.id) {
+                    user = rawData;
+                }
+
+                token = rawData.token || rawData.data?.token || rawData.access_token || rawData.data?.access_token || '';
+            }
+
+            if (user) {
+                setAuth(user, token);
+                toast.success('Google Login successful!');
+
+                const roles = Array.isArray(user.roles) ? user.roles : [];
+                const hasStaffRole = roles.some((role: string) =>
+                    !['user', 'verified_user'].includes(role.toLowerCase())
+                );
+
+                const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+                const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
+
+                const isLoginRedirect = redirect && (redirect.includes('/login') || redirect.includes('/secured-admin'));
+                const finalTarget = (redirect && !isLoginRedirect) ? redirect : target;
+
+                window.location.href = finalTarget;
+            } else {
+                toast.error('Invalid server response format.');
+            }
         } catch (error: any) {
             const message = error.response?.data?.message || 'Google Login failed. Please try again.';
             toast.error(message);

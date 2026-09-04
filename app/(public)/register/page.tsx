@@ -155,17 +155,24 @@ export default function UserRegisterPage() {
                 provider: 'google',
                 token: credentialResponse.credential,
             });
-            const { user, token } = response.data;
-            setAuth(user, token);
-            toast.success('Google authentication successful!');
-            
-            const hasStaffRole = user.roles?.some((role: string) =>
-                !['user', 'verified_user'].includes(role.toLowerCase())
-            );
+            const resData = response.data?.data || response.data;
+            const user = resData?.user || response.data?.user;
+            const token = resData?.token || response.data?.token || resData?.access_token;
 
-            const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
-            const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
-            window.location.href = target;
+            if (user) {
+                setAuth(user, token || '');
+                toast.success('Google authentication successful!');
+                
+                const hasStaffRole = user.roles?.some((role: string) =>
+                    !['user', 'verified_user'].includes(role.toLowerCase())
+                );
+
+                const isVerified = user.kycStatus === 'verified' || user.kycStatus === 'approved';
+                const target = hasStaffRole ? '/admin/dashboard' : isVerified ? '/account' : '/marketplace';
+                window.location.href = target;
+            } else {
+                toast.error('Invalid server response format.');
+            }
         } catch (error: any) {
             const message = error.response?.data?.message || 'Google authentication failed. Please try again.';
             toast.error(message);

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import * as crypto from 'crypto';
+import * as zlib from 'zlib';
 
 const ENCRYPTION_KEY = process.env.SESSION_SECRET || 'c9x-automobile-secret-key-32chars';
 const IV_LENGTH = 16;
@@ -83,9 +84,9 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
     // Set headers
     const headers = new Headers();
     request.headers.forEach((value, key) => {
-        // Exclude Host, Connection, and Content-Length to prevent issues on the proxy side
+        // Exclude Host, Connection, Content-Length, and Accept-Encoding to prevent issues on the proxy side
         const lowerKey = key.toLowerCase();
-        if (lowerKey !== 'host' && lowerKey !== 'connection' && lowerKey !== 'content-length') {
+        if (lowerKey !== 'host' && lowerKey !== 'connection' && lowerKey !== 'content-length' && lowerKey !== 'accept-encoding') {
             headers.set(key, value);
         }
     });
@@ -142,18 +143,38 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
 
         const response = await fetch(targetUrl, fetchOptions);
 
-        // Clone response to log JSON payload
-        let resBodyLog: any = null;
-        const resContentType = response.headers.get('content-type') || '';
-        if (resContentType.includes('application/json')) {
+        // Read response body into arrayBuffer and handle decompression explicitly if backend returns gzip/br/deflate
+        const resArrayBuffer = await response.arrayBuffer();
+        let resBuffer = Buffer.from(resArrayBuffer);
+
+        const contentEncoding = response.headers.get('content-encoding')?.toLowerCase() || '';
+
+        if (contentEncoding.includes('gzip')) {
             try {
-                const clonedRes = response.clone();
-                resBodyLog = await clonedRes.json();
+                resBuffer = zlib.gunzipSync(resBuffer);
             } catch (e) {
-                resBodyLog = '[Unparsable JSON Response Body]';
+                console.error('[BFF ERROR] gunzipSync failed:', e);
             }
-        } else {
-            resBodyLog = `[Non-JSON Response Content Type: ${resContentType}]`;
+        } else if (contentEncoding.includes('br')) {
+            try {
+                resBuffer = zlib.brotliDecompressSync(resBuffer);
+            } catch (e) {
+                console.error('[BFF ERROR] brotliDecompressSync failed:', e);
+            }
+        } else if (contentEncoding.includes('deflate')) {
+            try {
+                resBuffer = zlib.inflateSync(resBuffer);
+            } catch (e) {
+                console.error('[BFF ERROR] inflateSync failed:', e);
+            }
+        }
+
+        const responseText = resBuffer.toString('utf-8');
+        let resBodyLog: any = null;
+        try {
+            resBodyLog = JSON.parse(responseText);
+        } catch (e) {
+            resBodyLog = responseText;
         }
 
         console.log(`[BFF RESPONSE] Status: ${response.status} from -> ${targetUrl}`);
@@ -161,24 +182,30 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
             console.log(`[BFF RESPONSE BODY]`, typeof resBodyLog === 'object' ? JSON.stringify(resBodyLog, null, 2) : resBodyLog);
         }
 
-        // Clean headers to return to client (prevent transfer-encoding or other issues)
-        // Also strip content-encoding — Node's fetch already decompresses gzip/brotli,
-        // so forwarding the header causes ERR_CONTENT_DECODING_FAILED in the browser.
+        // Clean headers to return to client (prevent transfer-encoding, content-encoding, or content-length mismatch)
         const responseHeaders = new Headers();
         response.headers.forEach((value, key) => {
             const lowerKey = key.toLowerCase();
-            if (lowerKey !== 'transfer-encoding' && lowerKey !== 'content-encoding') {
+            if (lowerKey !== 'transfer-encoding' && lowerKey !== 'content-encoding' && lowerKey !== 'content-length') {
                 responseHeaders.set(key, value);
             }
         });
 
-        // Intercept login to encrypt the token and set HttpOnly cookie
-        if (pathStr === 'users/login' && response.status === 200 && resBodyLog?.token) {
-            const rawToken = resBodyLog.token;
+        // Intercept login/auth responses to encrypt the token and set HttpOnly c9_session cookie
+        const isAuthEndpoint = ['users/login', 'users/social/google', 'users/register', 'users/verify-email'].includes(pathStr);
+        const extractedToken = typeof resBodyLog === 'object' && resBodyLog !== null ? (
+            resBodyLog.token || resBodyLog.data?.token || resBodyLog.access_token || resBodyLog.data?.access_token
+        ) : null;
+
+        if (isAuthEndpoint && response.status === 200 && extractedToken) {
+            const rawToken = extractedToken;
             const encryptedToken = encrypt(rawToken);
             
             // Overwrite the token in the response body so frontend doesn't get the raw token
-            resBodyLog.token = encryptedToken;
+            if (resBodyLog.token) resBodyLog.token = encryptedToken;
+            if (resBodyLog.data?.token) resBodyLog.data.token = encryptedToken;
+            if (resBodyLog.access_token) resBodyLog.access_token = encryptedToken;
+            if (resBodyLog.data?.access_token) resBodyLog.data.access_token = encryptedToken;
             
             // Set the HttpOnly cookie from the server side
             const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
@@ -197,7 +224,7 @@ async function handle(request: NextRequest, { path }: { path: string[] }) {
             responseHeaders.append('Set-Cookie', `token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`);
         }
 
-        return new Response(response.body, {
+        return new Response(typeof resBodyLog === 'object' && resBodyLog !== null ? JSON.stringify(resBodyLog) : responseText, {
             status: response.status,
             statusText: response.statusText,
             headers: responseHeaders,
