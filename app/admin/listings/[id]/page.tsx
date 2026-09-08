@@ -72,6 +72,8 @@ export default function ListingDetailPage() {
     const [activeImage, setActiveImage] = useState(0);
     const [reviewComment, setReviewComment] = useState('');
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
     const [isVinModalOpen, setIsVinModalOpen] = useState(false);
     const [vinData, setVinData] = useState<any>(null);
     const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
@@ -131,15 +133,17 @@ export default function ListingDetailPage() {
         );
     }
 
-    const handleStatusUpdate = async (status: string) => {
+    const handleStatusUpdate = async (status: string, reasonOverride?: string) => {
+        const commentsToSubmit = reasonOverride !== undefined ? reasonOverride : reviewComment;
         try {
             await updateStatusMutation.mutateAsync({
                 id,
                 status,
-                comments: reviewComment
+                comments: commentsToSubmit
             });
             toast.success(`Listing status updated to ${status.toUpperCase()}`);
             setIsReviewModalOpen(false);
+            setIsRejectModalOpen(false);
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Failed to update listing status');
         }
@@ -251,63 +255,83 @@ export default function ListingDetailPage() {
                         </div>
 
                         <PermissionGuard permission="listing.status_manage">
-                            <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
-                                <DialogTrigger render={
-                                    <Button className="w-full h-13 bg-[#0066CC] hover:bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest px-6 shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                        <FileCheck size={18} />
-                                        <span>{listing.status === 'pending' ? 'Review & Approve' : 'Manage Status'}</span>
+                            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full">
+                                <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+                                    <DialogTrigger render={
+                                        <Button className="w-full h-13 bg-[#0066CC] hover:bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest px-6 shadow-xl shadow-blue-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                            <FileCheck size={18} />
+                                            <span>{listing.status === 'pending' ? 'Review & Approve' : 'Manage Status'}</span>
+                                        </Button>
+                                    } />
+                                    <DialogContent className="sm:max-w-[540px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
+                                        <div className="p-8 space-y-6">
+                                            <DialogHeader>
+                                                <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#003399] flex items-center justify-center">
+                                                        <FileCheck size={20} />
+                                                    </div>
+                                                    {listing.status === 'pending' ? 'Listing Audit Decision' : 'Update Asset Status'}
+                                                </DialogTitle>
+                                                <DialogDescription className="text-slate-500 font-medium text-sm mt-2">
+                                                    {listing.status === 'pending'
+                                                        ? 'Review this submission. Approving publishes the vehicle live on the marketplace. Rejecting returns it to the vendor with commentary.'
+                                                        : 'Change the current publication state of this listing asset.'}
+                                                </DialogDescription>
+                                            </DialogHeader>
+
+                                            <div className="space-y-3">
+                                                <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest block">Audit Commentary</label>
+                                                <textarea
+                                                    value={reviewComment}
+                                                    onChange={(e) => setReviewComment(e.target.value)}
+                                                    placeholder="Provide decision rationale or detailed instructions for the vendor..."
+                                                    className="w-full min-h-[140px] rounded-2xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-[#003399]/10 focus:border-[#003399] focus:bg-white transition-all p-4 text-sm font-medium leading-relaxed resize-none text-slate-900"
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 pt-2">
+                                                <Button
+                                                    onClick={() => handleStatusUpdate('available')}
+                                                    disabled={updateStatusMutation.isPending}
+                                                    className="h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
+                                                >
+                                                    <CheckCircle2 size={18} className="mr-2" />
+                                                    {listing.status === 'pending' ? 'Approve Listing' : 'Activate Listing'}
+                                                </Button>
+                                                <Button
+                                                    onClick={() => {
+                                                        setIsReviewModalOpen(false);
+                                                        setRejectionReason(reviewComment);
+                                                        setIsRejectModalOpen(true);
+                                                    }}
+                                                    disabled={updateStatusMutation.isPending}
+                                                    className="h-14 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-600/20 active:scale-95 transition-all"
+                                                >
+                                                    <XCircle size={18} className="mr-2" />
+                                                    {listing.status === 'pending' ? 'Reject Submission' : 'Suspend Listing'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="bg-slate-50 px-8 py-4 text-center border-t border-slate-100">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">C9X Vehicle Audit Protocol v4.2</p>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+
+                                {listing.status !== 'suspended' && (
+                                    <Button
+                                        onClick={() => {
+                                            setRejectionReason(reviewComment);
+                                            setIsRejectModalOpen(true);
+                                        }}
+                                        variant="outline"
+                                        className="w-full h-13 border-rose-400/30 text-rose-300 hover:bg-rose-500/20 hover:text-white rounded-2xl font-black text-xs uppercase tracking-widest px-6 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <XCircle size={18} />
+                                        <span>Reject Listing</span>
                                     </Button>
-                                } />
-                                <DialogContent className="sm:max-w-[540px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
-                                    <div className="p-8 space-y-6">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#003399] flex items-center justify-center">
-                                                    <FileCheck size={20} />
-                                                </div>
-                                                {listing.status === 'pending' ? 'Listing Audit Decision' : 'Update Asset Status'}
-                                            </DialogTitle>
-                                            <DialogDescription className="text-slate-500 font-medium text-sm mt-2">
-                                                {listing.status === 'pending'
-                                                    ? 'Review this submission. Approving publishes the vehicle live on the marketplace. Rejecting returns it to the vendor with commentary.'
-                                                    : 'Change the current publication state of this listing asset.'}
-                                            </DialogDescription>
-                                        </DialogHeader>
-
-                                        <div className="space-y-3">
-                                            <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest block">Audit Commentary</label>
-                                            <textarea
-                                                value={reviewComment}
-                                                onChange={(e) => setReviewComment(e.target.value)}
-                                                placeholder="Provide decision rationale or detailed instructions for the vendor..."
-                                                className="w-full min-h-[140px] rounded-2xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-[#003399]/10 focus:border-[#003399] focus:bg-white transition-all p-4 text-sm font-medium leading-relaxed resize-none text-slate-900"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 pt-2">
-                                            <Button
-                                                onClick={() => handleStatusUpdate('available')}
-                                                disabled={updateStatusMutation.isPending}
-                                                className="h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
-                                            >
-                                                <CheckCircle2 size={18} className="mr-2" />
-                                                {listing.status === 'pending' ? 'Approve Listing' : 'Activate Listing'}
-                                            </Button>
-                                            <Button
-                                                onClick={() => handleStatusUpdate('suspended')}
-                                                disabled={updateStatusMutation.isPending}
-                                                className="h-14 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-rose-600/20 active:scale-95 transition-all"
-                                            >
-                                                <XCircle size={18} className="mr-2" />
-                                                {listing.status === 'pending' ? 'Reject Submission' : 'Suspend Listing'}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <div className="bg-slate-50 px-8 py-4 text-center border-t border-slate-100">
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">C9X Vehicle Audit Protocol v4.2</p>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
+                                )}
+                            </div>
                         </PermissionGuard>
                     </div>
                 </div>
@@ -714,6 +738,67 @@ export default function ListingDetailPage() {
                     title={previewImage.title}
                 />
             )}
+
+            {/* Rejection Reason Modal */}
+            <Dialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
+                <DialogContent className="sm:max-w-[520px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
+                    <div className="p-8 space-y-6">
+                        <DialogHeader>
+                            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-2">
+                                <XCircle size={28} />
+                            </div>
+                            <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">
+                                Reject / Suspend Listing
+                            </DialogTitle>
+                            <DialogDescription className="text-slate-500 font-medium text-sm">
+                                Please specify the reason for rejecting or suspending <span className="font-bold text-slate-900">{listing.header.title}</span>.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-2">
+                            <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest block">
+                                Reason for Rejection <span className="text-rose-500">*</span>
+                            </label>
+                            <textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Enter detailed reason (e.g. Inaccurate specs, Expired registration, Improper media)..."
+                                className="w-full min-h-[130px] rounded-2xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 focus:bg-white transition-all p-4 text-sm font-medium leading-relaxed resize-none text-slate-900"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-end gap-3 pt-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsRejectModalOpen(false)}
+                                disabled={updateStatusMutation.isPending}
+                                className="h-12 rounded-2xl border-slate-200 text-slate-700 font-bold text-xs px-6"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    if (!rejectionReason.trim()) {
+                                        toast.error('Please enter a reason for rejection.');
+                                        return;
+                                    }
+                                    handleStatusUpdate('suspended', rejectionReason.trim());
+                                }}
+                                disabled={updateStatusMutation.isPending || !rejectionReason.trim()}
+                                className="h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 font-black text-xs uppercase tracking-wider text-white px-7 shadow-xl shadow-rose-600/20 active:scale-95 transition-all"
+                            >
+                                {updateStatusMutation.isPending ? 'Processing...' : 'Confirm Rejection'}
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="bg-slate-50 px-8 py-3 text-center border-t border-slate-100">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            C9X Audit Protocol • Mandatory Reason Enforcement
+                        </p>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

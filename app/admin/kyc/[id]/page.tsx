@@ -38,6 +38,13 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { PermissionGuard } from '@/components/auth/permission-guard';
 import { ImagePreviewDialog } from '@/components/ui/image-preview-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 const STORAGE_URL = process.env.NEXT_PUBLIC_STORAGE_URL;
 
@@ -50,20 +57,26 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
     const router = useRouter();
     const [reviewComment, setReviewComment] = useState('');
     const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
     
     const { data: kycResponse, isLoading } = useKycRequest(id);
     const reviewMutation = useReviewKyc();
 
     const kyc = kycResponse?.data;
 
-    const handleReview = async (status: 'approved' | 'rejected') => {
+    const handleReview = async (status: 'approved' | 'rejected', reasonOverride?: string) => {
+        const commentsToSubmit = reasonOverride !== undefined ? reasonOverride : reviewComment;
         try {
             const response = await reviewMutation.mutateAsync({
                 id,
                 status,
-                comments: reviewComment
+                comments: commentsToSubmit
             });
             toast.success(response.message || `KYC Case ${status} successfully`);
+            if (status === 'rejected') {
+                setIsRejectModalOpen(false);
+            }
         } catch (error: any) {
             toast.error(error.response?.data?.message || 'Failed to update review status');
             console.error('Review failed:', error);
@@ -153,7 +166,10 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                         <PermissionGuard permission="kyc.reject">
                             <Button 
                                 disabled={reviewMutation.isPending || kyc.status === 'rejected'}
-                                onClick={() => handleReview('rejected')}
+                                onClick={() => {
+                                    setRejectionReason(reviewComment);
+                                    setIsRejectModalOpen(true);
+                                }}
                                 variant="outline"
                                 className="h-11 flex-1 sm:flex-none rounded-xl border-rose-100 text-rose-600 hover:bg-rose-50 font-bold text-xs px-6"
                             >
@@ -370,6 +386,67 @@ export default function KYCReviewPage({ params }: KYCReviewPageProps) {
                         title={previewImage.title}
                     />
                 )}
+
+                {/* Rejection Reason Modal */}
+                <Dialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
+                    <DialogContent className="sm:max-w-[520px] border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden bg-white">
+                        <div className="p-8 space-y-6">
+                            <DialogHeader>
+                                <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-2">
+                                    <XCircle size={28} />
+                                </div>
+                                <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">
+                                    Reject Identity Verification
+                                </DialogTitle>
+                                <DialogDescription className="text-slate-500 font-medium text-sm">
+                                    Please specify the reason for rejecting <span className="font-bold text-slate-900">{applicantName}</span>'s KYC submission.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-700 uppercase tracking-widest block">
+                                    Reason for Rejection <span className="text-rose-500">*</span>
+                                </label>
+                                <textarea
+                                    value={rejectionReason}
+                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                    placeholder="Enter detailed reason (e.g., Blur ID photo, Expired document, Name mismatch)..."
+                                    className="w-full min-h-[130px] rounded-2xl bg-slate-50 border border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 focus:bg-white transition-all p-4 text-sm font-medium leading-relaxed resize-none text-slate-900"
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-end gap-3 pt-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsRejectModalOpen(false)}
+                                    disabled={reviewMutation.isPending}
+                                    className="h-12 rounded-2xl border-slate-200 text-slate-700 font-bold text-xs px-6"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (!rejectionReason.trim()) {
+                                            toast.error('Please enter a reason for rejection.');
+                                            return;
+                                        }
+                                        handleReview('rejected', rejectionReason.trim());
+                                    }}
+                                    disabled={reviewMutation.isPending || !rejectionReason.trim()}
+                                    className="h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 font-black text-xs uppercase tracking-wider text-white px-7 shadow-xl shadow-rose-600/20 active:scale-95 transition-all"
+                                >
+                                    {reviewMutation.isPending ? 'Rejecting...' : 'Confirm Rejection'}
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="bg-slate-50 px-8 py-3 text-center border-t border-slate-100">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                C9X Verification Protocol • Audit Recorded
+                            </p>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </div>
     );
