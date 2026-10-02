@@ -78,6 +78,10 @@ export async function generateMetadata(
       title,
       description,
       images: images.length > 0 ? images : undefined,
+    },
+    itunes: {
+      appId: "6762285536",
+      appArgument: "c9x://marketplace/" + params.id,
     }
   };
 }

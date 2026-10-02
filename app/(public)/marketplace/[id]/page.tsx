@@ -291,6 +291,25 @@ export default function CarDetailPage() {
     return (
         <div className="min-h-screen bg-slate-50 pb-20 pt-28">
             <div className="max-w-6xl mx-auto px-4 md:px-6">
+                {/* Mobile Open in App Callout */}
+                <div className="md:hidden mb-6 p-4 bg-gradient-to-r from-[#003399] to-[#001f5c] text-white rounded-2xl shadow-md flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 text-lg">
+                            📱
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-bold truncate">Have the C9X App?</p>
+                            <p className="text-xs text-white/80">View photos & chat faster in app</p>
+                        </div>
+                    </div>
+                    <a
+                        href={`c9x://marketplace/${id}`}
+                        className="shrink-0 px-4 py-2 bg-white text-[#003399] font-black text-xs rounded-xl shadow-sm active:scale-95 transition-transform"
+                    >
+                        Open App
+                    </a>
+                </div>
+
                 {/* Breadcrumbs Navigation */}
                 <nav aria-label="Breadcrumb" className="mb-6">
                     <ol className="flex items-center space-x-2 text-xs font-bold text-slate-500">
