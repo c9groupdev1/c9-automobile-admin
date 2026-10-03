@@ -165,6 +165,53 @@ export default function CarDetailPage() {
         return map[key] || { label: val, color: 'bg-slate-100 text-slate-600' };
     };
 
+    const handleShareListing = async () => {
+        const title = basicInfo.title || listing.title || 'Vehicle Listing';
+        const rawAmount = pricingAndLocation.amount ?? listing.amount ?? 0;
+        const cleanPrice = rawAmount 
+            ? (typeof rawAmount === 'string' ? parseFloat(rawAmount.replace(/,/g, '')) : parseFloat(rawAmount))
+            : 0;
+        const priceStr = !isNaN(cleanPrice) && cleanPrice > 0 ? `₦${cleanPrice.toLocaleString()}` : '';
+        const specs = [basicInfo.year || listing.year, basicInfo.condition || listing.condition].filter(Boolean).join(' • ');
+        const city = locationData.city || listing.city;
+        const stateName = typeof pricingAndLocation.state?.name === 'string' 
+            ? pricingAndLocation.state.name 
+            : typeof listing.state?.name === 'string'
+            ? listing.state.name
+            : (typeof listing.state === 'string' ? listing.state : '');
+        const locStr = [city, stateName].filter(Boolean).join(', ');
+
+        const messageLines = [
+            `🚗 ${title}`,
+            priceStr ? `💰 ${priceStr}` : null,
+            specs ? `📋 ${specs}` : null,
+            locStr ? `📍 ${locStr}` : null,
+            '',
+            'View on C9X:',
+            window.location.href,
+        ].filter((l) => l !== null).join('\n');
+
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: `${title} on C9X`,
+                    text: messageLines,
+                });
+                return;
+            } catch (err: any) {
+                if (err && err.name === 'AbortError') return;
+            }
+        }
+
+        try {
+            await navigator.clipboard.writeText(messageLines);
+            toast.success('Car details & link copied to clipboard!');
+        } catch {
+            await navigator.clipboard.writeText(window.location.href);
+            toast.success('Link copied to clipboard!');
+        }
+    };
+
     const handleFavoriteToggle = async () => {
         if (!isAuthenticated) {
             toast.error('Authentication Required', {
@@ -433,8 +480,7 @@ export default function CarDetailPage() {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            navigator.clipboard.writeText(window.location.href);
-                                            toast.success('Link copied to clipboard!');
+                                            handleShareListing();
                                         }}
                                         className="w-11 h-11 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-slate-100 shadow-sm text-slate-600 hover:text-[#003399] hover:scale-105 transition-all"
                                         title="Share Listing"
