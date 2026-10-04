@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
     useConversations,
@@ -23,6 +24,7 @@ import {
     Wifi,
     WifiOff,
     ShieldCheck,
+    ExternalLink,
     AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -426,7 +428,7 @@ function MessagesDashboardContent() {
                 {activeConversation ? (
                     <>
                         {/* Conversation Header */}
-                        <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-4">
+                        <div className="p-4 border-b border-slate-100 flex items-center justify-between gap-4 bg-white z-10">
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setSelectedId(null)}
@@ -440,30 +442,73 @@ function MessagesDashboardContent() {
                                 </div>
 
                                 <div>
-                                    <div className="flex items-center gap-1">
-                                        <h4 className="font-bold text-slate-950 text-xs">
+                                    <div className="flex items-center gap-2">
+                                        <h4 className="font-bold text-slate-950 text-sm">
                                             {(activeConversation.sender?.id === user?.id ? activeConversation.receiver : activeConversation.sender)?.name}
                                         </h4>
                                         {wsStatus === 'connected' ? (
-                                            <span title="Connected to Reverb Live Link">
-                                                <Wifi size={12} className="text-emerald-500" />
+                                            <span title="Connected to Reverb Live Link" className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                Online
                                             </span>
                                         ) : (
-                                            <span title="WS disconnected. Retrying sync...">
-                                                <WifiOff size={12} className="text-amber-500" />
+                                            <span title="WS disconnected. Retrying sync..." className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                                Offline
                                             </span>
                                         )}
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide truncate max-w-[130px] sm:max-w-[200px]">
-                                        Listing: {activeConversation.listing?.title}
-                                    </p>
                                 </div>
                             </div>
-
-                            <div className="text-right flex-shrink-0 ml-auto">
-                                <span className="text-xs font-black text-[#003399] block">{formatNaira(activeConversation.listing?.amount)}</span>
-                            </div>
                         </div>
+
+                        {/* Pinned Vehicle Listing Bar */}
+                        {activeConversation.listing && (
+                            <div className={`px-4 py-3 border-b flex items-center justify-between gap-4 z-10 transition-colors shrink-0 ${
+                                (activeConversation.listing?.is_deleted || activeConversation?.listing?.is_reported || activeConversation?.is_reported)
+                                    ? 'bg-amber-50/70 border-amber-200/80'
+                                    : 'bg-slate-50/90 border-slate-100 hover:bg-slate-50'
+                            }`}>
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-10 h-10 rounded-xl bg-blue-100/70 text-[#003399] flex items-center justify-center shrink-0 shadow-2xs">
+                                        <Car size={20} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                                            {activeConversation.listing?.title}
+                                        </p>
+                                        <div className="flex items-center gap-2.5 mt-0.5 flex-wrap">
+                                            <span className="text-xs sm:text-sm font-black text-[#003399]">
+                                                {formatNaira(activeConversation.listing?.amount)}
+                                            </span>
+                                            {activeConversation.listing?.is_deleted && (
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                                                    <AlertCircle size={10} />
+                                                    Listing Deleted
+                                                </span>
+                                            )}
+                                            {(activeConversation?.listing?.is_reported || activeConversation?.is_reported) && (
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">
+                                                    <ShieldCheck size={10} />
+                                                    {activeConversation.is_reported ? 'Conversation Reported' : 'Listing Reported'}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {!activeConversation.listing?.is_deleted && (
+                                    <Link
+                                        href={`/marketplace/${activeConversation.listing_id || activeConversation.listing?.id}`}
+                                        target="_blank"
+                                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#003399] bg-white hover:bg-blue-50 border border-blue-200/70 px-3.5 py-2 rounded-xl shadow-2xs transition-colors shrink-0"
+                                    >
+                                        View Listing
+                                        <ExternalLink size={13} />
+                                    </Link>
+                                )}
+                            </div>
+                        )}
 
                         {/* Messages Area */}
                         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-slate-50/20 min-h-0">
