@@ -41,8 +41,29 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
       if (isBrowser) {
-        const isSecuredAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/secured-admin');
-        window.location.href = isSecuredAdmin ? '/secured-admin/login' : '/login';
+        const pathname = window.location.pathname;
+        const isPublicRoute =
+          pathname === '/' ||
+          pathname === '/overview' ||
+          pathname.startsWith('/marketplace') ||
+          pathname.startsWith('/vendor') ||
+          pathname.startsWith('/contact') ||
+          pathname.startsWith('/about') ||
+          pathname.startsWith('/faq') ||
+          pathname.startsWith('/privacy') ||
+          pathname.startsWith('/terms') ||
+          pathname.startsWith('/guidelines') ||
+          pathname.startsWith('/help') ||
+          pathname.startsWith('/login') ||
+          pathname.startsWith('/register') ||
+          pathname.startsWith('/forgot-password') ||
+          pathname.startsWith('/reset-password') ||
+          pathname.startsWith('/app-login');
+
+        if (!isPublicRoute) {
+          const isSecuredAdmin = pathname.startsWith('/admin') || pathname.startsWith('/secured-admin');
+          window.location.href = isSecuredAdmin ? '/secured-admin/login' : '/login';
+        }
       }
     }
     return Promise.reject(error);

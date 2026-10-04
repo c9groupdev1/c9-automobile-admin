@@ -13,18 +13,37 @@ function isUUID(str: string) {
 
 async function getListingMetadata(id: string) {
   try {
-    const backendUrl = process.env.API_SECRET_URL || process.env.NEXT_PUBLIC_API_URL;
-    if (!backendUrl) return null;
-    const cleanBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
-    
     const isIdUuid = isUUID(id);
-    const endpoint = isIdUuid ? `${cleanBackendUrl}/listings/${id}` : `${cleanBackendUrl}/listings/slug/${id}`;
-    
-    const res = await fetch(endpoint, { next: { revalidate: 3600 } });
-    
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data;
+    const path = isIdUuid ? `/listings/${id}` : `/listings/slug/${id}`;
+
+    const candidateBases = [
+      process.env.API_SECRET_URL,
+      process.env.NEXT_PUBLIC_API_URL,
+      'https://c9x-staging.thec9group.com/api',
+      'https://c9x.thec9group.com/api',
+      'https://c9x.thec9group.com/app/api',
+    ].filter(Boolean) as string[];
+
+    const uniqueBases = Array.from(new Set(candidateBases.map((u) => u.replace(/\/+$/, ''))));
+
+    for (const base of uniqueBases) {
+      try {
+        const res = await fetch(`${base}${path}`, { 
+          next: { revalidate: 300 },
+          headers: { 'Accept': 'application/json' },
+          signal: AbortSignal.timeout(4000),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && (data.data || data.id)) {
+            return data.data ? data : { success: true, data };
+          }
+        }
+      } catch (err) {
+        // try next candidate
+      }
+    }
+    return null;
   } catch (error) {
     return null;
   }
@@ -39,7 +58,18 @@ export async function generateMetadata(
   
   if (!listingData || !listingData.data) {
     return {
-      title: "Vehicle Not Found | C9X Marketplace",
+      title: "View Vehicle | C9X Marketplace",
+      description: "Check out this car listing on C9X, Nigeria's premier automotive marketplace.",
+      openGraph: {
+        title: "View Vehicle | C9X Marketplace",
+        description: "Check out this car listing on C9X, Nigeria's premier automotive marketplace.",
+        images: ["https://c9x.thec9group.com/hero-dashboard.png"],
+        type: "website",
+      },
+      itunes: {
+        appId: "6762285536",
+        appArgument: "c9x://marketplace/" + params.id,
+      }
     };
   }
 
@@ -94,7 +124,7 @@ export default async function ListingLayout(
   const listingData = await getListingMetadata(params.id);
   
   if (!listingData || !listingData.data) {
-    notFound();
+    return <>{children}</>;
   }
   
   const listing = listingData.data;

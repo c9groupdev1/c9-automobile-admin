@@ -2,13 +2,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
-export function useConversations() {
+export function useConversations(enabled: boolean = true) {
     return useQuery({
         queryKey: ['conversations'],
         queryFn: async () => {
             const response = await api.get('/chat/conversations');
             return response.data;
         },
+        enabled,
     });
 }
 
