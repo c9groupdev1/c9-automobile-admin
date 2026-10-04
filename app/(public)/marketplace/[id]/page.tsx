@@ -11,7 +11,9 @@ import {
     useReportListing,
     useBlockUser,
 } from '@/hooks/useUserMarketplace';
-import { useStartConversation } from '@/hooks/useUserMessaging';
+import { useStartConversation, useConversations } from '@/hooks/useUserMessaging';
+import { useQueryClient } from '@tanstack/react-query';
+import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { formatNaira } from '../../page';
 import { Button } from '@/components/ui/button';
@@ -92,6 +94,8 @@ export default function CarDetailPage() {
     const { data: reviewsResponse, isLoading: isLoadingReviews, refetch: refetchReviews } = useListingReviews(listing?.id || '');
     const toggleFavoriteMutation = useToggleFavorite();
     const postReviewMutation = usePostListingReview();
+    const queryClient = useQueryClient();
+    const { data: convsData } = useConversations(isAuthenticated);
     const startConversationMutation = useStartConversation();
     const reportListingMutation = useReportListing();
     const blockUserMutation = useBlockUser();
@@ -187,8 +191,7 @@ export default function CarDetailPage() {
             specs ? `📋 ${specs}` : null,
             locStr ? `📍 ${locStr}` : null,
             '',
-            'View on C9X:',
-            window.location.href,
+            `🔗 View on C9X: ${window.location.href}`,
         ].filter((l) => l !== null).join('\n');
 
         if (typeof navigator !== 'undefined' && navigator.share) {
@@ -232,14 +235,54 @@ export default function CarDetailPage() {
             return;
         }
 
+        const targetListingId = listing?.id || id;
+
+        // 1. Check existing conversations from cache or fetch to prevent duplicate inquiries
+        let convList: any[] = [];
+        if (convsData?.data && Array.isArray(convsData.data)) {
+            convList = convsData.data;
+        } else if (Array.isArray(convsData)) {
+            convList = convsData;
+        } else {
+            const cached: any = queryClient.getQueryData(['conversations']);
+            convList = cached?.data || (Array.isArray(cached) ? cached : []);
+        }
+
+        // If not in cache, query server
+        if (convList.length === 0) {
+            try {
+                const fresh: any = await queryClient.fetchQuery({
+                    queryKey: ['conversations'],
+                    queryFn: async () => {
+                        const response = await api.get('/chat/conversations');
+                        return response.data;
+                    }
+                });
+                convList = fresh?.data || (Array.isArray(fresh) ? fresh : []);
+            } catch (e) {
+                // proceed if fetch fails
+            }
+        }
+
+        const existingConv = convList.find((c: any) =>
+            c.listing_id === targetListingId ||
+            c.listing_id === id ||
+            c.listing?.id === targetListingId ||
+            c.listing?.id === id
+        );
+
+        if (existingConv?.id) {
+            router.push(`/messages?id=${existingConv.id}`);
+            return;
+        }
+
         try {
             const result = await startConversationMutation.mutateAsync({
-                listingId: listing.id,
+                listingId: targetListingId,
                 message: `Hi, I am interested in your listing: ${listing.title}. Is it still available?`
             });
             toast.success('Conversation started!');
             
-            // The API response usually wraps in 'data'
             const convId = result?.data?.id || result?.id;
             if (convId) {
                 router.push(`/messages?id=${convId}`);
