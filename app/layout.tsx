@@ -52,7 +52,10 @@ export const metadata: Metadata = {
     images: ["/hero-dashboard.png"],
   },
   icons: {
-    icon: '/c9x-logo.png',
+    icon: [
+      { url: '/c9x-logo.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
     shortcut: '/c9x-logo.png',
     apple: '/c9x-logo.png',
   },
