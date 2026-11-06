@@ -29,6 +29,61 @@ export interface LocationAggregates {
   listings: ServerListingItem[];
 }
 
+function formatImageUrl(val: any): string | null {
+  if (!val) return null;
+  const str = typeof val === 'string' ? val : val.url || val.path;
+  if (!str || typeof str !== 'string') return null;
+  if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('//') || str.startsWith('data:')) {
+    return str;
+  }
+  const storageBase = process.env.NEXT_PUBLIC_STORAGE_URL || 'https://c9x.ng/app/storage/';
+  const cleanBase = storageBase.endsWith('/') ? storageBase : `${storageBase}/`;
+  const cleanPath = str.startsWith('/') ? str.slice(1) : str;
+  return `${cleanBase}${cleanPath}`;
+}
+
+export function resolveItemPrimaryImage(item: any): string {
+  // 1. Check primaryImage object (standard backend listing structure)
+  if (item.primaryImage) {
+    const formatted = formatImageUrl(item.primaryImage);
+    if (formatted) return formatted;
+  }
+  if (item.primary_image) {
+    const formatted = formatImageUrl(item.primary_image);
+    if (formatted) return formatted;
+  }
+
+  // 2. Check images array
+  if (Array.isArray(item.images) && item.images.length > 0) {
+    const primary = item.images.find((img: any) => img.isPrimary || img.is_primary);
+    const chosen = primary || item.images[0];
+    const formatted = formatImageUrl(chosen);
+    if (formatted) return formatted;
+  }
+
+  // 3. Check media array
+  if (Array.isArray(item.media) && item.media.length > 0) {
+    const primary = item.media.find((m: any) => m.isPrimary || m.is_primary);
+    const chosen = primary || item.media[0];
+    const formatted = formatImageUrl(chosen);
+    if (formatted) return formatted;
+  }
+
+  // 4. Check car relation
+  if (item.car) {
+    if (item.car.primaryImage) {
+      const formatted = formatImageUrl(item.car.primaryImage);
+      if (formatted) return formatted;
+    }
+    if (Array.isArray(item.car.images) && item.car.images.length > 0) {
+      const formatted = formatImageUrl(item.car.images[0]);
+      if (formatted) return formatted;
+    }
+  }
+
+  return '/c9x-logo.png';
+}
+
 function getCandidateBases(): string[] {
   const list = [
     process.env.API_SECRET_URL,
@@ -159,13 +214,7 @@ export async function fetchLocationListings(
       }
     }
 
-    let primaryImg = '/c9x-logo.png';
-    if (item.car?.images && item.car.images.length > 0) {
-      primaryImg = item.car.images[0].url || item.car.images[0];
-    } else if (item.images && item.images.length > 0) {
-      const primary = item.images.find((img: any) => img.isPrimary || img.is_primary);
-      primaryImg = primary?.url || primary?.path || item.images[0]?.url || item.images[0]?.path || '/c9x-logo.png';
-    }
+    const primaryImg = resolveItemPrimaryImage(item);
 
     return {
       id: item.id,
