@@ -120,8 +120,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
         <noscript>
-          <style dangerouslySetInnerHTML={{
-            __html: `
+          <style dangerouslySetInnerHTML={{ __html: `
             * {
               opacity: 1 !important;
               transform: none !important;
