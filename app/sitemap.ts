@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllLocationSlugs } from '@/lib/seo/locations';
+import { NIGERIAN_CAR_PRICE_GUIDES } from '@/lib/seo/price-guides';
 import { SITE_URL } from '@/lib/seo/config';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -73,6 +74,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }));
 
+  // Generate Programmatic Make & Model Pages for High-Volume Search Queries (Camry, Corolla, RX 350, C300, etc.)
+  const catalogPages: MetadataRoute.Sitemap = [];
+  const uniqueMakes = new Set<string>();
+  const topYears = ['2024', '2023', '2022', '2020'];
+
+  for (const item of NIGERIAN_CAR_PRICE_GUIDES) {
+    const makeSlug = item.make.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const modelSlug = item.model.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    uniqueMakes.add(makeSlug);
+
+    // /cars/toyota/camry
+    catalogPages.push({
+      url: `${baseUrl}/cars/${makeSlug}/${modelSlug}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.85,
+    });
+
+    // /cars/toyota/camry/2024, 2023, etc.
+    for (const yr of topYears) {
+      catalogPages.push({
+        url: `${baseUrl}/cars/${makeSlug}/${modelSlug}/${yr}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      });
+    }
+  }
+
+  // /cars/toyota, /cars/lexus, /cars/mercedes-benz
+  for (const make of uniqueMakes) {
+    catalogPages.push({
+      url: `${baseUrl}/cars/${make}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.85,
+    });
+  }
+
   let dynamicListingPages: MetadataRoute.Sitemap = [];
 
   for (const base of candidateBases) {
@@ -102,5 +143,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  return [...staticPages, ...locationPages, ...dynamicListingPages];
+  return [...staticPages, ...locationPages, ...catalogPages, ...dynamicListingPages];
 }

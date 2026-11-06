@@ -249,3 +249,149 @@ export async function fetchLocationListings(
     listings: normalized,
   };
 }
+
+export interface CatalogAggregates {
+  totalCount: number;
+  minPrice: number;
+  maxPrice: number;
+  avgPrice?: number;
+  isFallback?: boolean;
+  listings: ServerListingItem[];
+}
+
+export async function fetchVehicleCatalog(options: {
+  make?: string;
+  model?: string;
+  year?: string | number;
+  condition?: string;
+  page?: number;
+  perPage?: number;
+}): Promise<CatalogAggregates> {
+  const bases = getCandidateBases();
+  const perPage = options.perPage || 24;
+  const page = options.page || 1;
+
+  const queryParams = new URLSearchParams({
+    perPage: String(perPage),
+    page: String(page),
+  });
+
+  if (options.make) queryParams.set('make', options.make);
+  if (options.model) queryParams.set('model', options.model);
+  if (options.year) queryParams.set('year', String(options.year));
+  if (options.condition) queryParams.set('condition', options.condition);
+
+  const searchTerms = [options.make, options.model, options.year].filter(Boolean).join(' ');
+  if (searchTerms) {
+    queryParams.set('search', searchTerms);
+  }
+
+  let rawListings: any[] = [];
+  let total = 0;
+  let isFallback = false;
+
+  for (const base of bases) {
+    try {
+      const url = `${base}/listings?${queryParams.toString()}`;
+      const res = await fetch(url, {
+        next: { revalidate: 300 },
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(4500),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        const dataArr = json?.data?.data || json?.data || [];
+        total = json?.data?.total || json?.meta?.total || dataArr.length || 0;
+        rawListings = Array.isArray(dataArr) ? dataArr : [];
+        if (rawListings.length > 0) break;
+      }
+    } catch (e) {
+      // try next candidate
+    }
+  }
+
+  // Graceful Fallback: If no listings match specific year/model, fetch related brand listings or latest active inventory
+  // This prevents Google Soft-404 penalties and keeps content rich for crawling
+  if (rawListings.length === 0 && (options.year || options.model || options.make)) {
+    for (const base of bases) {
+      try {
+        const fallbackParams = new URLSearchParams({ perPage: '12', page: '1' });
+        if (options.make) fallbackParams.set('search', options.make);
+
+        const res = await fetch(`${base}/listings?${fallbackParams.toString()}`, {
+          next: { revalidate: 300 },
+          headers: { Accept: 'application/json' },
+          signal: AbortSignal.timeout(4500),
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          const dataArr = json?.data?.data || json?.data || [];
+          if (Array.isArray(dataArr) && dataArr.length > 0) {
+            rawListings = dataArr;
+            total = dataArr.length;
+            isFallback = true;
+            break;
+          }
+        }
+      } catch (e) {
+        // try next candidate
+      }
+    }
+  }
+
+  let minPrice = Infinity;
+  let maxPrice = 0;
+  let totalPrice = 0;
+  let pricedCount = 0;
+
+  const normalized: ServerListingItem[] = rawListings.map((item: any) => {
+    const basic = item.basicInfo || {};
+    const pricing = item.pricingAndLocation || {};
+    const locData = pricing.location || {};
+
+    const rawAmt = pricing.amount ?? item.amount ?? 0;
+    const cleanAmt = typeof rawAmt === 'string' ? parseFloat(rawAmt.replace(/,/g, '')) : parseFloat(rawAmt) || 0;
+
+    if (cleanAmt > 0) {
+      if (cleanAmt < minPrice) minPrice = cleanAmt;
+      if (cleanAmt > maxPrice) maxPrice = cleanAmt;
+      totalPrice += cleanAmt;
+      pricedCount++;
+    }
+
+    const primaryImg = resolveItemPrimaryImage(item);
+
+    return {
+      id: item.id,
+      slug: item.slug || item.id,
+      title: item.title || basic.title || 'Vehicle Listing',
+      amount: cleanAmt,
+      condition: item.condition || basic.condition || 'Nigerian Used',
+      year: item.year || basic.year,
+      make: item.make || basic.make,
+      model: item.model || basic.model,
+      city: locData.city || pricing.address || item.city,
+      state: pricing.state?.name || item.state?.name,
+      imageUrl: primaryImg,
+      transmission: basic.transmission || item.transmission,
+      fuelType: basic.fuelType || item.fuelType,
+      mileage: basic.mileage || item.mileage,
+      status: item.status || 'available',
+      createdAt: item.createdAt || item.created_at,
+    };
+  });
+
+  if (minPrice === Infinity) minPrice = 3800000;
+  if (maxPrice === 0) maxPrice = 45000000;
+
+  return {
+    totalCount: total || normalized.length,
+    minPrice,
+    maxPrice,
+    avgPrice: pricedCount > 0 ? Math.round(totalPrice / pricedCount) : undefined,
+    isFallback,
+    listings: normalized,
+  };
+}
