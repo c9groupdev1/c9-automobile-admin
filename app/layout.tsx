@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Providers from "@/lib/providers";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SITE_URL } from "@/lib/seo/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,18 +22,29 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://c9x.thec9group.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "C9X | Nigeria's Premier Automotive Marketplace",
     template: "%s | C9X Marketplace",
   },
   description: "The most trusted ecosystem for buying and selling cars, participating in live auctions, and finding elite automotive services in Nigeria.",
-  keywords: ["Cars", "Auctions", "Nigeria", "Automotive", "Buy Cars", "Sell Cars", "C9X"],
+  keywords: [
+    "Cars for sale in Nigeria",
+    "Cars for sale in Abuja",
+    "Cars for sale in Lagos",
+    "Tokunbo cars in Nigeria",
+    "Nigerian used cars",
+    "Auctions Nigeria",
+    "Automotive Marketplace Nigeria",
+    "Buy Cars Online Nigeria",
+    "Sell Cars Nigeria",
+    "C9X",
+  ],
   authors: [{ name: "C9X Protocol" }],
   openGraph: {
     title: "C9X | Nigeria's Premier Automotive Marketplace",
     description: "Connect with verified buyers and sellers in Nigeria’s most trusted automotive ecosystem.",
-    url: "https://c9x.thec9group.com",
+    url: SITE_URL,
     siteName: "C9X",
     images: [
       {
@@ -77,26 +89,26 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "Organization",
-                  "@id": "https://c9x.thec9group.com/#organization",
+                  "@id": `${SITE_URL}/#organization`,
                   "name": "C9X",
-                  "url": "https://c9x.thec9group.com",
-                  "logo": "https://c9x.thec9group.com/c9x-logo.png",
+                  "url": SITE_URL,
+                  "logo": `${SITE_URL}/c9x-logo.png`,
                   "sameAs": [
-                    "https://www.instagram.com/c9x_ng/",
-                    "https://twitter.com/c9x_ng"
+                    "https://www.instagram.com/c9x.ng/",
+                    "https://twitter.com/c9x.ng"
                   ]
                 },
                 {
                   "@type": "WebSite",
-                  "@id": "https://c9x.thec9group.com/#website",
-                  "url": "https://c9x.thec9group.com",
+                  "@id": `${SITE_URL}/#website`,
+                  "url": SITE_URL,
                   "name": "C9X Marketplace",
                   "publisher": {
-                    "@id": "https://c9x.thec9group.com/#organization"
+                    "@id": `${SITE_URL}/#organization`
                   },
                   "potentialAction": {
                     "@type": "SearchAction",
-                    "target": "https://c9x.thec9group.com/marketplace?q={search_term_string}",
+                    "target": `${SITE_URL}/marketplace?q={search_term_string}`,
                     "query-input": "required name=search_term_string"
                   }
                 }

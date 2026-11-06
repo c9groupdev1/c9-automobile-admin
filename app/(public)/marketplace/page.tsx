@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { SeoLocationHub } from '@/components/public/seo-location-hub';
 
 export function formatNaira(amount: number | string) {
     if (amount === null || amount === undefined) return '₦0';
@@ -724,6 +725,9 @@ function MarketplaceContent() {
                         )}
                     </div>
                 </div>
+
+                {/* SEO Directory Hub for Programmatic Crawlability */}
+                <SeoLocationHub className="mt-16" />
             </div>
 
             {/* Mobile Filters Drawer Modal (Glassmorphic) */}

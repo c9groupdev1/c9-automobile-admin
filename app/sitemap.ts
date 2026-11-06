@@ -1,21 +1,30 @@
 import { MetadataRoute } from 'next';
+import { getAllLocationSlugs } from '@/lib/seo/locations';
+import { SITE_URL } from '@/lib/seo/config';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://c9x.thec9group.com';
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = SITE_URL;
+
+  const candidateBases = [
+    process.env.API_SECRET_URL,
+    process.env.NEXT_PUBLIC_API_URL,
+    'https://c9x.ng/app/api',
+    'https://c9x.thec9group.com/api',
+    'https://c9x.thec9group.com/app/api',
+  ].filter(Boolean) as string[];
 
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'always',
-      priority: 1,
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/marketplace`,
       lastModified: new Date(),
       changeFrequency: 'always',
-      priority: 0.9,
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/about`,
@@ -27,41 +36,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/faq`,
       lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/guidelines`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.4,
     },
   ];
 
-  if (!backendUrl) {
-    console.warn('NEXT_PUBLIC_API_URL is not set. Sitemap will only contain static pages.');
-    return staticPages;
+  // Generate Programmatic Location Routes for all Nigerian States (Abuja, Lagos, etc.)
+  const locationSlugs = getAllLocationSlugs();
+  const locationPages: MetadataRoute.Sitemap = locationSlugs.map((slug) => ({
+    url: `${baseUrl}/marketplace/cars-in-${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: 0.9,
+  }));
+
+  let dynamicListingPages: MetadataRoute.Sitemap = [];
+
+  for (const base of candidateBases) {
+    try {
+      const cleanBase = base.replace(/\/+$/, '');
+      const res = await fetch(`${cleanBase}/listings?perPage=100`, {
+        next: { revalidate: 3600 },
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(4000),
+      });
+
+      if (res.ok) {
+        const responseData = await res.json();
+        const listings = responseData?.data?.data || responseData?.data || [];
+        if (Array.isArray(listings) && listings.length > 0) {
+          dynamicListingPages = listings.map((listing: any) => ({
+            url: `${baseUrl}/marketplace/${listing.slug || listing.id}`,
+            lastModified: new Date(listing.updated_at || listing.updatedAt || new Date()),
+            changeFrequency: 'daily',
+            priority: 0.8,
+          }));
+          break;
+        }
+      }
+    } catch (e) {
+      // try next candidate
+    }
   }
 
-  const cleanBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
-
-  try {
-    // Fetch listings to populate sitemap dynamically
-    const res = await fetch(`${cleanBackendUrl}/listings?perPage=100`, { next: { revalidate: 3600 } });
-    if (!res.ok) return staticPages;
-
-    const responseData = await res.json();
-    const listings = responseData?.data?.data || [];
-
-    const dynamicPages = listings.map((listing: any) => ({
-      url: `${baseUrl}/marketplace/${listing.slug || listing.id}`,
-      lastModified: new Date(listing.updated_at || new Date()),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    }));
-
-    return [...staticPages, ...dynamicPages];
-  } catch (error) {
-    console.error('Failed to generate dynamic sitemap:', error);
-    return staticPages;
-  }
+  return [...staticPages, ...locationPages, ...dynamicListingPages];
 }

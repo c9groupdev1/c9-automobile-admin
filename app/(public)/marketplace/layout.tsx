@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/seo/config";
 
 export const metadata: Metadata = {
   title: "Cars for Sale in Nigeria",
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Cars for Sale in Nigeria | C9X Marketplace",
     description: "Browse thousands of new and used cars for sale in Nigeria.",
-    url: "https://c9x.thec9group.com/marketplace",
+    url: `${SITE_URL}/marketplace`,
   },
 };
 

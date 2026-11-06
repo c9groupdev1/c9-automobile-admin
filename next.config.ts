@@ -71,6 +71,18 @@ const nextConfig: NextConfig = {
         source: '/apple-app-site-association',
         destination: '/.well-known/apple-app-site-association',
       },
+      {
+        source: '/cars-in-:location',
+        destination: '/marketplace/cars-in-:location',
+      },
+      {
+        source: '/cars-for-sale-in-:location',
+        destination: '/marketplace/cars-in-:location',
+      },
+      {
+        source: '/cars-for-sale/:location',
+        destination: '/marketplace/cars-in-:location',
+      },
     ];
   },
 };
