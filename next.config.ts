@@ -73,15 +73,19 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/cars-in-:location',
-        destination: '/marketplace/cars-in-:location',
+        destination: '/cars-in/:location',
+      },
+      {
+        source: '/marketplace/cars-in-:location',
+        destination: '/cars-in/:location',
       },
       {
         source: '/cars-for-sale-in-:location',
-        destination: '/marketplace/cars-in-:location',
+        destination: '/cars-in/:location',
       },
       {
         source: '/cars-for-sale/:location',
-        destination: '/marketplace/cars-in-:location',
+        destination: '/cars-in/:location',
       },
     ];
   },

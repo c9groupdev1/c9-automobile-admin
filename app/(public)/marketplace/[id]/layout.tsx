@@ -1,4 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
+import { redirect } from "next/navigation";
 import { NIGERIAN_LOCATIONS } from "@/lib/seo/locations";
 import { SITE_URL } from "@/lib/seo/config";
 
@@ -56,6 +57,12 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   const params = await props.params;
+
+  if (params.id && params.id.startsWith('cars-in-')) {
+    const locSlug = params.id.replace(/^cars-in-/, '');
+    redirect(`/cars-in/${locSlug}`);
+  }
+
   const listingData = await getListingMetadata(params.id);
   
   if (!listingData || !listingData.data) {
@@ -139,6 +146,12 @@ export default async function ListingLayout(
   props: Props
 ) {
   const params = await props.params;
+
+  if (params.id && params.id.startsWith('cars-in-')) {
+    const locSlug = params.id.replace(/^cars-in-/, '');
+    redirect(`/cars-in/${locSlug}`);
+  }
+
   const { children } = props;
   const listingData = await getListingMetadata(params.id);
   
@@ -230,7 +243,7 @@ export default async function ListingLayout(
       "@type": "ListItem",
       "position": 3,
       "name": `Cars in ${matchedState.fullName}`,
-      "item": `${SITE_URL}/marketplace/cars-in-${matchedState.slug}`
+      "item": `${SITE_URL}/cars-in/${matchedState.slug}`
     });
     breadcrumbsList.push({
       "@type": "ListItem",

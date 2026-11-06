@@ -54,7 +54,7 @@ export function SeoLocationHub({
               return (
                 <Link
                   key={loc.slug}
-                  href={`/marketplace/cars-in-${loc.slug}`}
+                  href={`/cars-in/${loc.slug}`}
                   className={`p-4 rounded-2xl border transition-all duration-200 group flex flex-col justify-between ${
                     isActive
                       ? 'bg-[#0066CC] border-[#0066CC] text-white shadow-lg shadow-[#0066CC]/20'
@@ -88,7 +88,7 @@ export function SeoLocationHub({
             {secondaryHubs.map((loc) => (
               <Link
                 key={loc.slug}
-                href={`/marketplace/cars-in-${loc.slug}`}
+                href={`/cars-in/${loc.slug}`}
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800/40 hover:bg-slate-800 border border-slate-700/40 hover:border-slate-600 text-slate-300 hover:text-white transition-colors"
               >
                 Cars in {loc.name}

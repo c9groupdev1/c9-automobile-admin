@@ -67,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Generate Programmatic Location Routes for all Nigerian States (Abuja, Lagos, etc.)
   const locationSlugs = getAllLocationSlugs();
   const locationPages: MetadataRoute.Sitemap = locationSlugs.map((slug) => ({
-    url: `${baseUrl}/marketplace/cars-in-${slug}`,
+    url: `${baseUrl}/cars-in/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'daily',
     priority: 0.9,

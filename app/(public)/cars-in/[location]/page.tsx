@@ -61,7 +61,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
   const title = `Cars in ${loc.fullName} for sale | Price on C9X`;
   const description = `${countStr}Cars for sale in ${loc.fullName} ✓ From ${minPriceFormatted}. Verified new, foreign used (tokunbo) & Nigerian used cars in ${loc.popularAreas.slice(0, 4).join(', ')}. Compare prices, inspect vehicle history & buy securely on C9X.`;
 
-  const canonicalUrl = `${SITE_URL}/marketplace/cars-in-${loc.slug}`;
+  const canonicalUrl = `${SITE_URL}/cars-in/${loc.slug}`;
 
   return {
     title,
@@ -117,7 +117,7 @@ export default async function LocationMarketplacePage(props: PageProps) {
   const maxPriceFormatted = formatPriceNaira(aggregates.maxPrice);
 
   // Schema.org Graph definition
-  const canonicalUrl = `${SITE_URL}/marketplace/cars-in-${loc.slug}`;
+  const canonicalUrl = `${SITE_URL}/cars-in/${loc.slug}`;
 
   const jsonLdGraph = {
     '@context': 'https://schema.org',
