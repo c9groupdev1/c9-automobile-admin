@@ -319,6 +319,7 @@ export default async function LocationMarketplacePage(props: PageProps) {
             </div>
             <Link
               href={`/marketplace?stateId=${effectiveId}`}
+              rel="nofollow"
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0066CC] hover:bg-[#0052a3] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-[#0066CC]/20"
             >
               <Search size={14} />
@@ -343,6 +344,7 @@ export default async function LocationMarketplacePage(props: PageProps) {
             </div>
             <Link
               href={`/marketplace?stateId=${effectiveId}`}
+              rel="nofollow"
               className="text-xs font-bold text-[#0066CC] hover:underline flex items-center gap-1"
             >
               <span>View all in interactive grid</span>
@@ -510,6 +512,7 @@ export default async function LocationMarketplacePage(props: PageProps) {
               <Link
                 key={idx}
                 href={`/marketplace?stateId=${effectiveId}&search=${encodeURIComponent(area)}`}
+                rel="nofollow"
                 className="p-3.5 rounded-xl bg-white border border-slate-200 hover:border-[#0066CC] hover:shadow-md transition-all group flex items-center justify-between"
               >
                 <div className="flex items-center gap-2 truncate">
@@ -540,6 +543,7 @@ export default async function LocationMarketplacePage(props: PageProps) {
               <Link
                 key={idx}
                 href={`/marketplace?stateId=${effectiveId}&search=${encodeURIComponent(brand)}`}
+                rel="nofollow"
                 className="p-3 rounded-xl bg-white border border-slate-200 hover:border-[#0066CC] hover:shadow-sm text-center transition-all group"
               >
                 <p className="font-bold text-xs text-slate-800 group-hover:text-[#0066CC] transition-colors">

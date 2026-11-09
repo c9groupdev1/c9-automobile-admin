@@ -18,8 +18,14 @@ export default function robots(): MetadataRoute.Robots {
         '/report-issue',
         '/blocked-users',
         '/kyc',
+        '/*?*stateId=',
+        '/*?*search=',
       ],
     },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: [
+      `${SITE_URL}/sitemap.xml`,
+      `${SITE_URL}/sitemap-cars.xml`,
+      `${SITE_URL}/sitemap-locations.xml`,
+    ],
   };
 }

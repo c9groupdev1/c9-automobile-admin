@@ -99,6 +99,7 @@ export function PriceGuideTable({ locationId, locationName, fullName }: PriceGui
                   <td className="py-3 px-4 text-right">
                     <Link
                       href={`/marketplace?stateId=${locationId}&search=${encodeURIComponent(guide.brand)}`}
+                      rel="nofollow"
                       className="text-[#0066CC] font-bold text-xs hover:underline inline-flex items-center gap-1"
                     >
                       <span>Find in {locationName}</span>
