@@ -25,6 +25,9 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: SITE_URL,
+  },
   title: {
     default: "C9X | Nigeria's Premier Automotive Marketplace",
     template: "%s | C9X Marketplace",
