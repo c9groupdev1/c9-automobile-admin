@@ -15,13 +15,14 @@ import {
     ShieldCheck,
     Loader2,
     Settings2,
-    Edit3
+    Edit3,
+    Power
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usePlans, Plan } from '@/hooks/usePlans';
+import { usePlans, Plan, PlanStatus } from '@/hooks/usePlans';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useState } from 'react';
@@ -44,6 +45,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -56,19 +58,21 @@ import {
 
 const planSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
-    monthly_price: z.string().min(1, "Price is required"),
+    monthly_price: z.coerce.number().min(0, "Price must be 0 or greater"),
     listing_limit: z.coerce.number().min(-1),
     duration_days: z.coerce.number().min(1),
     featured_ads_limit: z.coerce.number().min(0),
     boosted_ads_limit: z.coerce.number().min(0),
     has_verified_badge: z.boolean().default(false),
     level: z.coerce.number().min(0),
+    status: z.enum(['active', 'inactive']).default('active'),
 });
 
 type PlanFormValues = z.infer<typeof planSchema>;
 
 export default function PlansPage() {
-    const { data: plans, isLoading, createPlan, updatePlan } = usePlans();
+    const [statusFilter, setStatusFilter] = useState<PlanStatus | 'all'>('all');
+    const { data: plans, isLoading, createPlan, updatePlan, updatePlanStatus } = usePlans(statusFilter);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
 
@@ -76,13 +80,14 @@ export default function PlansPage() {
         resolver: zodResolver(planSchema) as any,
         defaultValues: {
             name: "",
-            monthly_price: "0",
+            monthly_price: 0,
             listing_limit: 0,
             duration_days: 30,
             featured_ads_limit: 0,
             boosted_ads_limit: 0,
             has_verified_badge: false,
             level: 1,
+            status: 'active',
         },
     });
 
@@ -101,13 +106,14 @@ export default function PlansPage() {
         setEditingPlan(plan);
         form.reset({
             name: plan.name,
-            monthly_price: plan.monthly_price.toString(),
+            monthly_price: Number(plan.monthly_price) || 0,
             listing_limit: plan.listing_limit,
             duration_days: plan.duration_days,
             featured_ads_limit: plan.featured_ads_limit,
             boosted_ads_limit: plan.boosted_ads_limit,
             has_verified_badge: plan.has_verified_badge,
             level: plan.level,
+            status: plan.status ?? 'active',
         });
         setIsDialogOpen(true);
     };
@@ -116,15 +122,21 @@ export default function PlansPage() {
         setEditingPlan(null);
         form.reset({
             name: "",
-            monthly_price: "0",
+            monthly_price: 0,
             listing_limit: 0,
             duration_days: 30,
             featured_ads_limit: 0,
             boosted_ads_limit: 0,
             has_verified_badge: false,
             level: 1,
+            status: 'active',
         });
         setIsDialogOpen(true);
+    };
+
+    const handleToggleStatus = async (plan: Plan) => {
+        const nextStatus: PlanStatus = plan.status === 'active' ? 'inactive' : 'active';
+        await updatePlanStatus.mutateAsync({ id: plan.id, status: nextStatus });
     };
 
     if (isLoading) {
@@ -162,37 +174,69 @@ export default function PlansPage() {
                         Define listing capacities, promotion limits, and verification privileges.
                     </p>
                 </div>
-                <Button
-                    onClick={handleCreate}
-                    className="bg-[#003399] hover:bg-blue-800 rounded-2xl px-8 h-14 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-900/10"
-                >
-                    <Plus size={16} className="mr-2" />
-                    Add New Plan
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="inline-flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200/60">
+                        {(['all', 'active', 'inactive'] as const).map((status) => (
+                            <button
+                                key={status}
+                                type="button"
+                                onClick={() => setStatusFilter(status)}
+                                className={cn(
+                                    "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer",
+                                    statusFilter === status
+                                        ? "bg-white text-slate-900 shadow-sm"
+                                        : "text-slate-500 hover:text-slate-800"
+                                )}
+                            >
+                                {status}
+                            </button>
+                        ))}
+                    </div>
+                    <Button
+                        onClick={handleCreate}
+                        className="bg-[#003399] hover:bg-blue-800 rounded-2xl px-8 h-14 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-900/10"
+                    >
+                        <Plus size={16} className="mr-2" />
+                        Add New Plan
+                    </Button>
+                </div>
             </div>
 
             {/* Plans Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {plansList.map((plan: Plan) => (
-                    <Card key={plan.id} className="rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white group hover:border-[#003399]/20 transition-all duration-500">
+                {plansList.map((plan: Plan) => {
+                    const isInactive = plan.status === 'inactive';
+                    return (
+                    <Card key={plan.id} className={cn(
+                        "rounded-[2.5rem] border-slate-100 shadow-sm overflow-hidden bg-white group hover:border-[#003399]/20 transition-all duration-500",
+                        isInactive && "opacity-75 bg-slate-50/50"
+                    )}>
                     <CardHeader className="p-6 pb-4 border-b border-slate-50 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity duration-500 group-hover:scale-110">
                             <Crown size={80} />
                         </div>
-                            <div className="flex items-center justify-between relative z-10">
-                                <Badge className={cn(
-                                    "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border-0",
-                                    plan.level > 0 ? "bg-amber-50 text-amber-600" : "bg-slate-50 text-slate-400"
-                                )}>
-                                    Level {plan.level} Tier
-                                </Badge>
+                            <div className="flex items-start justify-between gap-2 relative z-10">
+                                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                                    <Badge className={cn(
+                                        "text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-xl border-0",
+                                        plan.level > 0 ? "bg-amber-50 text-amber-600" : "bg-slate-50 text-slate-400"
+                                    )}>
+                                        Level {plan.level} Tier
+                                    </Badge>
+                                    <Badge className={cn(
+                                        "text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-xl border-0",
+                                        isInactive ? "bg-slate-100 text-slate-500" : "bg-emerald-50 text-emerald-600"
+                                    )}>
+                                        {isInactive ? 'Inactive' : 'Active'}
+                                    </Badge>
+                                </div>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger render={
-                                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-slate-50">
-                                            <MoreVertical size={18} className="text-slate-300" />
+                                        <Button variant="outline" size="icon" className="h-9 w-9 shrink-0 rounded-xl border-slate-200 bg-slate-50 hover:bg-slate-100">
+                                            <MoreVertical size={18} className="text-slate-700" />
                                         </Button>
                                     } />
-                                    <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 p-2 min-w-[160px]">
+                                    <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 p-2 min-w-[180px]">
                                         <DropdownMenuItem
                                             onClick={() => handleEdit(plan)}
                                             className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 cursor-pointer"
@@ -200,13 +244,21 @@ export default function PlansPage() {
                                             <Edit3 size={14} className="mr-2 text-blue-600" />
                                             Modify Plan
                                         </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={() => handleToggleStatus(plan)}
+                                            disabled={updatePlanStatus.isPending}
+                                            className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 cursor-pointer"
+                                        >
+                                            <Power size={14} className={cn("mr-2", isInactive ? "text-emerald-600" : "text-rose-600")} />
+                                            {isInactive ? 'Enable Plan' : 'Disable Plan'}
+                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
                             <div className="mt-8 relative z-10">
                                 <h3 className="text-3xl font-black text-slate-900 tracking-tight">{plan.name}</h3>
                                 <div className="flex items-baseline gap-1 mt-2">
-                                    <span className="text-2xl font-black text-[#003399]">₦{parseFloat(plan.monthly_price).toLocaleString()}</span>
+                                    <span className="text-2xl font-black text-[#003399]">₦{parseFloat(String(plan.monthly_price)).toLocaleString()}</span>
                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">/ monthly</span>
                                 </div>
                             </div>
@@ -220,7 +272,9 @@ export default function PlansPage() {
                                         </div>
                                         <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Listing Capacity</span>
                                     </div>
-                                    <span className="text-sm font-black text-slate-900">{plan.listing_limit} Listings</span>
+                                    <span className="text-sm font-black text-slate-900">
+                                        {plan.listing_limit === -1 ? 'Unlimited' : `${plan.listing_limit} Listings`}
+                                    </span>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
@@ -264,16 +318,46 @@ export default function PlansPage() {
                                 </div>
                             </div>
 
-                            <div className="pt-4 flex items-center justify-between border-t border-slate-50">
-                                <div className="flex items-center gap-2 text-slate-400">
-                                    <Calendar size={14} />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Modified: {format(new Date(plan.updated_at), 'MMM dd, yyyy')}</span>
+                            <div className="pt-4 space-y-3 border-t border-slate-50">
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        onClick={() => handleEdit(plan)}
+                                        className="flex-1 h-10 rounded-xl bg-[#003399] hover:bg-blue-800 text-white text-xs font-bold uppercase tracking-wider shadow-sm"
+                                    >
+                                        <Edit3 size={14} className="mr-1.5" />
+                                        Modify Plan
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => handleToggleStatus(plan)}
+                                        disabled={updatePlanStatus.isPending}
+                                        className={cn(
+                                            "h-10 px-3.5 rounded-xl text-xs font-bold uppercase tracking-wider",
+                                            isInactive
+                                                ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                                                : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
+                                        )}
+                                    >
+                                        <Power size={14} className="mr-1.5" />
+                                        {isInactive ? 'Enable' : 'Disable'}
+                                    </Button>
                                 </div>
-                                <ShieldCheck size={18} className="text-slate-100" />
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-slate-400">
+                                        <Calendar size={14} />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest">
+                                            {plan.updated_at ? `Modified: ${format(new Date(plan.updated_at), 'MMM dd, yyyy')}` : `ID: #${plan.id}`}
+                                        </span>
+                                    </div>
+                                    <ShieldCheck size={18} className="text-slate-100" />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Plan Dialog */}
@@ -414,6 +498,25 @@ export default function PlansPage() {
                                                     <Checkbox
                                                         checked={field.value}
                                                         onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem className="col-span-3 flex flex-row items-center justify-between p-6 rounded-2xl border border-slate-100 bg-slate-50/30">
+                                                <div className="space-y-1">
+                                                    <FormLabel className="text-sm font-bold text-slate-900">Plan Status</FormLabel>
+                                                    <FormDescription className="text-xs text-slate-500">Enable or disable this plan for new subscriptions.</FormDescription>
+                                                </div>
+                                                <FormControl>
+                                                    <Switch
+                                                        checked={field.value === 'active'}
+                                                        onCheckedChange={(checked) => field.onChange(checked ? 'active' : 'inactive')}
                                                     />
                                                 </FormControl>
                                             </FormItem>
