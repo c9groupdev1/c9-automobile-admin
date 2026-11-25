@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import * as crypto from 'crypto';
 import * as zlib from 'zlib';
+import dns from 'node:dns';
+import net from 'node:net';
+
+// Prefer IPv4 and disable aggressive Happy Eyeballs timeout on networks with unreachable IPv6 or high latency
+dns.setDefaultResultOrder('ipv4first');
+net.setDefaultAutoSelectFamily(false);
 
 const ENCRYPTION_KEY = process.env.SESSION_SECRET || 'c9x-automobile-secret-key-32chars';
 const IV_LENGTH = 16;
