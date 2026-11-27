@@ -46,6 +46,7 @@ const menuItems: MenuItem[] = [
     // { icon: Store, label: 'Vendors', href: '/admin/vendors' },
     { icon: ShieldCheck, label: 'KYC Management', href: '/admin/kyc', permission: 'kyc.view' },
     { icon: Car, label: 'Vehicle Listings', href: '/admin/listings', permission: 'listing.view' },
+    { icon: FileText, label: 'Car Requests', href: '/admin/car-requests' },
     // { icon: Box, label: 'Parts Listings', href: '/admin/parts' },
     // { icon: Wrench, label: 'Service Listings', href: '/admin/services' },
     // { icon: Gavel, label: 'Auctions', href: '/admin/auctions' },
